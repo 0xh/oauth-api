@@ -1,0 +1,172 @@
+service: ${env:SERVICE_NAME}
+
+custom:
+  webpackIncludeModules: true
+  logSubscriptionFunction: logger
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: ${env:REGION}
+  stage: ${env:STAGE}
+  role: oauthLambdaRole
+  stackTags:
+    KeboolaStack: ${env:KEBOOLA_STACK}
+  environment:
+    KEBOOLA_STACK: ${env:KEBOOLA_STACK}
+    REGION: ${env:REGION}
+    SERVICE_NAME: ${env:SERVICE_NAME}
+    STAGE: ${env:STAGE}
+    KBC_URL: ${env:KBC_URL}
+
+package:
+  individually: true
+  include:
+    - src/**
+    - node_modules/**
+  exclude:
+    - .git/**
+    - .idea/**
+    - .codeclimate.yml
+    - .env
+    - .eslintignore
+    - .eslintrc.json
+    - .travis.yml
+    - apiary.apib
+    - docker-compose.yml
+    - Dockerfile
+    - LICENSE
+    - README.md
+    - package.json
+    - yarn.lock
+    - scripts/**
+    - tests/**
+
+plugins:
+  - db-migration
+  - setup-vpc
+  - log-subscription
+  - serverless-offline
+  - serverless-webpack
+
+functions:
+  authorize:
+    handler: src/functions/authorize.handler
+    tags:
+      KeboolaStack: ${env:KEBOOLA_STACK}
+    events:
+      -
+        http:
+          method: get
+          path: "/projects"
+      -
+        http:
+          method: get
+          path: "/projects/{id}"
+      -
+        http:
+          method: patch
+          path: "/projects/{id}"
+      -
+        http:
+          method: post
+          path: "/projects"
+      -
+        http:
+          method: post
+          path: "/projects/{id}/users/{userId}"
+      -
+        http:
+          method: delete
+          path: "/projects/{id}/users/{userId}"
+
+  users:
+    handler: lambda/users.handler
+    tags:
+      KeboolaStack: ${env:KEBOOLA_STACK}
+    events:
+      -
+        http:
+          method: get
+          path: "/users"
+      -
+        http:
+          method: get
+          path: "/users/{id}"
+      -
+        http:
+          method: patch
+          path: "/users/{id}"
+      -
+        http:
+          method: post
+          path: "/users"
+      -
+        http:
+          method: get
+          path: "/users/{id}/sso"
+
+
+resources:
+  Resources:
+    oauthLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: "${env:SERVICE_NAME}-lambda-role"
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+        Policies:
+          - PolicyName: "${env:SERVICE_NAME}-lambda-policy"
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: "arn:aws:logs:${env:REGION}:${env:ACCOUNT_ID}:log-group:/aws/lambda/*:*:*"
+                - Effect: Allow
+                  Action:
+                    - ec2:CreateNetworkInterface
+                    - ec2:DescribeNetworkInterfaces
+                    - ec2:DetachNetworkInterface
+                    - ec2:DeleteNetworkInterface
+                  Resource: "*"
+    Rds:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        AllocatedStorage: "5"
+        DBName: gooddata_provisioning
+        DBInstanceIdentifier: "${env:SERVICE_NAME}-rds"
+        DBInstanceClass: "${env:RDS_INSTANCE_CLASS}"
+        Engine: "mysql"
+        EngineVersion: "5.7"
+        MasterUsername: gooddata_provisioning
+        MasterUserPassword: "${env:RDS_PASSWORD}"
+        MultiAZ: "true"
+        PubliclyAccessible: "false"
+        DBSubnetGroupName: null
+        VPCSecurityGroups:
+          - null
+        Tags:
+          -
+            Key: KeboolaStack
+            Value: ${env:KEBOOLA_STACK}
+  Outputs:
+    RdsUri:
+      Description: "RDS Endpoint"
+      Value:
+        "Fn::GetAtt": ["Rds", "Endpoint.Address"]
+    RdsPort:
+      Description: "RDS Port"
+      Value:
+        "Fn::GetAtt": ["Rds", "Endpoint.Port"]

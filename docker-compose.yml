@@ -11,20 +11,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - "AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}"
-      - "AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}"
-      - "SERVICE_NAME=${TEST_SERVICE_NAME}"
-      - "KEBOOLA_STACK=${TEST_KEBOOLA_STACK}"
-      - "REGION=${TEST_REGION}"
-      - "STAGE=${TEST_STAGE}"
-      - "RDS_INSTANCE_CLASS=${TEST_RDS_INSTANCE_CLASS}"
-      - "RDS_HOST=mysql"
-      - "RDS_PORT=3306"
-      - "RDS_USER=user"
-      - "RDS_PASSWORD=password"
-      - "RDS_DATABASE=gd_provisioning"
-      - "LOG_HOST=${TEST_LOG_HOST}"
-      - "LOG_PORT=${TEST_LOG_PORT}"
+      - "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+      - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+      - "SERVICE_NAME=${SERVICE_NAME}"
+      - "KEBOOLA_STACK=${KEBOOLA_STACK}"
+      - "REGION=${REGION}"
+
     command: >
              sh -c '
              serverless offline start --host 0.0.0.0
