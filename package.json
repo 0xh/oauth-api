@@ -1,0 +1,42 @@
+{
+  "name": "oauth-api",
+  "author": "Miroslav Cillik <miro@keboola.com>",
+  "license": "MIT",
+  "version": "1.0.0",
+  "description": "Keboola OAuth API",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keboola/oauth-api.git"
+  },
+  "dependencies": {
+    "axios": "^0.16.2",
+    "axios-retry": "^3.0.1",
+    "babel-polyfill": "^6.26.0",
+    "bluebird": "^3.4.7",
+    "lodash": "^4.17.4",
+    "longjohn": "^0.2.12",
+    "source-map-support": "^0.4.15",
+    "uniqid": "^4.1.1",
+    "winston": "^2.3.1",
+    "winston-papertrail": "^1.0.5"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.49.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "copy-webpack-plugin": "^4.0.1",
+    "eslint": "^4.4.1",
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0",
+    "fs-promise": "^2.0.3",
+    "mocha": "^3.3.0",
+    "serverless-offline": "^3.16.0",
+    "serverless-webpack": "^3.1.0",
+    "unexpected": "^10.32.1",
+    "webpack": "^3.6.0",
+    "webpack-node-externals": "^1.5.4",
+    "yamljs": "^0.3.0"
+  }
+}
