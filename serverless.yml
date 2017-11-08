@@ -43,9 +43,6 @@ package:
     - tests/**
 
 plugins:
-  - db-migration
-  - setup-vpc
-  - log-subscription
   - serverless-offline
   - serverless-webpack
 
@@ -58,54 +55,15 @@ functions:
       -
         http:
           method: get
-          path: "/projects"
-      -
-        http:
-          method: get
-          path: "/projects/{id}"
-      -
-        http:
-          method: patch
-          path: "/projects/{id}"
+          path: "/authorize/{componentId}"
       -
         http:
           method: post
-          path: "/projects"
-      -
-        http:
-          method: post
-          path: "/projects/{id}/users/{userId}"
-      -
-        http:
-          method: delete
-          path: "/projects/{id}/users/{userId}"
-
-  users:
-    handler: lambda/users.handler
-    tags:
-      KeboolaStack: ${env:KEBOOLA_STACK}
-    events:
+          path: "/authorize/{componentId}"
       -
         http:
           method: get
-          path: "/users"
-      -
-        http:
-          method: get
-          path: "/users/{id}"
-      -
-        http:
-          method: patch
-          path: "/users/{id}"
-      -
-        http:
-          method: post
-          path: "/users"
-      -
-        http:
-          method: get
-          path: "/users/{id}/sso"
-
+          path: "/projects/{componentId}/callback"
 
 resources:
   Resources:

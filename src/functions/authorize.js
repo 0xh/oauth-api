@@ -3,11 +3,12 @@
 import Authorize from '../app/authorize';
 import RequestHandler from '../lib/RequestHandler';
 import Error from '../lib/Error';
-
-require('source-map-support').install();
+import Logger from '../lib/Logger';
 
 module.exports.handler = (event, context, callback) => {
   const authorize = new Authorize(process.env);
+  const logger = new Logger(event, context);
+  const requestHandler = new RequestHandler(logger, callback);
   let promise;
 
   switch (event.resource) {
@@ -20,5 +21,6 @@ module.exports.handler = (event, context, callback) => {
     default:
       throw Error.notFound();
   }
-  return RequestHandler.responsePromise(promise, event, context, callback, 200);
+
+  return requestHandler.handle(promise);
 };
