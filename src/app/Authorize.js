@@ -8,9 +8,8 @@ class Authorize {
   init(event) {
     if (event.httpMethod === 'POST') {
       return Promise.resolve("init post response");
-    } else {
-      return Promise.resolve("init get response");
     }
+    return Promise.resolve("init get response");
   }
 
   callback(event) {

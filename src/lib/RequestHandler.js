@@ -1,7 +1,5 @@
 'use strict';
 
-const UserError = require('./UserError');
-
 class RequestHandler {
 
   constructor(logger, callback) {

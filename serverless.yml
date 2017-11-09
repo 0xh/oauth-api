@@ -1,8 +1,19 @@
 service: ${env:SERVICE_NAME}
 
+plugins:
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+
 custom:
   webpackIncludeModules: true
-  logSubscriptionFunction: logger
+  dynamodb:
+    start:
+      port: 9000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: tests/dynamodb/migrations
 
 provider:
   name: aws
@@ -42,31 +53,60 @@ package:
     - scripts/**
     - tests/**
 
-plugins:
-  - serverless-offline
-  - serverless-webpack
-
 functions:
   authorize:
     handler: src/functions/authorize.handler
     tags:
       KeboolaStack: ${env:KEBOOLA_STACK}
     events:
-      -
-        http:
+      - http:
           method: get
           path: "/authorize/{componentId}"
-      -
-        http:
+      - http:
           method: post
           path: "/authorize/{componentId}"
-      -
-        http:
-          method: get
-          path: "/projects/{componentId}/callback"
 
 resources:
   Resources:
+    consumers:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: consumers
+        AttributeDefinitions:
+          - AttributeName: component_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: component_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    credentials:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: credentials
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    sessions:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: sessions
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
     oauthLambdaRole:
       Type: AWS::IAM::Role
       Properties:
@@ -99,32 +139,10 @@ resources:
                     - ec2:DetachNetworkInterface
                     - ec2:DeleteNetworkInterface
                   Resource: "*"
-    Rds:
-      Type: AWS::RDS::DBInstance
-      Properties:
-        AllocatedStorage: "5"
-        DBName: gooddata_provisioning
-        DBInstanceIdentifier: "${env:SERVICE_NAME}-rds"
-        DBInstanceClass: "${env:RDS_INSTANCE_CLASS}"
-        Engine: "mysql"
-        EngineVersion: "5.7"
-        MasterUsername: gooddata_provisioning
-        MasterUserPassword: "${env:RDS_PASSWORD}"
-        MultiAZ: "true"
-        PubliclyAccessible: "false"
-        DBSubnetGroupName: null
-        VPCSecurityGroups:
-          - null
-        Tags:
-          -
-            Key: KeboolaStack
-            Value: ${env:KEBOOLA_STACK}
-  Outputs:
-    RdsUri:
-      Description: "RDS Endpoint"
-      Value:
-        "Fn::GetAtt": ["Rds", "Endpoint.Address"]
-    RdsPort:
-      Description: "RDS Port"
-      Value:
-        "Fn::GetAtt": ["Rds", "Endpoint.Port"]
+                - Effect: Allow
+                  Action:
+                    - dynamodb:Query
+                    - dynamodb:Scan
+                    - dynamodb:GetItem
+                    - dynamodb:PutItem
+                  Resource: "*"

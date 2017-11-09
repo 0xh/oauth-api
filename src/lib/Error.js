@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const UserError = require('./user-error');
+const UserError = require('./UserError');
 
 class Error {
   static badRequest(msg = 'Bad Request') {
