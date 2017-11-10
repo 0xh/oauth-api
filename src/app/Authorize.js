@@ -1,15 +1,19 @@
 'use strict';
 
 class Authorize {
-  constructor(env) {
-    this.env = env;
+  constructor(dynamoDb) {
+    this.dynamoDb = dynamoDb;
   }
 
   init(event) {
     if (event.httpMethod === 'POST') {
-      return Promise.resolve("init post response");
+      // const requestBody = JSON.parse(event.body);
+      return event;
     }
-    return Promise.resolve("init get response");
+
+    return {
+      message: 'Authorize GET for component ' + event.pathParameters.componentId
+    };
   }
 
   callback(event) {

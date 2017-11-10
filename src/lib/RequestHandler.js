@@ -2,30 +2,33 @@
 
 class RequestHandler {
 
-  constructor(logger, callback) {
-    this.logger = logger;
+  constructor(callback) {
+    // this.logger = logger;
     this.callback = callback;
   }
 
-  handle(promise) {
+  handle(promise, code = 200) {
     return promise
       .then(res => {
-        this.logger.log(res);
-        this.callback(null, this.getResponseBody(res));
+        this.callback(null, RequestHandler.getResponseBody(res, code));
       })
       .catch(err => {
-        this.logger.log(res, err);
+        console.log(err);
+        this.callback(null, RequestHandler.getResponseBody({
+          message: 'Unable to handle request',
+          err: err
+        }, 500));
       });
   }
 
-  static getResponseBody(res) {
+  static getResponseBody(res, code = 200) {
     return {
-      statusCode: 200,
+      statusCode: code,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json; charset=utf-8',
       },
-      body: res,
+      body: JSON.stringify(res),
     };
   }
 }
