@@ -76,6 +76,9 @@ functions:
       KeboolaStack: ${env:KEBOOLA_STACK}
     events:
       - http:
+          method: get
+          path: "/manage"
+      - http:
           method: post
           path: "/manage"
       - http:

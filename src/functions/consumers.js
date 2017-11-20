@@ -15,8 +15,13 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
 
   switch (event.httpMethod) {
     case 'GET':
-      promise = consumers.get(event);
+      if (event.resource === '/manage/{componentId}') {
+        promise = consumers.get(event);
+      } else {
+        promise = consumers.list();
+      }
       code = 200;
+
       break;
     case 'POST':
       promise = consumers.add(event);

@@ -5,6 +5,15 @@ class Consumers {
     this.dynamoDb = dynamoDb;
   }
 
+  list() {
+    const params = {
+      TableName: 'consumers',
+    };
+
+    return this.dynamoDb.scan(params).promise()
+    .then(res => res.Items);
+  }
+
   get(event) {
     const params = {
       TableName: 'consumers',
