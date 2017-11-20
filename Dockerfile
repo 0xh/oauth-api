@@ -12,7 +12,7 @@ RUN rpm -Uvh jre-8u151-linux-x64.rpm
 RUN java -version
 
 # serverless
-RUN npm install -g serverless@1.24
+RUN npm install -g serverless@1.24.1
 
 # working directory
 ADD ./ /code

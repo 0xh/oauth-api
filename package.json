@@ -14,8 +14,11 @@
     "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.22.0",
     "bluebird": "^3.5.1",
+    "joi": "^10.6.0",
+    "joi-date-extensions": "^1.0.2",
     "lodash": "^4.17.4",
     "longjohn": "^0.2.12",
+    "ramda": "^0.25.0",
     "serverless-dynamodb-local": "^0.2.26",
     "source-map-support": "^0.4.15",
     "uniqid": "^4.1.1",
@@ -24,6 +27,9 @@
     "winston-papertrail": "^1.0.5"
   },
   "devDependencies": {
+    "@keboola/serverless-request-handler": "^1.0.3",
+    "@keboola/serverless-default-error-responses": "^1.0.0",
+    "@keboola/serverless-papertrail-logging": "^1.0.5",
     "aws-sdk": "^2.49.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",

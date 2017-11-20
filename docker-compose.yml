@@ -22,5 +22,5 @@ services:
 
     command: >
              sh -c '
-             serverless dynamodb install && serverless offline start --host 0.0.0.0 --webpack-use-polling=300
+             serverless dynamodb install && serverless offline start --host 0.0.0.0
              '

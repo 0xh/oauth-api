@@ -3,7 +3,6 @@
 class RequestHandler {
 
   constructor(callback) {
-    // this.logger = logger;
     this.callback = callback;
   }
 
