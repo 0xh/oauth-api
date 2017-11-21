@@ -8,12 +8,12 @@ class Authorize {
   init(event) {
     if (event.httpMethod === 'POST') {
       // const requestBody = JSON.parse(event.body);
-      return event;
+      return Promise.resolve(event);
     }
 
-    return {
+    return Promise.resolve({
       message: 'Authorize GET for component ' + event.pathParameters.componentId
-    };
+    });
   }
 
   callback(event) {

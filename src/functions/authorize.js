@@ -1,34 +1,31 @@
 'use strict';
 
 import Authorize from '../app/Authorize';
-import RequestHandler from '../lib/RequestHandler';
-import Error from '../lib/Error';
-// import Logger from '../lib/Logger';
+import {RequestHandler, UserError} from '@keboola/serverless-request-handler';
 
 import Bluebird from 'bluebird';
 import AWS from 'aws-sdk';
 
 AWS.config.setPromisesDependency(Bluebird);
 
-module.exports.handler = (event, context, callback) => {
+module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = new AWS.DynamoDB.DocumentClient();
   const authorize = new Authorize(dynamoDb);
-  // const logger = new Logger(event, context);
-  // const requestHandler = new RequestHandler(logger, callback);
-  // let promise;
-
-  let response;
+  let promise;
+  let code;
 
   switch (event.resource) {
     case '/authorize/{componentId}':
-      response = RequestHandler.getResponseBody(authorize.init(event));
+      promise = authorize.init(event);
+      code = 200;
       break;
     case '/authorize/{componentId}/callback':
-      response = RequestHandler.getResponseBody({message: 'Authorize ' + event.httpMethod});
+      promise = authorize.callback(event);
+      code = 200;
       break;
     default:
-      throw Error.notFound();
+      throw UserError.notFound();
   }
 
-  callback(null, response);
-};
+  return RequestHandler.responsePromise(promise, event, context, callback, code);
+}, event, context, callback);
