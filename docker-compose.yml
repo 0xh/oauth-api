@@ -29,8 +29,6 @@ services:
     build: .
     tty: true
     stdin_open: true
-    volumes:
-      - .:/code
     working_dir: /code
     ports:
       - "3000:3000"
@@ -45,4 +43,4 @@ services:
       - KBC_URL
       - KBC_MANAGE_API_TOKEN
 
-    command: sh -x ./tests/run.sh
+    command: ./tests/run.sh
