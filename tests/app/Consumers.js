@@ -6,11 +6,14 @@
 
 import Consumers from '../../src/app/Consumers';
 import DynamoDB from '../../src/lib/DynamoDB';
+import KbcApi from '../../src/lib/KbcApi';
 import expect from 'unexpected';
 import {List, Map} from 'immutable';
 
 const dynamoDb = DynamoDB.getClient();
-// const event = { headers: { 'X-StorageApi-Token': process.env.UNIT_STORAGEAPI_TOKEN } };
+const headers = {
+  'X-KBC-ManageApiToken': process.env.KBC_MANAGE_API_TOKEN
+};
 
 const consumer1 = {
   "component_id": "keboola.ex-google-analytics",
@@ -80,7 +83,7 @@ function deleteConsumers() {
 }
 
 describe('Consumers', () => {
-  const consumers = new Consumers(dynamoDb);
+  const consumers = new Consumers(dynamoDb, new KbcApi());
 
   beforeEach(() => {
     return deleteConsumers();
@@ -88,7 +91,9 @@ describe('Consumers', () => {
 
   it('list', () => {
     return insertConsumers().then(() => {
-      return consumers.list().then((res) => {
+      return consumers.list({
+        headers: headers
+      }).then((res) => {
         expect(res, 'to have length', 2);
       })
     });
@@ -97,6 +102,7 @@ describe('Consumers', () => {
   it('get', () => {
     return insertConsumers().then(() => {
       return consumers.get({
+        headers: headers,
         pathParameters: {
           componentId: 'keboola.ex-google-drive'
         }
@@ -110,6 +116,7 @@ describe('Consumers', () => {
 
   it('add', () => {
     return consumers.add({
+      headers: headers,
       body: JSON.stringify(consumer1)
     }).then((res) => {
       Map(consumer1).forEach((value, key) => {

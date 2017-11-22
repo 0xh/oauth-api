@@ -43,5 +43,6 @@ services:
       - STAGE
       - KEBOOLA_STACK
       - KBC_URL
+      - KBC_MANAGE_API_TOKEN
 
     command: sh -x ./tests/run.sh

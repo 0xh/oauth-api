@@ -14,17 +14,20 @@ const schema = {
 };
 
 class Consumers {
-  constructor(dynamoDb) {
+  constructor(dynamoDb, kbc) {
     this.dynamoDb = dynamoDb;
+    this.kbc = kbc;
   }
 
-  list() {
+  list(event) {
     const params = {
       TableName: 'consumers',
     };
 
-    return this.dynamoDb.scan(params).promise()
-      .then(res => res.Items);
+    return this.kbc.authManageToken(event).then(() => {
+      return this.dynamoDb.scan(params).promise()
+        .then(res => res.Items);
+    });
   }
 
   get(event) {
@@ -35,8 +38,10 @@ class Consumers {
       }
     };
 
-    return this.dynamoDb.get(params).promise()
-      .then(res => res.Item);
+    return this.kbc.authManageToken(event).then(() => {
+      return this.dynamoDb.get(params).promise()
+        .then(res => res.Item);
+    });
   }
 
   add(event) {
@@ -46,8 +51,10 @@ class Consumers {
       Item: consumer
     };
 
-    return this.dynamoDb.put(params).promise()
-      .then(res => consumer);
+    return this.kbc.authManageToken(event).then(() => {
+      return this.dynamoDb.put(params).promise()
+        .then(res => consumer);
+    });
   }
 }
 
