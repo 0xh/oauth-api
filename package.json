@@ -20,6 +20,7 @@
     "joi-date-extensions": "^1.0.2",
     "serverless-dynamodb-local": "^0.2.26",
     "source-map-support": "^0.4.15",
+    "unexpected": "^10.36.2",
     "uniqid": "^4.1.1",
     "uuid": "^3.1.0",
     "winston": "^2.3.1",

@@ -1,7 +1,7 @@
 version: "2"
 
 services:
-  run-dev:
+  dev:
     build: .
     tty: true
     stdin_open: true
@@ -24,3 +24,24 @@ services:
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0
              '
+
+  tests:
+    build: .
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/code
+    working_dir: /code
+    ports:
+      - "3000:3000"
+    environment:
+      - ACCOUNT_ID
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
+      - SERVICE_NAME
+      - STAGE
+      - KEBOOLA_STACK
+      - KBC_URL
+
+    command: sh -x ./tests/run.sh

@@ -1,14 +1,11 @@
 'use strict';
 
 import Consumers from '../app/Consumers';
+import DynamoDB from '../lib/DynamoDB';
 import {RequestHandler, UserError} from '@keboola/serverless-request-handler';
-import Bluebird from 'bluebird';
-import AWS from 'aws-sdk';
-
-AWS.config.setPromisesDependency(Bluebird);
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
-  const dynamoDb = new AWS.DynamoDB.DocumentClient();
+  const dynamoDb = DynamoDB.getClient();
   const consumers = new Consumers(dynamoDb);
   let promise;
   let code;

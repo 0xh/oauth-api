@@ -4,7 +4,6 @@ import {UserError} from '@keboola/serverless-request-handler';
 import Joi from 'joi';
 
 class Validator {
-
   static validate(eventIn, schema) {
     const event = fromJS(eventIn);
     let body;

@@ -24,7 +24,7 @@ class Consumers {
     };
 
     return this.dynamoDb.scan(params).promise()
-    .then(res => res.Items);
+      .then(res => res.Items);
   }
 
   get(event) {
