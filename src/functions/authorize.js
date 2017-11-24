@@ -1,8 +1,8 @@
 'use strict';
 
 import Authorize from '../app/Authorize';
+import Session from "../lib/Session";
 import {RequestHandler, UserError} from '@keboola/serverless-request-handler';
-
 import Bluebird from 'bluebird';
 import AWS from 'aws-sdk';
 
@@ -10,7 +10,8 @@ AWS.config.setPromisesDependency(Bluebird);
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = new AWS.DynamoDB.DocumentClient();
-  const authorize = new Authorize(dynamoDb);
+  const session = new Session(dynamoDb);
+  const authorize = new Authorize(dynamoDb, session);
   let promise;
   let code;
 

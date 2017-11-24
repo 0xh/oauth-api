@@ -15,6 +15,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.22.0",
     "bluebird": "^3.5.1",
+    "cookie": "^0.3.1",
     "immutable": "^3.8.2",
     "joi": "^10.6.0",
     "joi-date-extensions": "^1.0.2",
@@ -29,7 +30,7 @@
   "devDependencies": {
     "@keboola/serverless-default-error-responses": "^1.0.0",
     "@keboola/serverless-papertrail-logging": "^1.0.5",
-    "@keboola/serverless-request-handler": "^1.0.3",
+    "@keboola/serverless-request-handler": "^1.1.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",
