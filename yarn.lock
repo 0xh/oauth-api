@@ -17,7 +17,7 @@
     winston-papertrail "^1.0.5"
     zlib "^1.0.5"
 
-"@keboola/serverless-request-handler@^1.0.3":
+"@keboola/serverless-request-handler@^1.1.0":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@keboola/serverless-request-handler/-/serverless-request-handler-1.1.1.tgz#9e5c24ac9b172a8fd221fd1f98efeb2c37837aae"
   dependencies:
@@ -3229,6 +3229,10 @@ querystring-es3@^0.2.0:
 querystring@0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
+
+ramda@^0.25.0:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.25.0.tgz#8fdf68231cffa90bc2f9460390a0cb74a29b29a9"
 
 randomatic@^1.1.3:
   version "1.1.7"

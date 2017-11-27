@@ -17,8 +17,15 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
 
   switch (event.resource) {
     case '/authorize/{componentId}':
-      promise = authorize.init(event);
-      code = 200;
+      promise = authorize.init(event).then((res) => {
+        return {
+          response: {},
+          headers: {
+            Location: res.url,
+          }
+        };
+      });
+      code = 301;
       break;
     case '/authorize/{componentId}/callback':
       promise = authorize.callback(event);
@@ -28,5 +35,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
       throw UserError.notFound();
   }
 
-  return RequestHandler.responsePromise(promise, event, context, callback, code);
+  return promise.then((res) => {
+    return RequestHandler.responsePromise(Promise.resolve(res.response), event, context, callback, code, res.headers);
+  });
 }, event, context, callback);

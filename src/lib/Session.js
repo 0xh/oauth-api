@@ -7,6 +7,7 @@ import {UserError} from '@keboola/serverless-request-handler';
 import cookie from 'cookie';
 import {Map} from 'immutable';
 const uniqid = require('uniqid');
+const R = require('ramda');
 
 /**
  * Class for storing sessions into DynamoDB table
@@ -23,12 +24,10 @@ class Session {
   constructor(dynamoDb, options = {}) {
     this.dynamoDB = dynamoDb;
 
-    const {
-      name = process.env.SESSION_TABLE_NAME,
-      hashKey = process.env.SESSION_HASH_KEY,
-      hashPrefix = process.env.SESSION_HASH_PREFIX,
-      ttl = process.env.SESSION_TTL
-    } = options;
+    const name = R.has('name', options) ? options.name : 'sessions';
+    const hashKey = R.has('hashKey', options) ? options.hashKey : 'id';
+    const hashPrefix = R.has('hashPrefix', options) ? options.hashPrefix : process.env.SESSION_HASH_PREFIX;
+    const ttl = R.has('ttl', options) ? options.ttl : 300000;
 
     this.tableName = name;
     this.hashKey = hashKey;
@@ -36,9 +35,14 @@ class Session {
     this.ttl = ttl
   }
 
-  static init(event) {
-    return Map(cookie.parse(event.Cookie))
-      .get('oauthSessionId', uniqid());
+  init(event) {
+    if (R.hasIn('Cookie', event.headers)) {
+      const eventCookie = cookie.parse(event.headers.Cookie);
+      if (R.hasIn('oauthSessionId', eventCookie)) {
+        return eventCookie.oauthSessionId;
+      }
+    }
+    return uniqid();
   }
 
   /**
@@ -84,7 +88,7 @@ class Session {
       },
     };
 
-    return this.dynamoDB.put(params).promise();
+    return this.dynamoDB.put(params).promise().then(res => params.Item);
   }
 
   /**

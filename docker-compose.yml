@@ -19,6 +19,8 @@ services:
       - STAGE
       - KEBOOLA_STACK
       - KBC_URL
+      - SESSION_HASH_PREFIX
+      - KBC_MANAGE_API_TOKEN
 
     command: >
              sh -c '
@@ -41,6 +43,7 @@ services:
       - STAGE
       - KEBOOLA_STACK
       - KBC_URL
+      - SESSION_HASH_PREFIX
       - KBC_MANAGE_API_TOKEN
 
     command: ./tests/run.sh

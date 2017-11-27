@@ -1,5 +1,18 @@
 'use strict';
 
+import OAuthFactory from '../lib/OAuth/OAuthFactory';
+
+const getOauth = (consumerP) => {
+  return consumerP.then((resItem) => {
+    return OAuthFactory.getOAuth(resItem);
+  });
+};
+
+const getCallbackUrl = (event) => {
+  const eventUrl = 'https://' + event.headers.Host + event.path;
+  return eventUrl.substr(-9) === "/callback" ? eventUrl : eventUrl + '/callback';
+};
+
 class Authorize {
   constructor(dynamoDb, session) {
     this.dynamoDb = dynamoDb;
@@ -15,15 +28,18 @@ class Authorize {
         component_id: componentId
       }
     };
+    const consumerPromise = this.dynamoDb.get(consumerParams).promise().then(res => res.Item);
 
-    if (event.httpMethod === 'POST') {
-      return this.session.set(sessionId, {
-        'componentId': componentId
+    //@todo: maybe remove the session handling from this class and add then with session work outside in authorize func
+    return getOauth(consumerPromise)
+      .then(oauth => oauth.getRedirectData(getCallbackUrl(event)))
+      .then((redirectData) => {
+        return this.session.set(sessionId, {
+          'componentId': componentId
+        }).then((sessionRes) => {
+          return redirectData;
+        });
       });
-    }
-
-    return this.dynamoDb.get(consumerParams).promise()
-      .then(res => res.Item);
   }
 
   callback(event) {
