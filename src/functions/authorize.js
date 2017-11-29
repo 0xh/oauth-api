@@ -11,7 +11,8 @@ import R from 'ramda';
 
 AWS.config.setPromisesDependency(Bluebird);
 
-function getSessionData(event, encryption) {
+function getAuthSessionData(event, encryption) {
+  //@todo set returnUrl
   let sessionData = {
     'componentId': event.pathParameters.componentId
   };
@@ -41,7 +42,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
       const sessionId = session.init(event);
       promise = authorize.init(event)
         .then((oauthRes) => {
-          return getSessionData(event, encryption)
+          return getAuthSessionData(event, encryption)
             .then((sessionDataRes) => {
               return session.set(sessionId, sessionDataRes)
                 .then(() => {

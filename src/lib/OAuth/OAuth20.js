@@ -22,6 +22,8 @@ class OAuth20 {
     this.tokenUrl = config.token_url;
     this.appKey = config.app_key;
     this.appSecret = config.app_secret;
+
+    console.log(this.tokenUrl);
   }
 
   getRedirectData(callbackUrl) {
@@ -35,22 +37,31 @@ class OAuth20 {
   }
 
   getToken(callbackUrl, sessionData, query) {
-    if (R.hasIn('code', query)) {
+    console.log(query);
+    if (!R.hasIn('code', query)) {
       throw UserError.error("'code' not returned in query from the auth API!");
     }
 
-    return axios
-      .post(this.tokenUrl, {
+    return axios({
+        method: 'post',
+        url: this.tokenUrl,
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        params: {
           client_id: this.appKey,
           client_secret: this.appSecret,
           grant_type: GRANT_TYPE,
           redirect_uri: callbackUrl,
           code: query.code
-        }, {
-          headers: {'Accept': 'application/json'}
-        }).then((res) => {
-          console.log(res);
-        });
+        }
+      })
+      .then((res) => {
+        console.log(res);
+      }).catch((err) => {
+        console.log(err);
+      });
   }
 }
 

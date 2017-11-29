@@ -68,7 +68,7 @@ functions:
           method: post
           path: "/authorize/{componentId}"
       - http:
-          method: post
+          method: get
           path: "/authorize/{componentId}/callback"
   consumers:
     handler: src/functions/consumers.handler
