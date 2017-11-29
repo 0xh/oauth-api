@@ -20,6 +20,7 @@ services:
       - KEBOOLA_STACK
       - KBC_URL
       - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
 
     command: >
@@ -44,6 +45,7 @@ services:
       - KEBOOLA_STACK
       - KBC_URL
       - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
 
     command: ./tests/run.sh

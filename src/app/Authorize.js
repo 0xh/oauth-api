@@ -14,14 +14,12 @@ const getCallbackUrl = (event) => {
 };
 
 class Authorize {
-  constructor(dynamoDb, session) {
+  constructor(dynamoDb) {
     this.dynamoDb = dynamoDb;
-    this.session = session;
   }
 
   init(event) {
     const componentId = event.pathParameters.componentId;
-    const sessionId = this.session.init(event);
     const consumerParams = {
       TableName: 'consumers',
       Key: {
@@ -29,17 +27,8 @@ class Authorize {
       }
     };
     const consumerPromise = this.dynamoDb.get(consumerParams).promise().then(res => res.Item);
-
-    //@todo: maybe remove the session handling from this class and add then with session work outside in authorize func
     return getOauth(consumerPromise)
-      .then(oauth => oauth.getRedirectData(getCallbackUrl(event)))
-      .then((redirectData) => {
-        return this.session.set(sessionId, {
-          'componentId': componentId
-        }).then((sessionRes) => {
-          return redirectData;
-        });
-      });
+      .then(oauth => oauth.getRedirectData(getCallbackUrl(event)));
   }
 
   callback(event) {

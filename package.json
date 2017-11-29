@@ -19,6 +19,7 @@
     "immutable": "^3.8.2",
     "joi": "^10.6.0",
     "joi-date-extensions": "^1.0.2",
+    "qs": "^6.5.1",
     "ramda": "^0.25.0",
     "serverless-dynamodb-local": "^0.2.26",
     "source-map-support": "^0.4.15",

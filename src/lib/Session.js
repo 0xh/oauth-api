@@ -28,18 +28,24 @@ class Session {
     const hashKey = R.has('hashKey', options) ? options.hashKey : 'id';
     const hashPrefix = R.has('hashPrefix', options) ? options.hashPrefix : process.env.SESSION_HASH_PREFIX;
     const ttl = R.has('ttl', options) ? options.ttl : 300000;
+    const cookieName = R.has('cookieName', options) ? options.cookieName : process.env.SESSION_COOKIE_NAME;
 
     this.tableName = name;
     this.hashKey = hashKey;
     this.hashPrefix = hashPrefix;
-    this.ttl = ttl
+    this.ttl = ttl;
+    this.cookieName = cookieName;
+  }
+
+  getCookieName() {
+    return this.cookieName;
   }
 
   init(event) {
     if (R.hasIn('Cookie', event.headers)) {
       const eventCookie = cookie.parse(event.headers.Cookie);
-      if (R.hasIn('oauthSessionId', eventCookie)) {
-        return eventCookie.oauthSessionId;
+      if (R.hasIn(this.cookieName, eventCookie)) {
+        return eventCookie[this.cookieName];
       }
     }
     return uniqid();
