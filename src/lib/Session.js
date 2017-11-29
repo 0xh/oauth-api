@@ -88,7 +88,7 @@ class Session {
       TableName: this.tableName,
       Item: {
         [this.hashKey]: this.getSessionId(sid),
-        expires: this.getExpirationDate(session),
+        expires: this.getExpirationDate(),
         updated: Date.now(),
         session: session
       },
@@ -125,14 +125,8 @@ class Session {
    * @param  {Object} session The session object.
    * @return {Date} the session expiration date.
    */
-  getExpirationDate(session) {
-    let expirationDate = Date.now();
-    if (session.cookie && Number.isInteger(session.cookie.maxAge)) {
-      expirationDate += session.cookie.maxAge;
-    } else {
-      expirationDate += this.ttl;
-    }
-    return new Date(expirationDate);
+  getExpirationDate() {
+    return new Date(Date.now() + this.ttl);
   }
 }
 export default Session;
