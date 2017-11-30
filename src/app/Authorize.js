@@ -92,26 +92,29 @@ class Authorize {
           getDataFromSession(sessionData)
         );
 
-        return this.encryption.encrypt(JSON.stringify(tokens))
-          .then(dataEncryptRes =>
-            this.dockerRunner.encrypt(
-              componentId,
-              kbcTokenRes.project,
-              item.appSecret
-            ).then((dockerEncryptRes) => {
-              const finalItem = R.merge(item, {
-                data: dataEncryptRes,
-                app_docker_secret: dockerEncryptRes,
-              });
-              const params = {
-                TableName: 'credentials',
-                Item: finalItem,
-              };
+        return this.dockerRunner.encrypt(
+          componentId,
+          kbcTokenRes.project,
+          JSON.stringify(tokens)
+        ).then(dataEncrypted =>
+          this.dockerRunner.encrypt(
+            componentId,
+            kbcTokenRes.project,
+            item.appSecret
+          ).then((appSecretEncrypted) => {
+            const finalItem = R.merge(item, {
+              data: dataEncrypted,
+              app_docker_secret: appSecretEncrypted,
+            });
+            const params = {
+              TableName: 'credentials',
+              Item: finalItem,
+            };
 
-              return this.dynamoDb.put(params).promise()
-                .then(() => finalItem);
-            })
-          );
+            return this.dynamoDb.put(params).promise()
+              .then(() => finalItem);
+          })
+        );
       });
   }
 }
