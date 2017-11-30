@@ -15,6 +15,7 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_REGION
+      - AWS_KMS_KEY_ID
       - SERVICE_NAME
       - STAGE
       - KEBOOLA_STACK
@@ -22,6 +23,7 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
+      - KBC_STORAGE_API_TOKEN
 
     command: >
              sh -c '
@@ -40,6 +42,7 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_REGION
+      - AWS_KMS_KEY_ID
       - SERVICE_NAME
       - STAGE
       - KEBOOLA_STACK
@@ -47,5 +50,6 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
+      - KBC_STORAGE_API_TOKEN
 
     command: ./tests/run.sh
