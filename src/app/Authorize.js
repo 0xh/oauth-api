@@ -75,44 +75,44 @@ class Authorize {
 
   saveCredentials(tokens, componentId, sessionData) {
     return this.encryption.decrypt(sessionData.token)
-      .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes)
-        .then((kbcTokenRes) => {
-          const creator = {
-            id: kbcTokenRes.id,
-            description: kbcTokenRes.name,
-          };
-          const item = R.merge(
-            {
-              id: sessionData.id,
-              component_id: componentId,
-              project_id: kbcTokenRes.project,
-              creator: JSON.stringify(creator),
-              created: Date.now(),
-            },
-            getDataFromSession(sessionData)
+      .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes))
+      .then((kbcTokenRes) => {
+        const creator = {
+          id: kbcTokenRes.id,
+          description: kbcTokenRes.name,
+        };
+        const item = R.merge(
+          {
+            id: sessionData.id,
+            component_id: componentId,
+            project_id: kbcTokenRes.project,
+            creator: JSON.stringify(creator),
+            created: Date.now(),
+          },
+          getDataFromSession(sessionData)
+        );
+
+        return this.encryption.encrypt(JSON.stringify(tokens))
+          .then(dataEncryptRes =>
+            this.dockerRunner.encrypt(
+              componentId,
+              kbcTokenRes.project,
+              item.appSecret
+            ).then((dockerEncryptRes) => {
+              const finalItem = R.merge(item, {
+                data: dataEncryptRes,
+                app_docker_secret: dockerEncryptRes,
+              });
+              const params = {
+                TableName: 'credentials',
+                Item: finalItem,
+              };
+
+              return this.dynamoDb.put(params).promise()
+                .then(() => finalItem);
+            })
           );
-
-          return this.encryption.encrypt(JSON.stringify(tokens))
-            .then(dataEncryptRes =>
-              this.dockerRunner.encrypt(
-                componentId,
-                kbcTokenRes.project,
-                item.appSecret
-              ).then((dockerEncryptRes) => {
-                const finalItem = R.merge(item, {
-                  data: dataEncryptRes,
-                  app_docker_secret: dockerEncryptRes,
-                });
-                const params = {
-                  TableName: 'credentials',
-                  Item: finalItem,
-                };
-
-                return this.dynamoDb.put(params).promise()
-                  .then(() => finalItem);
-              })
-            );
-        }));
+      });
   }
 }
 
