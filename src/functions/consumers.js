@@ -1,9 +1,9 @@
 'use strict';
 
+import { RequestHandler, UserError } from '@keboola/serverless-request-handler';
 import Consumers from '../app/Consumers';
 import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
-import {RequestHandler, UserError} from '@keboola/serverless-request-handler';
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = DynamoDB.getClient();

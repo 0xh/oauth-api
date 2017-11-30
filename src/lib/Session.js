@@ -2,18 +2,19 @@
  * Author: miro@keboola.com
  * Date: 24/11/2017
  */
+
 'use strict';
-import {UserError} from '@keboola/serverless-request-handler';
+
+import { UserError } from '@keboola/serverless-request-handler';
 import cookie from 'cookie';
-import {Map} from 'immutable';
+import R from 'ramda';
+
 const uniqid = require('uniqid');
-const R = require('ramda');
 
 /**
  * Class for storing sessions into DynamoDB table
  */
 class Session {
-
   /**
    * @param dynamoDb DynamoDB doc client
    * @param {Object} options Optional options
@@ -72,7 +73,7 @@ class Session {
         }
         if (!result.Item.expires || result.Item.expires <= Date.now()) {
           return this.destroy(sid).then(() => {
-            throw UserError.unauthorized(`Session '${sid}' is expired`)
+            throw UserError.unauthorized(`Session '${sid}' is expired`);
           });
         }
         return result.Item.session;
@@ -90,11 +91,11 @@ class Session {
         [this.hashKey]: this.getSessionId(sid),
         expires: this.getExpirationDate(),
         updated: Date.now(),
-        session: session
+        session,
       },
     };
 
-    return this.dynamoDB.put(params).promise().then(res => params.Item);
+    return this.dynamoDB.put(params).promise().then(() => params.Item);
   }
 
   /**
@@ -122,7 +123,6 @@ class Session {
 
   /**
    * Calculates the session expiration date.
-   * @param  {Object} session The session object.
    * @return {Date} the session expiration date.
    */
   getExpirationDate() {

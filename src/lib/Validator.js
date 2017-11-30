@@ -1,6 +1,7 @@
 'use strict';
-import {fromJS} from 'immutable';
-import {UserError} from '@keboola/serverless-request-handler';
+
+import { fromJS } from 'immutable';
+import { UserError } from '@keboola/serverless-request-handler';
 import Joi from 'joi';
 
 class Validator {
@@ -22,7 +23,7 @@ class Validator {
       schema,
       {
         allowUnknown: true,
-        stripUnknown: true
+        stripUnknown: true,
       }
     );
 

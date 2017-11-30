@@ -2,21 +2,21 @@
   "extends": "airbnb-base",
   "plugins": [],
   "rules": {
-    "func-names": 0,
-    "no-console": 0,
-    "max-len": ["error", {
-      "code": 120,
-      "ignoreComments": true,
-      "ignoreTrailingComments": true,
-      "ignoreUrls": true,
-      "ignoreStrings": true,
-      "ignoreTemplateLiterals": true,
-      "ignoreRegExpLiterals": true
-    }],
+//    "func-names": 0,
+//    "no-console": 0,
+//    "max-len": ["error", {
+//      "code": 120,
+//      "ignoreComments": true,
+//      "ignoreTrailingComments": true,
+//      "ignoreUrls": true,
+//      "ignoreStrings": true,
+//      "ignoreTemplateLiterals": true,
+//      "ignoreRegExpLiterals": true
+//    }],
     "strict": 0,
-    "prefer-rest-params": 0,
-    "consistent-return": 0,
-    "react/require-extension" : 0,
+//    "prefer-rest-params": 0,
+//    "consistent-return": 0,
+//    "react/require-extension" : 0,
     "import/no-extraneous-dependencies" : 0,
     "comma-dangle": ["error", {
       "arrays": "always-multiline",
@@ -24,6 +24,9 @@
       "imports": "always-multiline",
       "exports": "always-multiline",
       "functions": "ignore"
+    }],
+    "no-underscore-dangle": ["error", {
+      "allow": ["__"]
     }]
   },
   "env": {

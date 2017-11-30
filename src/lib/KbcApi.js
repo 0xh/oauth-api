@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
-import {UserError} from '@keboola/serverless-request-handler';
+import { UserError } from '@keboola/serverless-request-handler';
 
 const _ = require('lodash');
 
@@ -53,36 +53,36 @@ class KbcApi {
       url: `${this.baseUri}/v2/storage/tokens/verify`,
       headers: { 'X-StorageApi-Token': token },
     })
-    .catch((err) => {
-      if (_.get(err, 'response.status', null) === 401) {
-        throw UserError.unauthorized('Invalid access token');
-      }
-      throw UserError.error(_.get(err.response, 'data.error', err.msg), _.get(err, 'response.status', null));
-    })
-    .then((res) => {
-      if (!_.has(res.data, 'owner')) {
-        throw UserError.badRequest('Token verification is missing owner field');
-      }
-      if (!_.has(res.data.owner, 'id')) {
-        throw UserError.badRequest('Token verification is missing owner.id field');
-      }
-      if (!_.has(res.data, 'description')) {
-        throw UserError.badRequest('Token verification is missing description field');
-      }
-      return {
-        token,
-        project: res.data.owner.id,
-        id: res.data.id,
-        name: res.data.description,
-        admin: _.has(res, 'data.admin.id') ? res.data.admin.id : null,
-        adminName: _.has(res, 'data.admin.name') ? res.data.admin.name : null,
-        adminSSO: _.has(res, 'data.admin.features') && _.includes(res.data.admin.features, 'wrgd-sso-admin'),
-        limits: {
-          demoTokenEnabled: _.get(res.data.owner, ['limits', 'goodData.demoTokenEnabled', 'value'], 0) === 1,
-          prodTokenEnabled: _.get(res.data.owner, ['limits', 'goodData.prodTokenEnabled', 'value'], 0) === 1,
-        },
-      };
-    });
+      .catch((err) => {
+        if (_.get(err, 'response.status', null) === 401) {
+          throw UserError.unauthorized('Invalid access token');
+        }
+        throw UserError.error(_.get(err.response, 'data.error', err.msg), _.get(err, 'response.status', null));
+      })
+      .then((res) => {
+        if (!_.has(res.data, 'owner')) {
+          throw UserError.badRequest('Token verification is missing owner field');
+        }
+        if (!_.has(res.data.owner, 'id')) {
+          throw UserError.badRequest('Token verification is missing owner.id field');
+        }
+        if (!_.has(res.data, 'description')) {
+          throw UserError.badRequest('Token verification is missing description field');
+        }
+        return {
+          token,
+          project: res.data.owner.id,
+          id: res.data.id,
+          name: res.data.description,
+          admin: _.has(res, 'data.admin.id') ? res.data.admin.id : null,
+          adminName: _.has(res, 'data.admin.name') ? res.data.admin.name : null,
+          adminSSO: _.has(res, 'data.admin.features') && _.includes(res.data.admin.features, 'wrgd-sso-admin'),
+          limits: {
+            demoTokenEnabled: _.get(res.data.owner, ['limits', 'goodData.demoTokenEnabled', 'value'], 0) === 1,
+            prodTokenEnabled: _.get(res.data.owner, ['limits', 'goodData.prodTokenEnabled', 'value'], 0) === 1,
+          },
+        };
+      });
   }
 
   authManage(token) {
@@ -91,30 +91,30 @@ class KbcApi {
       url: `${this.baseUri}/manage/tokens/verify`,
       headers: { 'X-KBC-ManageApiToken': token },
     })
-    .catch((err) => {
-      if (_.get(err, 'response.status', null) === 401) {
-        throw UserError.unauthorized('Invalid access token');
-      }
-      throw UserError.error(_.get(err.response, 'data.error', err.msg), _.get(err, 'response.status', null));
-    })
-    .then((res) => {
-      if (!_.has(res.data, 'scopes')) {
-        throw UserError.badRequest('Token verification is missing owner scopes');
-      }
-      // if (!_.includes(res.data.scopes, 'gd-provisioning:manage')) {
-      //   throw UserError.unauthorized('Invalid access token');
-      // }
-      return {
-        token,
-        project: -1,
-        id: res.data.id,
-        name: res.data.description,
-        admin: null,
-        adminName: null,
-        adminSSO: false,
-        limits: {},
-      };
-    });
+      .catch((err) => {
+        if (_.get(err, 'response.status', null) === 401) {
+          throw UserError.unauthorized('Invalid access token');
+        }
+        throw UserError.error(_.get(err.response, 'data.error', err.msg), _.get(err, 'response.status', null));
+      })
+      .then((res) => {
+        if (!_.has(res.data, 'scopes')) {
+          throw UserError.badRequest('Token verification is missing owner scopes');
+        }
+        // if (!_.includes(res.data.scopes, 'gd-provisioning:manage')) {
+        //   throw UserError.unauthorized('Invalid access token');
+        // }
+        return {
+          token,
+          project: -1,
+          id: res.data.id,
+          name: res.data.description,
+          admin: null,
+          adminName: null,
+          adminSSO: false,
+          limits: {},
+        };
+      });
   }
 
   generateId(token) {
@@ -123,12 +123,12 @@ class KbcApi {
       url: `${this.baseUri}/v2/storage/tickets`,
       headers: { 'X-StorageApi-Token': token },
     })
-    .then((res) => {
-      if (!_.has(res.data, 'id')) {
-        throw UserError.badRequest('Unique id generation is missing id field');
-      }
-      return _.toInteger(res.data.id);
-    });
+      .then((res) => {
+        if (!_.has(res.data, 'id')) {
+          throw UserError.badRequest('Unique id generation is missing id field');
+        }
+        return _.toInteger(res.data.id);
+      });
   }
 }
 

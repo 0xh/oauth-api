@@ -1,6 +1,6 @@
 /**
  * Author: miro@keboola.com
- * Date: 27/11/2017
+ * Date: 30/11/2017
  */
 import { UserError } from '@keboola/serverless-request-handler';
 import axios from 'axios';
@@ -8,7 +8,7 @@ import R from 'ramda';
 
 const GRANT_TYPE = 'authorization_code';
 
-class OAuth20 {
+class Quickbooks {
   /**
    * @param {Object} config
    *  - authUrl: {String} Authentication endpoint
@@ -52,10 +52,8 @@ class OAuth20 {
         redirect_uri: callbackUrl,
         code: query.code,
       },
-    }).then(res => res.data).catch((err) => {
-      console.log(err.response.status);
     });
   }
 }
 
-export default OAuth20;
+export default Quickbooks;

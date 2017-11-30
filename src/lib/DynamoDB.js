@@ -2,7 +2,8 @@
  * Author: miro@keboola.com
  * Date: 22/11/2017
  */
-'use strict'
+
+'use strict';
 
 import Bluebird from 'bluebird';
 import AWS from 'aws-sdk';
