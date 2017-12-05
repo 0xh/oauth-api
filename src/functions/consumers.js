@@ -16,7 +16,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
       if (event.resource === '/manage/{componentId}') {
         promise = consumers.get(event);
       } else {
-        promise = consumers.list();
+        promise = consumers.list(event);
       }
       code = 200;
 
