@@ -14,7 +14,7 @@ services:
       - ACCOUNT_ID
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
-      - AWS_REGION
+      - REGION
       - AWS_KMS_KEY_ID
       - SERVICE_NAME
       - STAGE
@@ -24,7 +24,6 @@ services:
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
-
     command: >
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0
@@ -41,7 +40,7 @@ services:
       - ACCOUNT_ID
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
-      - AWS_REGION
+      - REGION
       - AWS_KMS_KEY_ID
       - SERVICE_NAME
       - STAGE
@@ -51,5 +50,28 @@ services:
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
-
     command: ./tests/run.sh
+
+  deploy-dev:
+    build: .
+    volumes:
+      - .:/code
+    working_dir: /code
+    environment:
+      - ACCOUNT_ID
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - REGION
+      - AWS_KMS_KEY_ID
+      - SERVICE_NAME
+      - STAGE
+      - KEBOOLA_STACK
+      - KBC_URL
+      - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
+      - KBC_MANAGE_API_TOKEN
+      - KBC_STORAGE_API_TOKEN
+    command: >
+             sh -c '
+             serverless deploy
+             '

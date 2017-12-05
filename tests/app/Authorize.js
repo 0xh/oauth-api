@@ -14,6 +14,7 @@ import OAuth20 from '../../src/lib/OAuth/OAuth20';
 import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
+import R from 'ramda';
 
 const dynamoDb = DynamoDB.getClient();
 
@@ -114,6 +115,15 @@ describe('Authorize', () => {
         app_secret: null,
       });
       expect(res, 'to have properties', ['creator', 'data', 'app_docker_secret']);
+    })
+  );
+
+  it('callback browser', () => insertConsumer()
+    .then(() => authorize.callback(eventCallback, {
+      returnData: true
+    }))
+    .then((res) => {
+      expect(res, 'to have properties', { refresh_token: 1234, access_token: 5678 });
     })
   );
 });

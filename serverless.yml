@@ -18,42 +18,42 @@ custom:
 provider:
   name: aws
   runtime: nodejs6.10
-  region: ${env:AWS_REGION}
+  region: ${env:REGION}
   stage: ${env:STAGE}
   role: oauthLambdaRole
   stackTags:
     KeboolaStack: ${env:KEBOOLA_STACK}
   environment:
     KEBOOLA_STACK: ${env:KEBOOLA_STACK}
-    AWS_REGION: ${env:AWS_REGION}
+    REGION: ${env:REGION}
     SERVICE_NAME: ${env:SERVICE_NAME}
     STAGE: ${env:STAGE}
     KBC_URL: ${env:KBC_URL}
 
-#package:
-#  individually: true
-#  include:
-#    - src/app/**
-#    - src/lib/**
-#    - src/functions/**
-#    - node_modules/**
-#  exclude:
-#    - .git/**
-#    - .idea/**
-#    - .codeclimate.yml
-#    - .env
-#    - .eslintignore
-#    - .eslintrc.json
-#    - .travis.yml
-#    - apiary.apib
-#    - docker-compose.yml
-#    - Dockerfile
-#    - LICENSE
-#    - README.md
-#    - package.json
-#    - yarn.lock
-#    - scripts/**
-#    - tests/**
+package:
+  individually: true
+  include:
+    - src/app/**
+    - src/lib/**
+    - src/functions/**
+    - node_modules/**
+  exclude:
+    - .git/**
+    - .idea/**
+    - .codeclimate.yml
+    - .env
+    - .eslintignore
+    - .eslintrc.json
+    - .travis.yml
+    - apiary.apib
+    - docker-compose.yml
+    - Dockerfile
+    - LICENSE
+    - README.md
+    - package.json
+    - yarn.lock
+    - scripts/**
+    - tests/**
 
 functions:
   authorize:
@@ -153,7 +153,7 @@ resources:
                     - logs:CreateLogGroup
                     - logs:CreateLogStream
                     - logs:PutLogEvents
-                  Resource: "arn:aws:logs:${env:AWS_REGION}:${env:ACCOUNT_ID}:log-group:/aws/lambda/*:*:*"
+                  Resource: "arn:aws:logs:${env:REGION}:${env:ACCOUNT_ID}:log-group:/aws/lambda/*:*:*"
                 - Effect: Allow
                   Action:
                     - ec2:CreateNetworkInterface

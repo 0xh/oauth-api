@@ -14,14 +14,16 @@ import DockerRunnerApi from '../lib/DockerRunnerApi';
 AWS.config.setPromisesDependency(Bluebird);
 
 function requestToSession(event, encryption) {
-  // @todo set returnUrl
   let sessionData = {
     componentId: event.pathParameters.componentId,
+    returnUrl: R.propOr(null, 'Referer', event.headers),
+    returnData: event.httpMethod === 'GET'
   };
+
   if (event.httpMethod === 'POST') {
     sessionData = R.merge(sessionData, qs.parse(event.body));
     if (R.hasIn('token', sessionData)) {
-      return encryption.encrypt(sessionData.token).promise()
+      return encryption.encrypt(body.token).promise()
         .then(encryptedToken => R.merge(sessionData, { token: encryptedToken }));
     }
   }
@@ -36,7 +38,6 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
   const authorize = new Authorize(dynamoDb, encryption, new KbcApi(), new DockerRunnerApi());
   const sessionId = session.init(event);
   let promise;
-  let code;
 
   switch (event.resource) {
     case '/authorize/{componentId}':
@@ -45,20 +46,42 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
         .then(() => authorize.init(event))
         .then(oauthRes => ({
           response: {},
+          code: 301,
           headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true,
             'Set-Cookie': `${session.getCookieName()}=${sessionId}`,
             Location: oauthRes.url,
           },
-        }));
-      code = 301;
+        })
+        );
       break;
     case '/authorize/{componentId}/callback':
       promise = session.get(sessionId)
-        .then(sessionData => authorize.callback(event, sessionData));
-
-      code = 200;
+        .then(sessionData => authorize.callback(event, sessionData)
+          .then((tokenRes) => {
+            if (R.hasIn('returnData', sessionData) && sessionData.returnData === true) {
+              return {
+                response: tokenRes,
+                code: 200,
+                headers: {
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Credentials': true,
+                  'Content-Type': 'application/json',
+                  Connection: 'close',
+                },
+              };
+            }
+            return {
+              response: {},
+              code: 301,
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+                Location: sessionData.returnUrl,
+              },
+            };
+          }));
       break;
     default:
       throw UserError.notFound();
@@ -70,7 +93,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
       event,
       context,
       callback,
-      code,
+      res.code,
       res.headers
     )
   );

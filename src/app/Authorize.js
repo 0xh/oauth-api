@@ -58,22 +58,13 @@ class Authorize {
     return getOauth(getConsumer(this.dynamoDb, consumerParams))
       .then(oauth => oauth.getToken(getCallbackUrl(event), {}, event.queryStringParameters))
       .then(tokenRes => this.saveCredentials(tokenRes, componentId, sessionData));
-
-    // @todo for Zendesk? is this still in use?
-    // $sessionOAuthData = $session->getBag()->has('oauth_data')
-    //   ? unserialize($session->getEncrypted('oauth_data'))
-    //   : [];
-
-    // @todo return normal response when OAuth was initiated via GET auth request
-    // if ($session->getBag()->has('returnData') && $session->get('returnData')) {
-    //   return new JsonResponse($result, 200, [
-    //     "Content-Type" => "application/json",
-    //     "Access-Control-Allow-Origin" => "*",
-    //     "Connection" => "close"
-    // ]);
   }
 
   saveCredentials(tokens, componentId, sessionData) {
+    if (R.hasIn('returnData', sessionData) && sessionData.returnData === true) {
+      return tokens;
+    }
+
     return this.encryption.decrypt(sessionData.token)
       .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes))
       .then((kbcTokenRes) => {
