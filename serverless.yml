@@ -29,6 +29,8 @@ provider:
     SERVICE_NAME: ${env:SERVICE_NAME}
     STAGE: ${env:STAGE}
     KBC_URL: ${env:KBC_URL}
+    SESSION_COOKIE_NAME: ${env:SESSION_COOKIE_NAME}
+    SESSION_HASH_PREFIX: ${env:SESSION_HASH_PREFIX}
 
 package:
   individually: true
