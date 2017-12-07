@@ -7,7 +7,7 @@ module.exports = {
   target: 'node',
   devtool: 'source-map',
   externals: [nodeExternals({
-    modulesFromFile: true
+    modulesFromFile: true,
   })],
   module: {
     loaders: [

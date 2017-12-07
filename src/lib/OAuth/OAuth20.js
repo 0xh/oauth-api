@@ -54,10 +54,10 @@ class OAuth20 {
       },
     }).then(res => res.data).catch((err) => {
       console.log({
-        callbackUrl: callbackUrl,
+        callbackUrl,
         tokenUrl: this.tokenUrl,
         queryCode: query.code,
-        clientId: this.appKey
+        clientId: this.appKey,
       });
       console.log(err.response);
       throw err;

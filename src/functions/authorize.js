@@ -17,13 +17,13 @@ function requestToSession(event, encryption) {
   let sessionData = {
     componentId: event.pathParameters.componentId,
     returnUrl: R.propOr(null, 'Referer', event.headers),
-    returnData: event.httpMethod === 'GET'
+    returnData: event.httpMethod === 'GET',
   };
 
   if (event.httpMethod === 'POST') {
     sessionData = R.merge(sessionData, qs.parse(event.body));
     if (R.hasIn('token', sessionData)) {
-      return encryption.encrypt(body.token).promise()
+      return encryption.encrypt(sessionData.token).promise()
         .then(encryptedToken => R.merge(sessionData, { token: encryptedToken }));
     }
   }

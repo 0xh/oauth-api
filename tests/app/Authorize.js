@@ -14,7 +14,6 @@ import OAuth20 from '../../src/lib/OAuth/OAuth20';
 import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
-import R from 'ramda';
 
 const dynamoDb = DynamoDB.getClient();
 
@@ -120,7 +119,7 @@ describe('Authorize', () => {
 
   it('callback browser', () => insertConsumer()
     .then(() => authorize.callback(eventCallback, {
-      returnData: true
+      returnData: true,
     }))
     .then((res) => {
       expect(res, 'to have properties', { refresh_token: 1234, access_token: 5678 });
