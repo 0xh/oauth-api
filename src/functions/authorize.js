@@ -50,7 +50,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
           headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true,
-            'Set-Cookie': `${session.getCookieName()}=${sessionId}`,
+            'Set-Cookie': session.getCookieHeaderValue(sessionId, '/'),
             Location: oauthRes.url,
           },
         })

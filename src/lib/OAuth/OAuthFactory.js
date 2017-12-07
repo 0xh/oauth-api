@@ -10,6 +10,7 @@ import Quickbooks from './Quickbooks';
 
 class OAuthFactory {
   static getOAuth(consumer) {
+    console.log(consumer);
     const version = consumer.oauth_version.toLowerCase();
     switch (version) {
       case '1.0':

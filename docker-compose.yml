@@ -16,6 +16,7 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - REGION
       - AWS_KMS_KEY_ID
+      - AWS_REGION
       - SERVICE_NAME
       - STAGE
       - KEBOOLA_STACK

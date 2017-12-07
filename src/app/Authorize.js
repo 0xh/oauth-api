@@ -6,7 +6,7 @@ import OAuthFactory from '../lib/OAuth/OAuthFactory';
 const getOauth = consumerP => consumerP.then(resItem => OAuthFactory.getOAuth(resItem));
 
 const getCallbackUrl = (event) => {
-  const eventUrl = `https://${event.headers.Host}${event.path}`;
+  const eventUrl = `https://${event.headers.Host}/${event.requestContext.stage}${event.path}`;
   return eventUrl.substr(-9) === '/callback' ? eventUrl : `${eventUrl}/callback`;
 };
 
