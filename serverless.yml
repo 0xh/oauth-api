@@ -31,6 +31,15 @@ provider:
     KBC_URL: ${env:KBC_URL}
     SESSION_COOKIE_NAME: ${env:SESSION_COOKIE_NAME}
     SESSION_HASH_PREFIX: ${env:SESSION_HASH_PREFIX}
+    REDIRECT_URI_BASE:
+      Fn::Join:
+        - ""
+        - - "https://"
+          - Ref: ApiGatewayRestApi
+          - ".execute-api."
+          - Ref: AWS::Region
+          - ".amazonaws.com"
+          - "/dev"
 
 package:
   individually: true

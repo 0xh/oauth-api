@@ -25,6 +25,7 @@ services:
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
+      - REDIRECT_URI_BASE
     command: >
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0
@@ -52,6 +53,7 @@ services:
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
+      - REDIRECT_URI_BASE
     command: ./tests/run.sh
 
   deploy-dev:
@@ -73,6 +75,7 @@ services:
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
+      - REDIRECT_URI_BASE
     command: >
              sh -c '
              serverless deploy

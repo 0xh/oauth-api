@@ -52,16 +52,11 @@ class OAuth20 {
         redirect_uri: callbackUrl,
         code: query.code,
       },
-    }).then(res => res.data).catch((err) => {
-      console.log({
-        callbackUrl,
-        tokenUrl: this.tokenUrl,
-        queryCode: query.code,
-        clientId: this.appKey,
+    }).then(res => res.data)
+      .catch((err) => {
+        console.log(err.response);
+        throw UserError.error(`Authentication error: ${err.response.data.error}`);
       });
-      console.log(err.response);
-      throw err;
-    });
   }
 }
 

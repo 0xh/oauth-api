@@ -36,7 +36,7 @@ class Session {
 
   getCookieHeaderValue(sid, path = null) {
     const nameStr = `${this.getCookieName()}=${sid}`;
-    const pathStr = path ? `; path=${path}` : '';
+    const pathStr = path ? `;path=${path}` : '';
     return nameStr + pathStr;
   }
 

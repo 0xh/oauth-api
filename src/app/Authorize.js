@@ -6,9 +6,8 @@ import OAuthFactory from '../lib/OAuth/OAuthFactory';
 const getOauth = consumerP => consumerP.then(resItem => OAuthFactory.getOAuth(resItem));
 
 const getCallbackUrl = (event) => {
-  const stage = R.pathOr('', ['requestContext', 'stage'], event);
-  const stageStr = R.isEmpty(stage) ? '' : `/${stage}`;
-  const eventUrl = `https://${event.headers.Host}${stageStr}${event.path}`;
+  //@todo try to use event.requestContext.path and host
+  const eventUrl = `${process.env.REDIRECT_URI_BASE}${event.path}`;
   return eventUrl.substr(-9) === '/callback' ? eventUrl : `${eventUrl}/callback`;
 };
 
