@@ -98,6 +98,23 @@ functions:
       - http:
           method: delete
           path: "/manage/{componentId}"
+  credentials:
+    handler: src/functions/credentials.handler
+    tags:
+      KeboolaStack: ${env:KEBOOLA_STACK}
+    events:
+      - http:
+          method: get
+          path: "/credentials"
+      - http:
+          method: post
+          path: "/credentials"
+      - http:
+          method: get
+          path: "/credentials/{componentId}"
+      - http:
+          method: delete
+          path: "/credentials/{componentId}"
 
 resources:
   Resources:
