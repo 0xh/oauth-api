@@ -1,7 +1,6 @@
 'use strict';
 
 import { RequestHandler, UserError } from '@keboola/serverless-request-handler';
-import Consumers from '../app/Consumers';
 import Credentials from '../app/Credentials';
 import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
@@ -9,7 +8,6 @@ import KbcApi from '../lib/KbcApi';
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = DynamoDB.getClient();
   const kbcApi = new KbcApi();
-  const consumers = new Consumers(dynamoDb, kbcApi);
   const credentials = new Credentials(dynamoDb, kbcApi);
   let promise;
   let code;

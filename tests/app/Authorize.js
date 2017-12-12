@@ -90,7 +90,7 @@ describe('Authorize', () => {
   it('init', () => insertConsumer()
     .then(() => authorize.init(eventInit))
     .then((res) => {
-      expect(res, 'to have property', 'url', 'https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=https://0.0.0.0:3000/authorize/keboola.ex-google-drive/callback&client_id=test&access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets.readonly');
+      expect(res, 'to have property', 'url', `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=${process.env.REDIRECT_URI_BASE}/authorize/keboola.ex-google-drive/callback&client_id=test&access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets.readonly`);
     })
   );
 
