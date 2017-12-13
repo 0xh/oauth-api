@@ -105,16 +105,16 @@ functions:
     events:
       - http:
           method: get
-          path: "/credentials"
+          path: "/credentials/{componentId}"
       - http:
           method: post
-          path: "/credentials"
+          path: "/credentials/{componentId}"
       - http:
           method: get
-          path: "/credentials/{componentId}"
+          path: "/credentials/{componentId}/{name}"
       - http:
           method: delete
-          path: "/credentials/{componentId}"
+          path: "/credentials/{componentId}/{name}"
 
 resources:
   Resources:

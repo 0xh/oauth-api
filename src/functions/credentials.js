@@ -14,7 +14,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
 
   switch (event.httpMethod) {
     case 'GET':
-      if (event.resource === '/credentials/{componentId}') {
+      if (event.resource === '/credentials/{componentId}/{name}') {
         promise = credentials.get(event);
       } else {
         promise = credentials.list(event);

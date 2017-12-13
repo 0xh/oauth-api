@@ -7,7 +7,8 @@
 'use strict';
 
 import expect from 'unexpected';
-import { List, Map } from 'immutable';
+import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler';
 import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 import Credentials from '../../src/app/Credentials';
@@ -42,10 +43,13 @@ const consumer2 = {
 
 const credentials1 = {
   id: '0',
-  name: '123',
+  name: '12',
   component_id: 'keboola.ex-google-analytics',
   project_id: '219',
-  creator: 'miro',
+  creator: JSON.stringify({
+    id: '789',
+    description: 'miro',
+  }),
   data: 'encrypted data',
   authorized_for: 'me',
   created: Date.now(),
@@ -53,58 +57,105 @@ const credentials1 = {
 
 const credentials2 = {
   id: '1',
-  name: '456',
+  name: '13',
   component_id: 'keboola.ex-google-drive',
   project_id: '219',
-  creator: 'miro',
+  creator: JSON.stringify({
+    id: '789',
+    description: 'miro',
+  }),
+  data: 'encrypted data',
+  authorized_for: 'me',
+  created: Date.now(),
+};
+
+const credentials3 = {
+  id: '2',
+  name: '14',
+  component_id: 'keboola.ex-google-drive',
+  project_id: '123',
+  creator: JSON.stringify({
+    id: '789',
+    description: 'miro',
+  }),
+  data: 'encrypted data',
+  authorized_for: 'me',
+  created: Date.now(),
+};
+
+const credentials4 = {
+  id: '3',
+  name: '15',
+  component_id: 'keboola.ex-google-analytics',
+  project_id: '219',
+  creator: JSON.stringify({
+    id: '789',
+    description: 'miro',
+  }),
   data: 'encrypted data',
   authorized_for: 'me',
   created: Date.now(),
 };
 
 function prepareData() {
-  const consumerList = List([consumer1, consumer2]).map(item => ({
-    PutRequest: {
-      Item: item,
-    },
-  })).toJS();
+  const consumerList = R.map(item => ({
+    PutRequest: { Item: item },
+  }), [consumer1, consumer2]);
 
-  const credentialsList = List([credentials1, credentials2]).map(item => ({
-    PutRequest: {
-      Item: item,
-    },
-  })).toJS();
+  const credentialsList = R.map(item => ({
+    PutRequest: { Item: item },
+  }), [credentials1, credentials2, credentials3, credentials4]);
 
   return dynamoDb.batchWrite({
     RequestItems: {
       consumers: consumerList,
-      credentials: credentialsList
+      credentials: credentialsList,
+    },
+  }).promise();
+}
+
+function prepareConsumers() {
+  const consumerList = R.map(item => ({
+    PutRequest: { Item: item },
+  }), [consumer1, consumer2]);
+
+  return dynamoDb.batchWrite({
+    RequestItems: {
+      consumers: consumerList,
     },
   }).promise();
 }
 
 function clearData() {
-  const consumerList = List([consumer1, consumer2]).map(item => ({
+  const consumerList = R.map(item => ({
     DeleteRequest: {
       Key: {
         component_id: item.component_id,
       },
     },
-  })).toJS();
+  }), [consumer1, consumer2]);
 
-  const credentialsList = List([credentials1, credentials2]).map(item => ({
-    DeleteRequest: {
-      Key: {
-        id: item.id,
+  return dynamoDb.scan({
+    TableName: 'credentials',
+  }).promise().then((res) => {
+    const credentialsList = R.map(item => ({
+      DeleteRequest: {
+        Key: {
+          id: item.id,
+        },
       },
-    },
-  })).toJS();
+    }), res.Items);
 
-  return dynamoDb.batchWrite({
-    RequestItems: {
-      consumers: consumerList,
-      credentials: credentialsList
-    },
+    const params = { RequestItems: {} };
+    if (!R.isEmpty(consumerList)) {
+      params.RequestItems.consumers = consumerList;
+    }
+
+    if (!R.isEmpty(credentialsList)) {
+      params.RequestItems.credentials = credentialsList;
+    }
+
+    return dynamoDb.batchWrite(params).promise();
   });
 }
 
@@ -115,27 +166,107 @@ describe('Credentials', () => {
 
   it('list', () => prepareData().then(() => credentials.list({
     headers,
+    pathParameters: {
+      componentId: 'keboola.ex-google-analytics',
+    },
   }).then((res) => {
     expect(res, 'to have length', 2);
+    expect(res, 'to have items satisfying', (item) => {
+      expect(item, 'to have own properties', [
+        'id',
+        'authorizedFor',
+        'creator',
+        'created',
+      ]);
+      expect(item, 'to have properties', {
+        creator: {
+          id: '789',
+          description: 'miro',
+        },
+        authorizedFor: 'me',
+      });
+    });
   })));
 
-  // it('get', () => prepareData().then(() => credentials.get({
-  //   headers,
-  //   pathParameters: {
-  //     componentId: 'keboola.ex-google-drive',
-  //   },
-  // }).then((res) => {
-  //   Map(consumer2).forEach((value, key) => {
-  //     expect(res[key], 'to be', value);
-  //   });
-  // })));
-  //
-  // it('add', () => credentials.add({
-  //   headers,
-  //   body: JSON.stringify(credentials1),
-  // }).then((res) => {
-  //   Map(credentials1).forEach((value, key) => {
-  //     expect(res[key], 'to be', value);
-  //   });
-  // }));
+  it('list - empty', () => credentials.list({
+    headers,
+    pathParameters: {
+      componentId: 'keboola.ex-google-analytics',
+    },
+  }).then((res) => {
+    expect(res, 'to be empty');
+  }));
+
+  it('get - success', () => prepareData().then(() => credentials.get({
+    headers,
+    pathParameters: {
+      componentId: 'keboola.ex-google-drive',
+      name: '13',
+    },
+  }).then((res) => {
+    expect(res, 'to have own properties', [
+      'id',
+      'authorizedFor',
+      'creator',
+      'created',
+      '#data',
+      'oauthVersion',
+      'appKey',
+      '#appSecret',
+    ]);
+  })));
+
+  it('get - not found', () => prepareData().then(() => expect(
+    credentials.get({
+      headers,
+      pathParameters: {
+        componentId: 'keboola.ex-google-drive',
+        name: '14',
+      },
+    }),
+    'to be rejected with error satisfying',
+    UserError.notFound('Credentials not found')
+  )));
+
+  it('get - missing params', () => prepareData()
+    .then(() => expect(
+      credentials.get({
+        headers,
+        pathParameters: {
+          componentId: 'keboola.ex-google-drive',
+        },
+      }),
+      'to be rejected with error satisfying',
+      UserError.badRequest('Missing "id" url parameter')
+    ))
+  );
+
+  it('add', () => prepareConsumers()
+    .then(() => credentials.add({
+      headers,
+      pathParameters: {
+        componentId: 'keboola.ex-google-drive',
+      },
+      body: JSON.stringify({
+        id: 'something',
+        authorizedFor: 'miro',
+        data: {
+          access_token: 'abcdefg',
+          refresh_token: 'hijklmnop',
+        },
+      }),
+    }))
+    .then((res) => {
+      expect(res, 'to have own properties', [
+        'id',
+        'authorizedFor',
+        'creator',
+        'created',
+        '#data',
+        'oauthVersion',
+        'appKey',
+        '#appSecret',
+      ]);
+    })
+  );
 });

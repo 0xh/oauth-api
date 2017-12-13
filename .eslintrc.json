@@ -14,7 +14,7 @@
     "no-underscore-dangle": ["error", {
       "allow": ["__"]
     }],
-    "camelcase": 0
+    "camelcase": 1
   },
   "env": {
     "node": true,
