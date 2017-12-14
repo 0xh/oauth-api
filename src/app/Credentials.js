@@ -7,9 +7,10 @@ import { UserError } from '@keboola/serverless-request-handler';
 import Validator from '../lib/Validator';
 
 class Credentials {
-  constructor(dynamoDb, kbc) {
+  constructor(dynamoDb, kbc, dockerRunner) {
     this.dynamoDb = dynamoDb;
     this.kbc = kbc;
+    this.dockerRunner = dockerRunner;
     this.tableName = 'credentials';
     this.schema = {
       id: Joi.string().required(),
@@ -100,7 +101,7 @@ class Credentials {
   add(event) {
     const componentId = event.pathParameters.componentId;
     const requestBody = Validator.validate(event, this.schema);
-    const paramsFn = token => ({
+    const paramsFn = (token, encryptedData) => ({
       TableName: this.tableName,
       Item: {
         id: uniqid(),
@@ -111,7 +112,7 @@ class Credentials {
           description: token.name,
         },
         created: (new Date()).toISOString(),
-        data: requestBody.data, // encrypt ?
+        data: encryptedData,
       },
     });
     const consumerParams = {
@@ -127,26 +128,32 @@ class Credentials {
           if (R.isEmpty(consumerRes)) {
             return Promise.reject(UserError.notFound(`Consumer '${componentId}' not found`));
           }
-          const params = paramsFn(tokenRes);
-          return this.dynamoDb.put(params).promise()
-            .then(() => {
-              const credentials = params.Item;
-              const consumer = consumerRes.Item;
-              return {
-                id: credentials.name,
-                authorizedFor: credentials.authorized_for,
-                creator: credentials.creator,
-                created: credentials.created,
-                '#data': credentials.data,
-                oauthVersion: consumer.oauth_version,
-                appKey: R.isEmpty(credentials.app_key)
-                  ? consumer.app_key
-                  : credentials.app_key,
-                '#appSecret': R.isEmpty(credentials.app_secret_docker)
-                  ? consumer.app_secret_docker
-                  : credentials.app_secret_docker,
-              };
-            });
+          return this.dockerRunner.encrypt(
+              componentId,
+              tokenRes.project,
+              JSON.stringify(requestBody.data)
+            )
+            .then(encryptedData => paramsFn(tokenRes, encryptedData))
+            .then(params => this.dynamoDb.put(params).promise()
+              .then(() => {
+                const credentials = params.Item;
+                const consumer = consumerRes.Item;
+                return {
+                  id: credentials.name,
+                  authorizedFor: credentials.authorized_for,
+                  creator: credentials.creator,
+                  created: credentials.created,
+                  '#data': credentials.data,
+                  oauthVersion: consumer.oauth_version,
+                  appKey: R.isEmpty(credentials.app_key)
+                    ? consumer.app_key
+                    : credentials.app_key,
+                  '#appSecret': R.isEmpty(credentials.app_secret_docker)
+                    ? consumer.app_secret_docker
+                    : credentials.app_secret_docker,
+                };
+              })
+            );
         }));
   }
 }

@@ -2,13 +2,14 @@
 
 import { RequestHandler, UserError } from '@keboola/serverless-request-handler';
 import Credentials from '../app/Credentials';
+import DockerRunnerApi from '../lib/DockerRunnerApi';
 import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = DynamoDB.getClient();
   const kbcApi = new KbcApi();
-  const credentials = new Credentials(dynamoDb, kbcApi);
+  const credentials = new Credentials(dynamoDb, kbcApi, new DockerRunnerApi);
   let promise;
   let code;
 

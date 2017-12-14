@@ -12,6 +12,7 @@ import { UserError } from '@keboola/serverless-request-handler';
 import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 import Credentials from '../../src/app/Credentials';
+import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 
 const dynamoDb = DynamoDB.getClient();
 const headers = {
@@ -160,7 +161,7 @@ function clearData() {
 }
 
 describe('Credentials', () => {
-  const credentials = new Credentials(dynamoDb, new KbcApi());
+  const credentials = new Credentials(dynamoDb, new KbcApi(), new DockerRunnerApi());
 
   beforeEach(() => clearData());
 
