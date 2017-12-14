@@ -21,13 +21,14 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
         promise = credentials.list(event);
       }
       code = 200;
-
       break;
     case 'POST':
       promise = credentials.add(event);
       code = 202;
       break;
     case 'DELETE':
+      promise = credentials.delete(event);
+      code = 204;
       break;
     default:
       throw UserError.notFound();

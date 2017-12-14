@@ -198,7 +198,7 @@ describe('Credentials', () => {
     expect(res, 'to be empty');
   }));
 
-  it('get - success', () => prepareData().then(() => credentials.get({
+  it('get', () => prepareData().then(() => credentials.get({
     headers,
     pathParameters: {
       componentId: 'keboola.ex-google-drive',
@@ -238,7 +238,7 @@ describe('Credentials', () => {
         },
       }),
       'to be rejected with error satisfying',
-      UserError.badRequest('Missing "id" url parameter')
+      UserError.badRequest('Missing \'id\' url parameter')
     ))
   );
 
@@ -268,6 +268,27 @@ describe('Credentials', () => {
         'appKey',
         '#appSecret',
       ]);
+    })
+  );
+
+  it('delete', () => prepareData()
+    .then(() => credentials.delete({
+      headers,
+      pathParameters: {
+        componentId: 'keboola.ex-google-drive',
+        name: '13'
+      },
+    }))
+    .then(() => {
+      return credentials.list({
+          headers,
+          pathParameters: {
+            componentId: 'keboola.ex-google-drive',
+          },
+        })
+        .then((res) => {
+          expect(res, 'to have length', 0);
+        })
     })
   );
 });

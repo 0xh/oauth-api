@@ -69,44 +69,44 @@ class Authorize {
     return this.encryption.decrypt(sessionData.token)
       .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes))
       .then((kbcTokenRes) => {
-        const creator = {
-          id: kbcTokenRes.id,
-          description: kbcTokenRes.name,
-        };
         const item = R.merge(
           {
             id: sessionData.id,
             component_id: componentId,
             project_id: kbcTokenRes.project,
-            creator: JSON.stringify(creator),
-            created: Date.now(),
+            creator: {
+              id: kbcTokenRes.id,
+              description: kbcTokenRes.name,
+            },
+            created: (new Date).toISOString(),
           },
           getDataFromSession(sessionData)
         );
 
         return this.dockerRunner.encrypt(
-          componentId,
-          kbcTokenRes.project,
-          JSON.stringify(tokens)
-        ).then(dataEncrypted =>
-          this.dockerRunner.encrypt(
             componentId,
             kbcTokenRes.project,
-            item.appSecret
-          ).then((appSecretEncrypted) => {
-            const finalItem = R.merge(item, {
-              data: dataEncrypted,
-              app_docker_secret: appSecretEncrypted,
-            });
-            const params = {
-              TableName: 'credentials',
-              Item: finalItem,
-            };
+            JSON.stringify(tokens)
+          )
+          .then(dataEncrypted => this.dockerRunner.encrypt(
+              componentId,
+              kbcTokenRes.project,
+              item.appSecret
+            )
+            .then((appSecretEncrypted) => {
+              const finalItem = R.merge(item, {
+                data: dataEncrypted,
+                app_docker_secret: appSecretEncrypted,
+              });
+              const params = {
+                TableName: 'credentials',
+                Item: finalItem,
+              };
 
-            return this.dynamoDb.put(params).promise()
-              .then(() => finalItem);
-          })
-        );
+              return this.dynamoDb.put(params).promise()
+                .then(() => finalItem);
+            })
+          );
       });
   }
 }
