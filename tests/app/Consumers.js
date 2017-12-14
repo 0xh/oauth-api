@@ -147,4 +147,28 @@ describe('Consumers', () => {
       UserError.unprocessable('child "component_id" fails because ["component_id" is required]')
     )
   );
+
+  it('patch', () => insertConsumers()
+    .then(() => consumers.patch({
+      headers,
+      pathParameters: {
+        componentId: 'keboola.ex-google-drive',
+      },
+      body: JSON.stringify({
+        auth_url: 'some other url',
+      })
+    }))
+    .then((res) => {
+      expect(res, 'to have own properties', {
+        auth_url: 'some other url',
+        app_key: 'test',
+        oauth_version: '2.0',
+        friendly_name: 'Google Drive Extractor',
+        token_url: 'some other url',
+        request_token_url: 'another url what?',
+        app_secret: 'fsfsg',
+        component_id: 'keboola.ex-google-drive'
+      });
+    })
+  );
 });

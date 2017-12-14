@@ -19,11 +19,14 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
         promise = consumers.list(event);
       }
       code = 200;
-
       break;
     case 'POST':
       promise = consumers.add(event);
       code = 202;
+      break;
+    case 'PATCH':
+      promise = consumers.patch(event);
+      code = 200;
       break;
     case 'DELETE':
       break;

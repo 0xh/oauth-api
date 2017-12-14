@@ -76,6 +76,48 @@ class Consumers {
       return Promise.reject(UserError.unprocessable(e.message));
     }
   }
+
+  patch(event) {
+    try {
+      const componentId = event.pathParameters.componentId;
+      if (R.isNil(componentId)) {
+        return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
+      }
+      const patchSchema = {
+        auth_url: Joi.string(),
+        token_url: Joi.string(),
+        request_token_url: Joi.string(),
+        app_key: Joi.string(),
+        app_secret: Joi.string(),
+        friendly_name: Joi.string(),
+        oauth_version: Joi.string(),
+      };
+      const updateAttributes = Validator.validate(event, patchSchema);
+
+      return this.kbc.authManageToken(event)
+        .then(() => this.dynamoDb.get({
+          TableName: tableName,
+          Key: { component_id: componentId },
+        }).promise())
+        .then((res) => {
+          if (R.isEmpty(res)) {
+            throw UserError.notFound(`Consumer "${componentId}" not found`);
+          }
+          return res.Item
+        })
+        .then((item) => {
+          const updatedItem = R.merge(item, updateAttributes);
+          return this.dynamoDb.put({
+              TableName: tableName,
+              Item: updatedItem,
+            }).promise()
+            .then(() => updatedItem);
+        });
+
+    } catch (e) {
+      return Promise.reject(UserError.unprocessable(e.message));
+    }
+  }
 }
 
 export default Consumers;

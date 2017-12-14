@@ -96,6 +96,9 @@ functions:
           method: get
           path: "/manage/{componentId}"
       - http:
+          method: patch
+          path: "/manage/{componentId}"
+      - http:
           method: delete
           path: "/manage/{componentId}"
   credentials:
