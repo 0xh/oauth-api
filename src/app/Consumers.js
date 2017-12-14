@@ -1,7 +1,11 @@
 'use strict';
 
 import Joi from 'joi';
+import R from 'ramda';
 import Validator from '../lib/Validator';
+import {UserError} from "@keboola/serverless-request-handler/src/index";
+
+const tableName = 'consumers';
 
 class Consumers {
   constructor(dynamoDb, kbc) {
@@ -21,40 +25,56 @@ class Consumers {
 
   list(event) {
     const params = {
-      TableName: 'consumers',
+      TableName: tableName,
     };
 
     return this.kbc.authManageToken(event)
-      .then(() => this.dynamoDb.scan(params).promise()
-        .then(res => res.Items)
-      );
+      .then(() => this.dynamoDb.scan(params).promise())
+      .then(res => res.Items)
+      .then(items => R.map(item => ({
+        id: item.component_id,
+        friendly_name: item.friendly_name,
+        app_key: item.app_key,
+        oauth_version: item.oauth_version
+      }), items));
   }
 
   get(event) {
+    const componentId = event.pathParameters.componentId;
+    if (R.isNil(componentId)) {
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
+    }
     const params = {
-      TableName: 'consumers',
+      TableName: tableName,
       Key: {
-        component_id: event.pathParameters.componentId,
+        component_id: componentId,
       },
     };
 
     return this.kbc.authManageToken(event)
-      .then(() => this.dynamoDb.get(params).promise()
-        .then(res => res.Item)
-      );
+      .then(() => this.dynamoDb.get(params).promise())
+      .then((res) => {
+        if (R.isEmpty(res)) {
+          throw UserError.notFound(`Consumer "${componentId}" not found`);
+        }
+        return res.Item
+      });
   }
 
   add(event) {
-    const consumer = Validator.validate(event, this.schema);
-    const params = {
-      TableName: 'consumers',
-      Item: consumer,
-    };
+    try {
+      const consumer = Validator.validate(event, this.schema);
+      const params = {
+        TableName: tableName,
+        Item: consumer,
+      };
+      return this.kbc.authManageToken(event)
+        .then(() => this.dynamoDb.put(params).promise())
+        .then(() => consumer);
 
-    return this.kbc.authManageToken(event)
-      .then(() => this.dynamoDb.put(params).promise()
-        .then(() => consumer)
-      );
+    } catch (e) {
+      return Promise.reject(UserError.unprocessable(e.message));
+    }
   }
 }
 

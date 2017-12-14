@@ -3,8 +3,6 @@ version: "2"
 services:
   dev:
     build: .
-    tty: true
-    stdin_open: true
     volumes:
       - .:/code
     working_dir: /code
@@ -32,8 +30,6 @@ services:
              '
   tests:
     build: .
-    tty: true
-    stdin_open: true
     working_dir: /code
     ports:
       - "3000:3000"
