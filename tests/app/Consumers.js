@@ -6,12 +6,12 @@
 'use strict';
 
 import expect from 'unexpected';
-import { List, Map } from 'immutable';
+import { List } from 'immutable';
+import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler/src/index';
 import Consumers from '../../src/app/Consumers';
 import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
-import R from "ramda";
-import {UserError} from "@keboola/serverless-request-handler/src/index";
 
 const dynamoDb = DynamoDB.getClient();
 const headers = {
@@ -139,13 +139,13 @@ describe('Consumers', () => {
   }));
 
   it('add - invalid body', () => expect(
-      consumers.add({
-        headers,
-        body: JSON.stringify(consumerFlawed)
-      }),
-      'to be rejected with error satisfying',
-      UserError.unprocessable('child "component_id" fails because ["component_id" is required]')
-    )
+    consumers.add({
+      headers,
+      body: JSON.stringify(consumerFlawed),
+    }),
+    'to be rejected with error satisfying',
+    UserError.unprocessable('child "component_id" fails because ["component_id" is required]')
+  )
   );
 
   it('patch', () => insertConsumers()
@@ -156,7 +156,7 @@ describe('Consumers', () => {
       },
       body: JSON.stringify({
         auth_url: 'some other url',
-      })
+      }),
     }))
     .then((res) => {
       expect(res, 'to have own properties', {
@@ -167,7 +167,7 @@ describe('Consumers', () => {
         token_url: 'some other url',
         request_token_url: 'another url what?',
         app_secret: 'fsfsg',
-        component_id: 'keboola.ex-google-drive'
+        component_id: 'keboola.ex-google-drive',
       });
     })
   );

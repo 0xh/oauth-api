@@ -78,21 +78,21 @@ class Authorize {
               id: kbcTokenRes.id,
               description: kbcTokenRes.name,
             },
-            created: (new Date).toISOString(),
+            created: (new Date()).toISOString(),
           },
           getDataFromSession(sessionData)
         );
 
         return this.dockerRunner.encrypt(
+          componentId,
+          kbcTokenRes.project,
+          JSON.stringify(tokens)
+        )
+          .then(dataEncrypted => this.dockerRunner.encrypt(
             componentId,
             kbcTokenRes.project,
-            JSON.stringify(tokens)
+            item.appSecret
           )
-          .then(dataEncrypted => this.dockerRunner.encrypt(
-              componentId,
-              kbcTokenRes.project,
-              item.appSecret
-            )
             .then((appSecretEncrypted) => {
               const finalItem = R.merge(item, {
                 data: dataEncrypted,

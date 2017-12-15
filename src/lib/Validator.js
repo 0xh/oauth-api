@@ -13,25 +13,16 @@ class Validator {
       body = JSON.parse(event.get('body'));
     } catch (e) {
       if (e instanceof SyntaxError) {
-        throw UserError.unprocessable('Request body does not contain valid json');
+        return Promise.reject(UserError.unprocessable('Request body does not contain valid json'));
       }
-      throw e;
+      return Promise.reject(e);
     }
 
-    const res = Joi.validate(
-      body,
-      schema,
-      {
-        allowUnknown: true,
-        stripUnknown: true,
-      }
-    );
-
-    if (res.error) {
-      throw UserError.unprocessable(res.error.message);
-    }
-
-    return res.value;
+    return Joi.validate(body, schema, {
+      allowUnknown: true,
+      stripUnknown: true,
+    })
+      .catch(error => Promise.reject(UserError.unprocessable(error.message)));
   }
 }
 

@@ -106,8 +106,7 @@ class Credentials {
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
     }
-    const requestBody = Validator.validate(event, this.schema);
-    const paramsFn = (token, encryptedData) => ({
+    const paramsFn = (requestBody, token, encryptedData) => ({
       TableName: tableName,
       Item: {
         id: uniqid(),
@@ -128,39 +127,42 @@ class Credentials {
       },
     };
 
-    return this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))
-      .then(tokenRes => this.dynamoDb.get(consumerParams).promise()
-        .then((consumerRes) => {
-          if (R.isEmpty(consumerRes)) {
-            return Promise.reject(UserError.notFound(`Consumer '${componentId}' not found`));
-          }
-          return this.dockerRunner.encrypt(
+    return Validator.validate(event, this.schema)
+      .then(requestBody => this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))
+        .then(tokenRes => this.dynamoDb.get(consumerParams).promise()
+          .then((consumerRes) => {
+            if (R.isEmpty(consumerRes)) {
+              return Promise.reject(UserError.notFound(`Consumer '${componentId}' not found`));
+            }
+            return this.dockerRunner.encrypt(
               componentId,
               tokenRes.project,
               JSON.stringify(requestBody.data)
             )
-            .then(encryptedData => paramsFn(tokenRes, encryptedData))
-            .then(params => this.dynamoDb.put(params).promise()
-              .then(() => {
-                const credentials = params.Item;
-                const consumer = consumerRes.Item;
-                return {
-                  id: credentials.name,
-                  authorizedFor: credentials.authorized_for,
-                  creator: credentials.creator,
-                  created: credentials.created,
-                  '#data': credentials.data,
-                  oauthVersion: consumer.oauth_version,
-                  appKey: R.isEmpty(credentials.app_key)
-                    ? consumer.app_key
-                    : credentials.app_key,
-                  '#appSecret': R.isEmpty(credentials.app_secret_docker)
-                    ? consumer.app_secret_docker
-                    : credentials.app_secret_docker,
-                };
-              })
-            );
-        }));
+              .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
+              .then(params => this.dynamoDb.put(params).promise()
+                .then(() => {
+                  const credentials = params.Item;
+                  const consumer = consumerRes.Item;
+                  return {
+                    id: credentials.name,
+                    authorizedFor: credentials.authorized_for,
+                    creator: credentials.creator,
+                    created: credentials.created,
+                    '#data': credentials.data,
+                    oauthVersion: consumer.oauth_version,
+                    appKey: R.isEmpty(credentials.app_key)
+                      ? consumer.app_key
+                      : credentials.app_key,
+                    '#appSecret': R.isEmpty(credentials.app_secret_docker)
+                      ? consumer.app_secret_docker
+                      : credentials.app_secret_docker,
+                  };
+                })
+              );
+          })
+        )
+      );
   }
 
   delete(event) {
@@ -172,9 +174,9 @@ class Credentials {
     if (R.isNil(name)) {
       return Promise.reject(UserError.badRequest('Missing \'id\' url parameter'));
     }
-    const deleteParamsFn = (id) => ({
+    const deleteParamsFn = id => ({
       TableName: tableName,
-      Key: { id: id },
+      Key: { id },
     });
 
     return this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))

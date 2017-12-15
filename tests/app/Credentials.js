@@ -276,19 +276,17 @@ describe('Credentials', () => {
       headers,
       pathParameters: {
         componentId: 'keboola.ex-google-drive',
-        name: '13'
+        name: '13',
       },
     }))
-    .then(() => {
-      return credentials.list({
-          headers,
-          pathParameters: {
-            componentId: 'keboola.ex-google-drive',
-          },
-        })
-        .then((res) => {
-          expect(res, 'to have length', 0);
-        })
+    .then(() => credentials.list({
+      headers,
+      pathParameters: {
+        componentId: 'keboola.ex-google-drive',
+      },
     })
+      .then((res) => {
+        expect(res, 'to have length', 0);
+      }))
   );
 });

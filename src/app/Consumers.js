@@ -2,8 +2,8 @@
 
 import Joi from 'joi';
 import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler/src/index';
 import Validator from '../lib/Validator';
-import {UserError} from "@keboola/serverless-request-handler/src/index";
 
 const tableName = 'consumers';
 
@@ -35,7 +35,7 @@ class Consumers {
         id: item.component_id,
         friendly_name: item.friendly_name,
         app_key: item.app_key,
-        oauth_version: item.oauth_version
+        oauth_version: item.oauth_version,
       }), items));
   }
 
@@ -57,44 +57,38 @@ class Consumers {
         if (R.isEmpty(res)) {
           throw UserError.notFound(`Consumer "${componentId}" not found`);
         }
-        return res.Item
+        return res.Item;
       });
   }
 
   add(event) {
-    try {
-      const consumer = Validator.validate(event, this.schema);
-      const params = {
-        TableName: tableName,
-        Item: consumer,
-      };
-      return this.kbc.authManageToken(event)
-        .then(() => this.dynamoDb.put(params).promise())
-        .then(() => consumer);
-
-    } catch (e) {
-      return Promise.reject(UserError.unprocessable(e.message));
-    }
+    return Validator.validate(event, this.schema)
+      .then(consumer => this.kbc.authManageToken(event)
+        .then(() => this.dynamoDb.put({
+          TableName: tableName,
+          Item: consumer,
+        }).promise())
+        .then(() => consumer)
+      );
   }
 
   patch(event) {
-    try {
-      const componentId = event.pathParameters.componentId;
-      if (R.isNil(componentId)) {
-        return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
-      }
-      const patchSchema = {
-        auth_url: Joi.string(),
-        token_url: Joi.string(),
-        request_token_url: Joi.string(),
-        app_key: Joi.string(),
-        app_secret: Joi.string(),
-        friendly_name: Joi.string(),
-        oauth_version: Joi.string(),
-      };
-      const updateAttributes = Validator.validate(event, patchSchema);
+    const componentId = event.pathParameters.componentId;
+    if (R.isNil(componentId)) {
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
+    }
+    const patchSchema = {
+      auth_url: Joi.string(),
+      token_url: Joi.string(),
+      request_token_url: Joi.string(),
+      app_key: Joi.string(),
+      app_secret: Joi.string(),
+      friendly_name: Joi.string(),
+      oauth_version: Joi.string(),
+    };
 
-      return this.kbc.authManageToken(event)
+    return Validator.validate(event, patchSchema)
+      .then(updateAttributes => this.kbc.authManageToken(event)
         .then(() => this.dynamoDb.get({
           TableName: tableName,
           Key: { component_id: componentId },
@@ -103,20 +97,17 @@ class Consumers {
           if (R.isEmpty(res)) {
             throw UserError.notFound(`Consumer "${componentId}" not found`);
           }
-          return res.Item
+          return res.Item;
         })
         .then((item) => {
           const updatedItem = R.merge(item, updateAttributes);
           return this.dynamoDb.put({
-              TableName: tableName,
-              Item: updatedItem,
-            }).promise()
+            TableName: tableName,
+            Item: updatedItem,
+          }).promise()
             .then(() => updatedItem);
-        });
-
-    } catch (e) {
-      return Promise.reject(UserError.unprocessable(e.message));
-    }
+        })
+      );
   }
 }
 
