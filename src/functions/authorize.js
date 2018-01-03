@@ -45,14 +45,8 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
         .then(sessionDataRes => session.set(sessionId, sessionDataRes))
         .then(() => authorize.init(event))
         .then(oauthRes => ({
-          response: {
-            // oauthRes: oauthRes,
-            // session: sessionId,
-            // event: event,
-            // cookie: session.getCookieHeaderValue(sessionId, '/'),
-          },
+          response: {},
           code: 302,
-          // code: 200,
           headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true,

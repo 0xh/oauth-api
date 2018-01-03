@@ -23,10 +23,8 @@ class Session {
    *  'hashPrefix' Session ID prefix
    */
   constructor(dynamoDb, options = {}) {
-    this.dynamoDB = dynamoDb;
-
     const optionsOrDefault = R.propOr(R.__, R.__, options);
-
+    this.dynamoDB = dynamoDb;
     this.tableName = optionsOrDefault('sessions', 'name');
     this.hashKey = optionsOrDefault('id', 'hashKey');
     this.hashPrefix = optionsOrDefault(process.env.SESSION_HASH_PREFIX, 'hashPrefix');
@@ -79,11 +77,11 @@ class Session {
         if (!result || !result.Item) {
           throw UserError.unauthorized(`Session '${sessionId}' not found`);
         }
-        // if (!result.Item.expires || result.Item.expires <= Date.now()) {
-        //   return this.destroy(sid).then(() => {
-        //     throw UserError.unauthorized(`Session '${sessionId}' is expired`);
-        //   });
-        // }
+        if (!result.Item.expires || result.Item.expires <= Date.now()) {
+          return this.destroy(sid).then(() => {
+            throw UserError.unauthorized(`Session '${sessionId}' is expired`);
+          });
+        }
         return result.Item.session;
       });
   }
@@ -97,7 +95,7 @@ class Session {
       TableName: this.tableName,
       Item: {
         [this.hashKey]: this.getSessionId(sid),
-        expires: this.getExpirationDate(),
+        expires: this.getExpirationDate().getTime(),
         updated: Date.now(),
         session,
       },
