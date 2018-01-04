@@ -75,11 +75,11 @@ class Session {
     return this.dynamoDB.get(params).promise()
       .then((result) => {
         if (!result || !result.Item) {
-          throw UserError.unauthorized(`Session '${sessionId}' not found`);
+          throw UserError.unauthorized('Session not found');
         }
         if (!result.Item.expires || result.Item.expires <= Date.now()) {
           return this.destroy(sid).then(() => {
-            throw UserError.unauthorized(`Session '${sessionId}' is expired`);
+            throw UserError.unauthorized('Session is expired');
           });
         }
         return result.Item.session;

@@ -1,9 +1,10 @@
 'use strict';
 
 import expect from 'unexpected';
+import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler/src/index';
 import DynamoDB from '../../src/lib/DynamoDB';
 import Session from '../../src/lib/Session';
-import R from "ramda";
 
 const dynamoDb = DynamoDB.getClient();
 
@@ -20,59 +21,52 @@ const eventInit = {
   body: null,
 };
 
-const eventCallback = {
-  headers: {
-    'Content-Type': 'application/json',
-    Host: 'google.com',
-  },
-  path: '/authorize/keboola.ex-google-drive/callback',
-  pathParameters: { componentId: 'keboola.ex-google-analytics' },
-  resource: '/authorize/{componentId}/callback',
-  httpMethod: 'GET',
-  queryStringParameters: { code: '1234' },
-  body: null,
-};
-
-const getSessionData = (event) => ({
+const getSessionData = event => ({
   componentId: event.pathParameters.componentId,
   returnUrl: R.propOr(null, 'Referer', event.headers),
   returnData: event.httpMethod === 'GET',
 });
 
-
 describe('Session', () => {
   const session = new Session(dynamoDb);
 
-  it('Get Cookie Header', () => {
+  it('get cookie header', () => {
     const sid = session.init(eventInit);
     const cookieHeader = session.getCookieHeaderValue(sid);
-    expect(cookieHeader, 'to be', 'oauthSessionId=' + sid);
+    expect(cookieHeader, 'to be', `oauthSessionId=${sid}`);
   });
 
-  it('Init - new', () => {
+  it('init - new', () => {
     const sid = session.init(eventInit);
     expect(sid, 'to be non-empty');
   });
 
-  it('Init - existing', () => {
+  it('init - existing', () => {
     const sid = session.init(eventInit);
-    const nextEvent = R.set(R.lensPath(['headers', 'cookie']), 'oauthSessionId=' + sid, eventInit);
+    const nextEvent = R.set(R.lensPath(['headers', 'cookie']), `oauthSessionId=${sid}`, eventInit);
     const sid2 = session.init(nextEvent);
     expect(sid, 'to be', sid2);
   });
 
-  it('Set/Get - ok', () => {
+  it('set/get - ok', () => {
     const sid = session.init(eventInit);
     const sessionData = getSessionData(eventInit);
     return session.set(sid, sessionData)
       .then(() => session.get(sid))
-      .then((res) => expect(res, 'to have properties', sessionData));
+      .then(res => expect(res, 'to have properties', sessionData));
   });
 
-  // it('Get - expired', () => {
-  //   const sid = session.init(eventInit);
-  //   const nextEvent = R.set(R.lensPath(['headers', 'cookie']), 'oauthSessionId=' + sid, eventInit);
-  //   const sid2 = session.init(nextEvent);
-  //   expect(sid, 'to be', sid2);
-  // });
+  it('set/get - expired', () => {
+    // session will expire in 1 second
+    const expiredSession = new Session(dynamoDb, { ttl: 1000 });
+    const sid = expiredSession.init(eventInit);
+    const sessionData = getSessionData(eventInit);
+    return expiredSession.set(sid, sessionData)
+      .then(() => new Promise(res => setTimeout(res, 3000)))
+      .then(() => expect(
+        expiredSession.get(sid),
+        'to be rejected with error satisfying',
+        UserError.unauthorized('Session is expired')
+      ));
+  });
 });
