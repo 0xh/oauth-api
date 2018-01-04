@@ -2,11 +2,16 @@
  * Author: miro@keboola.com
  * Date: 30/11/2017
  */
-import { UserError } from '@keboola/serverless-request-handler';
+
 import axios from 'axios';
+import FB from 'fb';
+import qs from 'qs';
 import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler';
+import uuid from 'uuid';
 
 const GRANT_TYPE = 'authorization_code';
+const BASE_URL = 'https://www.facebook.com';
 
 class Facebook {
   /**
@@ -24,13 +29,18 @@ class Facebook {
   }
 
   getRedirectData(callbackUrl) {
-    // %%client_id%% is deprecated and replaced by %%app_key%%
-    return {
-      url: this.authUrl
-        .replace('%%redirect_uri%%', callbackUrl)
-        .replace('%%client_id%%', this.appKey)
-        .replace('%%app_key%%', this.appKey),
+    // permissions are stored in db under auth_url column
+    const params = {
+      client_id: this.appKey,
+      // state: uuid.v4(),
+      response_type: 'code',
+      redirect_uri: callbackUrl,
+      scope: this.authUrl
     };
+    // graphVersion is stored in tokenUrl
+    const graphVersion = this.tokenUrl;
+
+    return { url: `${BASE_URL}/${graphVersion}/dialog/oauth?${qs.stringify(params)}` };
   }
 
   getToken(callbackUrl, sessionData, query) {
