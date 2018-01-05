@@ -59,20 +59,29 @@ function insertConsumers() {
   }).promise();
 }
 
-function deleteConsumers() {
-  const consumerList = R.map(item => ({
-    DeleteRequest: {
-      Key: {
-        component_id: item.component_id,
-      },
-    },
-  }), [consumer1, consumer2]);
+function getAllConsumers() {
+  return dynamoDb.scan({ TableName: 'consumers' }).promise();
+}
 
-  return dynamoDb.batchWrite({
-    RequestItems: {
-      consumers: consumerList,
-    },
-  }).promise();
+function deleteConsumers() {
+  return getAllConsumers()
+    .then(res => R.map(item => ({
+      DeleteRequest: {
+        Key: {
+          component_id: item.component_id,
+        },
+      },
+    }), res.Items))
+    .then((consumerList) => {
+      if (R.isEmpty(consumerList)) {
+        return Promise.resolve();
+      }
+      return dynamoDb.batchWrite({
+        RequestItems: {
+          consumers: consumerList,
+        },
+      }).promise();
+    });
 }
 
 describe('Consumers', () => {

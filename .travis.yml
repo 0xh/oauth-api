@@ -7,7 +7,7 @@ before_script:
   - docker -v
   - docker-compose -v
   - docker-compose build
-  - docker-compose run tests
+  - docker-compose run --rm tests
 
 #script:
 #  - travis_wait docker-compose run deploy-testing
