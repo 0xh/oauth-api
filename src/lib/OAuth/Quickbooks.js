@@ -2,37 +2,14 @@
  * Author: miro@keboola.com
  * Date: 30/11/2017
  */
-import { UserError } from '@keboola/serverless-request-handler';
 import axios from 'axios';
 import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler';
+import OAuth20 from './OAuth20';
 
 const GRANT_TYPE = 'authorization_code';
 
-class Quickbooks {
-  /**
-   * @param {Object} config
-   *  - authUrl: {String} Authentication endpoint
-   *  - tokenUrl: {String} Token endpoint
-   *  - appKey: {String} OAuth client ID
-   *  - appSecret: {String} OAuth client secret
-   */
-  constructor(config) {
-    this.authUrl = config.auth_url;
-    this.tokenUrl = config.token_url;
-    this.appKey = config.app_key;
-    this.appSecret = config.app_secret;
-  }
-
-  getRedirectData(callbackUrl) {
-    // %%client_id%% is deprecated and replaced by %%app_key%%
-    return {
-      url: this.authUrl
-        .replace('%%redirect_uri%%', callbackUrl)
-        .replace('%%client_id%%', this.appKey)
-        .replace('%%app_key%%', this.appKey),
-    };
-  }
-
+class Quickbooks extends OAuth20 {
   getToken(callbackUrl, sessionData, query) {
     if (!R.hasIn('code', query)) {
       throw UserError.error("'code' not returned in query from the auth API!");
@@ -44,15 +21,19 @@ class Quickbooks {
       headers: {
         'Content-type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
+        Authorization: this.getAuthorizationHeader(this.appKey, this.appSecret),
       },
       params: {
-        client_id: this.appKey,
-        client_secret: this.appSecret,
         grant_type: GRANT_TYPE,
         redirect_uri: callbackUrl,
         code: query.code,
       },
     });
+  }
+
+  getAuthorizationHeader(appKey, appSecret) {
+    const authString = Buffer.from(`${appKey}:${appSecret}`).toString('base64');
+    return `Basic ${authString}`;
   }
 }
 
