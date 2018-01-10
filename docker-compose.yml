@@ -24,6 +24,8 @@ services:
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
       - REDIRECT_URI_BASE
+      - TW_APP_KEY
+      - TW_APP_SECRET
     command: >
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0
@@ -49,6 +51,8 @@ services:
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
       - REDIRECT_URI_BASE
+      - TW_APP_KEY
+      - TW_APP_SECRET
     command: ./tests/run.sh
 
   deploy-dev:
@@ -71,6 +75,8 @@ services:
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
       - REDIRECT_URI_BASE
+      - TW_APP_KEY
+      - TW_APP_SECRET
     command: >
              sh -c '
              serverless deploy
