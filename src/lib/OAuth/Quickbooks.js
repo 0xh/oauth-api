@@ -21,7 +21,7 @@ class Quickbooks extends OAuth20 {
       headers: {
         'Content-type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: this.getAuthorizationHeader(this.appKey, this.appSecret),
+        Authorization: this.getAuthorizationHeader(),
       },
       params: {
         grant_type: GRANT_TYPE,
@@ -31,8 +31,8 @@ class Quickbooks extends OAuth20 {
     });
   }
 
-  getAuthorizationHeader(appKey, appSecret) {
-    const authString = Buffer.from(`${appKey}:${appSecret}`).toString('base64');
+  getAuthorizationHeader() {
+    const authString = Buffer.from(`${this.appKey}:${this.appSecret}`).toString('base64');
     return `Basic ${authString}`;
   }
 }

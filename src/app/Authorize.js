@@ -57,7 +57,17 @@ class Authorize {
     };
 
     return getOauth(getConsumer(this.dynamoDb, consumerParams))
-      .then(oauth => oauth.getToken(getCallbackUrl(event), {}, event.queryStringParameters))
+      .then((oauth) => {
+        if (R.has('oauthData', sessionData)) {
+          return this.encryption.decrypt(sessionData.oauthData)
+            .then(oauthDataRes => oauth.getToken(
+              getCallbackUrl(event),
+              JSON.parse(oauthDataRes),
+              event.queryStringParameters)
+            );
+        }
+        return oauth.getToken(getCallbackUrl(event), {}, event.queryStringParameters);
+      })
       .then(tokenRes => this.saveCredentials(tokenRes, componentId, sessionData));
   }
 

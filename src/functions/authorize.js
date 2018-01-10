@@ -13,7 +13,17 @@ import DockerRunnerApi from '../lib/DockerRunnerApi';
 
 AWS.config.setPromisesDependency(Bluebird);
 
-function requestToSession(event, encryption) {
+function oauthDataToSession(oauthRes, sessionData, encryption) {
+  if (R.has('sessionData', oauthRes)) {
+    console.log(oauthRes);
+    return encryption.encrypt(JSON.stringify(oauthRes.sessionData))
+      .then(encrypted => R.merge(sessionData, { oauthData: encrypted }));
+  }
+
+  return Promise.resolve(sessionData);
+}
+
+function requestToSession(event, encryption, oauthRes) {
   let sessionData = {
     componentId: event.pathParameters.componentId,
     returnUrl: R.propOr(null, 'Referer', event.headers),
@@ -23,12 +33,12 @@ function requestToSession(event, encryption) {
   if (event.httpMethod === 'POST') {
     sessionData = R.merge(sessionData, qs.parse(event.body));
     if (R.hasIn('token', sessionData)) {
-      return encryption.encrypt(sessionData.token).promise()
+      return encryption.encrypt(sessionData.token)
         .then(encryptedToken => R.merge(sessionData, { token: encryptedToken }));
     }
   }
 
-  return Promise.resolve(sessionData);
+  return oauthDataToSession(oauthRes, sessionData, encryption);
 }
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
@@ -41,19 +51,19 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
 
   switch (event.resource) {
     case '/authorize/{componentId}':
-      promise = requestToSession(event, encryption)
-        .then(sessionDataRes => session.set(sessionId, sessionDataRes))
-        .then(() => authorize.init(event))
-        .then(oauthRes => ({
-          response: {},
-          code: 302,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': true,
-            'Set-Cookie': session.getCookieHeaderValue(sessionId, '/'),
-            Location: oauthRes.url,
-          },
-        })
+      promise = authorize.init(event)
+        .then(oauthRes => requestToSession(event, encryption, oauthRes)
+          .then(sessionDataRes => session.set(sessionId, sessionDataRes))
+          .then(() => ({
+            response: {},
+            code: 302,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': true,
+              'Set-Cookie': session.getCookieHeaderValue(sessionId, '/'),
+              Location: oauthRes.url,
+            },
+          }))
         );
       break;
     case '/authorize/{componentId}/callback':
@@ -81,7 +91,8 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
                 Location: sessionData.returnUrl,
               },
             };
-          }));
+          })
+        );
       break;
     default:
       throw UserError.notFound();

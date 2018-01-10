@@ -3,10 +3,8 @@
  * Date: 30/11/2017
  */
 import { UserError } from '@keboola/serverless-request-handler';
-import axios from 'axios';
+import OAuth from 'oauth';
 import R from 'ramda';
-
-const GRANT_TYPE = 'authorization_code';
 
 class OAuth10 {
   /**
@@ -15,44 +13,78 @@ class OAuth10 {
    *  - tokenUrl: {String} Token endpoint
    *  - appKey: {String} OAuth client ID
    *  - appSecret: {String} OAuth client secret
+   *  - requestTokenUrl: {String} Request token endpoint
    */
   constructor(config) {
     this.authUrl = config.auth_url;
     this.tokenUrl = config.token_url;
     this.appKey = config.app_key;
     this.appSecret = config.app_secret;
+    this.requestTokenUrl = config.request_token_url;
+  }
+
+  getClient(callbackUrl) {
+    return new OAuth.OAuth(
+      this.requestTokenUrl,
+      this.tokenUrl,
+      this.appKey,
+      this.appSecret,
+      '1.0',
+      callbackUrl,
+      'HMAC-SHA1');
   }
 
   getRedirectData(callbackUrl) {
-    // %%client_id%% is deprecated and replaced by %%app_key%%
-    return {
-      url: this.authUrl
-        .replace('%%redirect_uri%%', callbackUrl)
-        .replace('%%client_id%%', this.appKey)
-        .replace('%%app_key%%', this.appKey),
-    };
+    return this.getRequestToken(callbackUrl)
+      .then(res => ({
+        url: this.authUrl.replace('%%oauth_token%%', res.oauth_token),
+        sessionData: res,
+      }));
   }
 
   getToken(callbackUrl, sessionData, query) {
-    if (!R.hasIn('code', query)) {
-      throw UserError.error("'code' not returned in query from the auth API!");
+    return this.getAccessToken(callbackUrl, sessionData, query);
+  }
+
+  getRequestToken(callbackUrl, extraParams) {
+    return new Promise(((resolve, reject) => {
+      this.getClient(callbackUrl).getOAuthRequestToken(
+        extraParams || {},
+        (err, oauthToken, oauthTokenSecret, parsedQueryString) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve({
+            oauth_token: oauthToken,
+            oauth_token_secret: oauthTokenSecret,
+            query: parsedQueryString,
+          });
+        }
+      );
+    }));
+  }
+
+  getAccessToken(callbackUrl, sessionData, query) {
+    if (!R.hasIn('oauth_verifier', query)) {
+      throw UserError.error("'oauth_verifier' not returned in query from the auth API!");
     }
 
-    return axios({
-      method: 'post',
-      url: this.tokenUrl,
-      headers: {
-        'Content-type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-      },
-      params: {
-        client_id: this.appKey,
-        client_secret: this.appSecret,
-        grant_type: GRANT_TYPE,
-        redirect_uri: callbackUrl,
-        code: query.code,
-      },
-    });
+    return new Promise(((resolve, reject) => {
+      this.getClient(callbackUrl).getOAuthAccessToken(
+        sessionData.oauth_token,
+        sessionData.oauth_token_secret,
+        query.oauth_verifier,
+        (err, oauth_access_token, oauth_access_token_secret) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve({
+            oauth_token: oauth_access_token,
+            oauth_token_secret: oauth_access_token_secret,
+          });
+        }
+      );
+    }));
   }
 }
 

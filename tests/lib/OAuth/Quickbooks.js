@@ -12,7 +12,7 @@ describe('Quickbooks', () => {
   });
 
   it('get authorization header', () => {
-    const authHeader = quickbooks.getAuthorizationHeader('qbAppKeyTest', 'qbAppSecretTest');
+    const authHeader = quickbooks.getAuthorizationHeader();
     expect(authHeader, 'to be', 'Basic cWJBcHBLZXlUZXN0OnFiQXBwU2VjcmV0VGVzdA==');
   });
 
