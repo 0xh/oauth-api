@@ -47,10 +47,10 @@ const credentials1 = {
   name: '12',
   component_id: 'keboola.ex-google-analytics',
   project_id: '219',
-  creator: JSON.stringify({
+  creator: {
     id: '789',
     description: 'miro',
-  }),
+  },
   data: 'encrypted data',
   authorized_for: 'me',
   created: Date.now(),
@@ -61,10 +61,10 @@ const credentials2 = {
   name: '13',
   component_id: 'keboola.ex-google-drive',
   project_id: '219',
-  creator: JSON.stringify({
+  creator: {
     id: '789',
     description: 'miro',
-  }),
+  },
   data: 'encrypted data',
   authorized_for: 'me',
   created: Date.now(),
@@ -75,10 +75,10 @@ const credentials3 = {
   name: '14',
   component_id: 'keboola.ex-google-drive',
   project_id: '123',
-  creator: JSON.stringify({
+  creator: {
     id: '789',
     description: 'miro',
-  }),
+  },
   data: 'encrypted data',
   authorized_for: 'me',
   created: Date.now(),
@@ -89,10 +89,10 @@ const credentials4 = {
   name: '15',
   component_id: 'keboola.ex-google-analytics',
   project_id: '219',
-  creator: JSON.stringify({
+  creator: {
     id: '789',
     description: 'miro',
-  }),
+  },
   data: 'encrypted data',
   authorized_for: 'me',
   created: Date.now(),
@@ -242,6 +242,7 @@ describe('Credentials', () => {
     ))
   );
 
+  // @todo check if data are really in the database
   it('add', () => prepareConsumers()
     .then(() => credentials.add({
       headers,

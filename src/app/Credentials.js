@@ -52,7 +52,7 @@ class Credentials {
       .then(res => R.map(item => ({
         id: item.name,
         authorizedFor: item.authorized_for,
-        creator: JSON.parse(item.creator),
+        creator: item.creator,
         created: item.created,
       }), res.Items));
   }
@@ -106,10 +106,15 @@ class Credentials {
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
     }
+    if (!R.has('X-StorageApi-Token', event.headers)) {
+      return Promise.reject(UserError.unauthorized('Missing \'X-StorageApi-Token\' header'));
+    }
     const paramsFn = (requestBody, token, encryptedData) => ({
       TableName: tableName,
       Item: {
         id: uniqid(),
+        component_id: componentId,
+        project_id: R.toString(token.project),
         name: requestBody.id,
         authorized_for: requestBody.authorizedFor,
         creator: {
@@ -135,10 +140,10 @@ class Credentials {
               return Promise.reject(UserError.notFound(`Consumer '${componentId}' not found`));
             }
             return this.dockerRunner.encrypt(
-              componentId,
-              tokenRes.project,
-              JSON.stringify(requestBody.data)
-            )
+                componentId,
+                tokenRes.project,
+                JSON.stringify(requestBody.data)
+              )
               .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
               .then(params => this.dynamoDb.put(params).promise()
                 .then(() => {

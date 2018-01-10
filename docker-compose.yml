@@ -74,7 +74,7 @@ services:
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN
       - KBC_STORAGE_API_TOKEN
-      - REDIRECT_URI_BASE
+      - REDIRECT_URI_BASE=$REDIRECT_URI_BASE_DEV
       - TW_APP_KEY
       - TW_APP_SECRET
     command: >
