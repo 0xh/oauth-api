@@ -15,7 +15,6 @@ AWS.config.setPromisesDependency(Bluebird);
 
 function oauthDataToSession(oauthRes, sessionData, encryption) {
   if (R.has('sessionData', oauthRes)) {
-    console.log(oauthRes);
     return encryption.encrypt(JSON.stringify(oauthRes.sessionData))
       .then(encrypted => R.merge(sessionData, { oauthData: encrypted }));
   }
@@ -98,14 +97,9 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
       throw UserError.notFound();
   }
 
-  return promise.then(res =>
-    RequestHandler.responsePromise(
-      Promise.resolve(res.response),
-      event,
-      context,
-      callback,
-      res.code,
-      res.headers
+  return promise
+    .then(res => RequestHandler.response(
+      null, res.response, event, context, callback, res.code, res.headers)
     )
-  );
+    .catch(err => RequestHandler.response(err, null, event, context, callback, null));
 }, event, context, callback);

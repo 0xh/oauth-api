@@ -1,17 +1,14 @@
 'use strict';
 
 import R from 'ramda';
+import { UserError } from '@keboola/serverless-request-handler/src/index';
 import OAuthFactory from '../lib/OAuth/OAuthFactory';
-
-const getOauth = consumerP => consumerP.then(resItem => OAuthFactory.getOAuth(resItem));
 
 const getCallbackUrl = (event) => {
   // @todo try to use event.requestContext.path and host
   const eventUrl = `${process.env.REDIRECT_URI_BASE}${event.path}`;
   return eventUrl.substr(-9) === '/callback' ? eventUrl : `${eventUrl}/callback`;
 };
-
-const getConsumer = (dynamoDb, params) => dynamoDb.get(params).promise().then(res => res.Item);
 
 const getDataFromSession = (sessionData) => {
   const fromSessionOrDefault = R.propOr(R.__, R.__, sessionData);
@@ -26,6 +23,14 @@ const getDataFromSession = (sessionData) => {
     app_secret: fromSessionOrNull('appSecret'),
   };
 };
+
+const getConsumer = (dynamoDb, params) => dynamoDb.get(params).promise()
+  .then((res) => {
+    if (R.isEmpty(res)) {
+      throw UserError.notFound('Consumer not found');
+    }
+    return res.Item;
+  });
 
 class Authorize {
   constructor(dynamoDb, encryption, kbc, dockerRunner) {
@@ -43,7 +48,8 @@ class Authorize {
       },
     };
 
-    return getOauth(getConsumer(this.dynamoDb, consumerParams))
+    return getConsumer(this.dynamoDb, consumerParams)
+      .then(consumer => OAuthFactory.getOAuth(consumer))
       .then(oauth => oauth.getRedirectData(getCallbackUrl(event)));
   }
 
@@ -56,7 +62,8 @@ class Authorize {
       },
     };
 
-    return getOauth(getConsumer(this.dynamoDb, consumerParams))
+    return getConsumer(this.dynamoDb, consumerParams)
+      .then(consumer => OAuthFactory.getOAuth(consumer))
       .then((oauth) => {
         if (R.has('oauthData', sessionData)) {
           return this.encryption.decrypt(sessionData.oauthData)

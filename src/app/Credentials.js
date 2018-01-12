@@ -140,10 +140,10 @@ class Credentials {
               return Promise.reject(UserError.notFound(`Consumer '${componentId}' not found`));
             }
             return this.dockerRunner.encrypt(
-                componentId,
-                tokenRes.project,
-                JSON.stringify(requestBody.data)
-              )
+              componentId,
+              tokenRes.project,
+              JSON.stringify(requestBody.data)
+            )
               .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
               .then(params => this.dynamoDb.put(params).promise()
                 .then(() => {
