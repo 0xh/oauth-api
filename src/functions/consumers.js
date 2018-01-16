@@ -29,6 +29,8 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
       code = 200;
       break;
     case 'DELETE':
+      promise = consumers.delete(event);
+      code = 204;
       break;
     default:
       throw UserError.notFound();

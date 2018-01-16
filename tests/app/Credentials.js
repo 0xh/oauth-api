@@ -39,7 +39,6 @@ const consumer2 = {
   app_secret: 'fsfsg',
   friendly_name: 'Google Drive Extractor',
   oauth_version: '2.0',
-  'some bs key': 'this should be ignored',
 };
 
 const credentials1 = {

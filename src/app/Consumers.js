@@ -46,9 +46,7 @@ class Consumers {
     }
     const params = {
       TableName: tableName,
-      Key: {
-        component_id: componentId,
-      },
+      Key: { component_id: componentId },
     };
 
     return this.kbc.authManageToken(event)
@@ -66,9 +64,7 @@ class Consumers {
       .then(consumer => this.kbc.authManageToken(event)
         .then(() => this.dynamoDb.get({
           TableName: tableName,
-          Key: {
-            component_id: consumer.component_id,
-          },
+          Key: { component_id: consumer.component_id },
         }).promise())
         .then((res) => {
           if (!R.isEmpty(res)) {
@@ -120,6 +116,18 @@ class Consumers {
             .then(() => updatedItem);
         })
       );
+  }
+
+  delete(event) {
+    const componentId = event.pathParameters.componentId;
+    if (R.isNil(componentId)) {
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
+    }
+    return this.kbc.authManageToken(event)
+      .then(() => this.dynamoDb.delete({
+        TableName: tableName,
+        Key: { component_id: componentId },
+      }).promise());
   }
 }
 

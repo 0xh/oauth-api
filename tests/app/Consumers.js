@@ -180,4 +180,23 @@ describe('Consumers', () => {
       });
     })
   );
+
+  it('delete', () => insertConsumers()
+    .then(() => consumers.delete({
+      headers,
+      pathParameters: {
+        componentId: 'keboola.ex-google-drive',
+      },
+    }))
+    .then(() => expect(
+      consumers.get({
+        headers,
+        pathParameters: {
+          componentId: 'keboola.ex-google-drive',
+        },
+      }),
+      'to be rejected with error satisfying',
+      UserError.notFound('Consumer "keboola.ex-google-drive" not found')
+    ))
+  );
 });
