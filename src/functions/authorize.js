@@ -33,7 +33,8 @@ function requestToSession(event, encryption, oauthRes) {
     sessionData = R.merge(sessionData, qs.parse(event.body));
     if (R.hasIn('token', sessionData)) {
       return encryption.encrypt(sessionData.token)
-        .then(encryptedToken => R.merge(sessionData, { token: encryptedToken }));
+        .then(encryptedToken => R.merge(sessionData, { token: encryptedToken }))
+        .then(sessionData => oauthDataToSession(oauthRes, sessionData, encryption));
     }
   }
 

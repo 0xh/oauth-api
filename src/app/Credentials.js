@@ -115,7 +115,7 @@ class Credentials {
         id: uniqid(),
         component_id: componentId,
         project_id: R.toString(token.project),
-        name: requestBody.id,
+        name: R.toString(requestBody.id),
         authorized_for: requestBody.authorizedFor,
         creator: {
           id: token.id,

@@ -103,9 +103,9 @@ describe('Authorize', () => {
     }))
     .then((res) => {
       expect(res, 'to have properties', {
-        id: '12345',
+        name: '12345',
         component_id: 'keboola.ex-google-analytics',
-        project_id: 219,
+        project_id: '219',
         authorized_for: 'miro',
         auth_url: null,
         token_url: null,
@@ -123,6 +123,34 @@ describe('Authorize', () => {
     }))
     .then((res) => {
       expect(res, 'to have properties', { refresh_token: 1234, access_token: 5678 });
+    })
+  );
+
+  it('save credentials', () => insertConsumer()
+    .then(() => encryption.encrypt(process.env.KBC_STORAGE_API_TOKEN))
+    .then((encryptedToken) => authorize.saveCredentials(
+      {
+        access_token: '12345'
+      },
+      'keboola.ex-google-analytics',
+      {
+        id: '12345',
+        token: encryptedToken,
+        authorizedFor: 'miro',
+      }
+    ))
+    .then((res) => {
+      expect(res, 'to have properties', {
+        name: '12345',
+        component_id: 'keboola.ex-google-analytics',
+        project_id: '219',
+        authorized_for: 'miro',
+        auth_url: null,
+        token_url: null,
+        request_token_url: null,
+        app_key: null,
+        app_secret: null,
+      });
     })
   );
 });

@@ -7,7 +7,7 @@ services:
       - .:/code
     working_dir: /code
     ports:
-      - "3000:3000"
+      - "3030:3000"
     environment:
       - ACCOUNT_ID
       - AWS_ACCESS_KEY_ID

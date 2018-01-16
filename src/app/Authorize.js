@@ -3,6 +3,7 @@
 import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler/src/index';
 import OAuthFactory from '../lib/OAuth/OAuthFactory';
+import uniqid from "uniqid";
 
 const getCallbackUrl = (event) => {
   // @todo try to use event.requestContext.path and host
@@ -86,11 +87,13 @@ class Authorize {
     return this.encryption.decrypt(sessionData.token)
       .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes))
       .then((kbcTokenRes) => {
+        // @todo: add validation?
         const item = R.merge(
           {
-            id: sessionData.id,
+            id: uniqid(),
+            name: R.type(sessionData.id) === 'String' ? sessionData.id : R.toString(sessionData.id),
             component_id: componentId,
-            project_id: kbcTokenRes.project,
+            project_id: R.toString(kbcTokenRes.project),
             creator: {
               id: kbcTokenRes.id,
               description: kbcTokenRes.name,

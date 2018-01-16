@@ -109,12 +109,14 @@ functions:
       - http:
           method: get
           path: "/credentials/{componentId}"
+          cors: true
       - http:
           method: post
           path: "/credentials/{componentId}"
       - http:
           method: get
           path: "/credentials/{componentId}/{name}"
+          cors: true
       - http:
           method: delete
           path: "/credentials/{componentId}/{name}"
