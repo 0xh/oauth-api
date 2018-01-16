@@ -64,6 +64,18 @@ class Consumers {
   add(event) {
     return Validator.validate(event, this.schema)
       .then(consumer => this.kbc.authManageToken(event)
+        .then(() => this.dynamoDb.get({
+          TableName: tableName,
+          Key: {
+            component_id: consumer.component_id,
+          },
+        }).promise())
+        .then((res) => {
+          if (!R.isEmpty(res)) {
+            throw UserError.error(`Consumer "${consumer.component_id}" already exists`);
+          }
+          return res;
+        })
         .then(() => this.dynamoDb.put({
           TableName: tableName,
           Item: consumer,
