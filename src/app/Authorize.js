@@ -13,15 +13,14 @@ const getCallbackUrl = (event) => {
 
 const getDataFromSession = (sessionData) => {
   const fromSessionOrDefault = R.propOr(R.__, R.__, sessionData);
-  const fromSessionOrNull = fromSessionOrDefault(null);
 
   return {
     authorized_for: fromSessionOrDefault('', 'authorizedFor'),
-    auth_url: fromSessionOrNull('authUrl'),
-    token_url: fromSessionOrNull('tokenUrl'),
-    request_token_url: fromSessionOrNull('requestTokenUrl'),
-    app_key: fromSessionOrNull('appKey'),
-    app_secret: fromSessionOrNull('appSecret'),
+    auth_url: fromSessionOrDefault(null, 'authUrl'),
+    token_url: fromSessionOrDefault(null, 'tokenUrl'),
+    request_token_url: fromSessionOrDefault(null, 'requestTokenUrl'),
+    app_key: fromSessionOrDefault(null, 'appKey'),
+    app_secret: fromSessionOrDefault(null, 'appSecret'),
   };
 };
 
@@ -32,6 +31,10 @@ const getConsumer = (dynamoDb, params) => dynamoDb.get(params).promise()
     }
     return res.Item;
   });
+
+const dockerEncryptFn = (encryptor, componentId, projectId) => {
+  return (string) => encryptor.encrypt(componentId, projectId, string);
+};
 
 class Authorize {
   constructor(dynamoDb, encryption, kbc, dockerRunner) {
@@ -103,30 +106,26 @@ class Authorize {
           getDataFromSession(sessionData)
         );
 
-        return this.dockerRunner.encrypt(
-          componentId,
-          kbcTokenRes.project,
-          JSON.stringify(tokens)
-        )
-          .then(dataEncrypted => this.dockerRunner.encrypt(
-            componentId,
-            kbcTokenRes.project,
-            item.appSecret
-          )
-            .then((appSecretEncrypted) => {
-              const finalItem = R.merge(item, {
-                data: dataEncrypted,
-                app_docker_secret: appSecretEncrypted,
-              });
-              const params = {
-                TableName: 'credentials',
-                Item: finalItem,
-              };
+        const dockerEncrypt = dockerEncryptFn(this.dockerRunner, componentId, kbcTokenRes.project);
 
-              return this.dynamoDb.put(params).promise()
-                .then(() => finalItem);
-            })
-          );
+        return Promise.all([
+            dockerEncrypt(JSON.stringify(tokens)),
+            dockerEncrypt(item.appSecret)
+          ])
+          .then((allEncrypted) => {
+            console.log(allEncrypted);
+            const finalItem = R.merge(item, {
+              data: allEncrypted[0],
+              app_docker_secret: allEncrypted[1],
+            });
+            const params = {
+              TableName: 'credentials',
+              Item: finalItem,
+            };
+
+            return this.dynamoDb.put(params).promise()
+              .then(() => finalItem);
+          });
       });
   }
 }

@@ -26,6 +26,7 @@ provider:
   environment:
     KEBOOLA_STACK: ${env:KEBOOLA_STACK}
     REGION: ${env:REGION}
+    AWS_KMS_KEY_ID: ${env:AWS_KMS_KEY_ID}
     SERVICE_NAME: ${env:SERVICE_NAME}
     STAGE: ${env:STAGE}
     KBC_URL: ${env:KBC_URL}
@@ -109,14 +110,34 @@ functions:
       - http:
           method: get
           path: "/credentials/{componentId}"
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-StorageApi-Token
+            allowCredentials: false
       - http:
           method: post
           path: "/credentials/{componentId}"
       - http:
           method: get
           path: "/credentials/{componentId}/{name}"
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-StorageApi-Token
+            allowCredentials: false
       - http:
           method: delete
           path: "/credentials/{componentId}/{name}"

@@ -21,6 +21,12 @@ const getOneParamsFn = (name, componentId, projectId) => ({
   },
 });
 
+const getHeader = (name, event) => {
+  const headerInverted = R.invertObj(event.headers);
+  const headers = R.invertObj(R.map(item => R.toLower(item), headerInverted));
+  return R.prop(R.toLower(name), headers);
+};
+
 class Credentials {
   constructor(dynamoDb, kbc, dockerRunner) {
     this.dynamoDb = dynamoDb;
@@ -47,7 +53,7 @@ class Credentials {
       },
     });
 
-    return this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))
+    return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
       .then(tokenRes => this.dynamoDb.scan(paramsFn(tokenRes.project)).promise())
       .then(res => R.map(item => ({
         id: item.name,
@@ -73,7 +79,7 @@ class Credentials {
       },
     };
 
-    return this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))
+    return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
       .then(tokenRes => this.dynamoDb.scan(
         getOneParamsFn(name, componentId, tokenRes.project)
       ).promise())
@@ -133,7 +139,7 @@ class Credentials {
     };
 
     return Validator.validate(event, this.schema)
-      .then(requestBody => this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))
+      .then(requestBody => this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
         .then(tokenRes => this.dynamoDb.get(consumerParams).promise()
           .then((consumerRes) => {
             if (R.isEmpty(consumerRes)) {
@@ -184,7 +190,7 @@ class Credentials {
       Key: { id },
     });
 
-    return this.kbc.authStorage(R.prop('X-StorageApi-Token', event.headers))
+    return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
       .then(tokenRes => this.dynamoDb.scan(
         getOneParamsFn(name, componentId, tokenRes.project)
       ).promise())
