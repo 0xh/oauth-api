@@ -8,8 +8,8 @@
 import { UserError } from '@keboola/serverless-request-handler';
 import cookie from 'cookie';
 import R from 'ramda';
-
-const uniqid = require('uniqid');
+import uniqid from 'uniqid';
+import DynamoDB from './DynamoDB';
 
 /**
  * Class for storing sessions into DynamoDB table
@@ -23,13 +23,13 @@ class Session {
    *  'hashPrefix' Session ID prefix
    */
   constructor(dynamoDb, options = {}) {
-    const optionsOrDefault = R.propOr(R.__, R.__, options);
+    const optionsOr = R.propOr(R.__, R.__, options);
     this.dynamoDB = dynamoDb;
-    this.tableName = optionsOrDefault('sessions', 'name');
-    this.hashKey = optionsOrDefault('id', 'hashKey');
-    this.hashPrefix = optionsOrDefault(process.env.SESSION_HASH_PREFIX, 'hashPrefix');
-    this.ttl = optionsOrDefault(300000, 'ttl');
-    this.cookieName = optionsOrDefault(process.env.SESSION_COOKIE_NAME, 'cookieName');
+    this.tableName = optionsOr(DynamoDB.tableNames().sessions, 'name');
+    this.hashKey = optionsOr('id', 'hashKey');
+    this.hashPrefix = optionsOr(process.env.SESSION_HASH_PREFIX, 'hashPrefix');
+    this.ttl = optionsOr(300000, 'ttl');
+    this.cookieName = optionsOr(process.env.SESSION_COOKIE_NAME, 'cookieName');
   }
 
   getCookieHeaderValue(sid, path = null) {

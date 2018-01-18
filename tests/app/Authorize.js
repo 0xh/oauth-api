@@ -1,17 +1,20 @@
 'use strict';
 
+import AWS from 'aws-sdk';
 import expect from 'unexpected';
 import sinon from 'sinon';
-import AWS from 'aws-sdk';
+import R from 'ramda';
 import Authorize from '../../src/app/Authorize';
 import DynamoDB from '../../src/lib/DynamoDB';
 import OAuth20 from '../../src/lib/OAuth/OAuth20';
 import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
-import R from "ramda";
 
 const dynamoDb = DynamoDB.getClient();
+
+const credentialsTable = DynamoDB.tableNames().credentials;
+const consumersTable = DynamoDB.tableNames().consumers;
 
 const consumer1 = {
   component_id: 'keboola.ex-google-analytics',
@@ -25,14 +28,14 @@ const consumer1 = {
 
 function insertConsumer() {
   return dynamoDb.put({
-    TableName: 'consumers',
+    TableName: consumersTable,
     Item: consumer1,
   }).promise();
 }
 
 function deleteConsumer() {
   const params = {
-    TableName: 'consumers',
+    TableName: consumersTable,
     Key: {
       component_id: 'keboola.ex-google-analytics',
     },
@@ -43,7 +46,7 @@ function deleteConsumer() {
 
 function deleteCredentials() {
   return dynamoDb.scan({
-    TableName: 'credentials',
+    TableName: credentialsTable,
   }).promise().then((res) => {
     const credentialsList = R.map(item => ({
       DeleteRequest: {
@@ -55,7 +58,7 @@ function deleteCredentials() {
 
     const params = { RequestItems: {} };
     if (!R.isEmpty(credentialsList)) {
-      params.RequestItems.credentials = credentialsList;
+      params.RequestItems[credentialsTable] = credentialsList;
     }
 
     return dynamoDb.batchWrite(params).promise();
@@ -172,7 +175,7 @@ describe('Authorize', () => {
     })
     .then(() => {
       return dynamoDb.scan({
-        TableName: 'credentials',
+        TableName: credentialsTable,
         FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
         ExpressionAttributeNames: {
           '#cred_name': 'name',

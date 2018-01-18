@@ -8,12 +8,13 @@ plugins:
 custom:
   webpackIncludeModules: true
   dynamodb:
+    tables:
+      consumers: ${env:SERVICE_NAME}-${env:STAGE}_consumers
+      credentials: ${env:SERVICE_NAME}-${env:STAGE}_credentials
+      sessions: ${env:SERVICE_NAME}-${env:STAGE}_sessions
     start:
       port: 9000
       inMemory: true
-      migrate: true
-    migration:
-      dir: tests/dynamodb/migrations
 
 provider:
   name: aws
@@ -147,7 +148,7 @@ resources:
     consumers:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: consumers
+        TableName: "${self:custom.dynamodb.tables.consumers}"
         AttributeDefinitions:
           - AttributeName: component_id
             AttributeType: S
@@ -160,7 +161,7 @@ resources:
     credentials:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: credentials
+        TableName: "${self:custom.dynamodb.tables.credentials}"
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -173,7 +174,7 @@ resources:
     sessions:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: sessions
+        TableName: "${self:custom.dynamodb.tables.sessions}"
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S

@@ -14,6 +14,7 @@ import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 
 const dynamoDb = DynamoDB.getClient();
+const consumersTable = DynamoDB.tableNames().consumers;
 const headers = {
   'X-KBC-ManageApiToken': process.env.KBC_MANAGE_API_TOKEN,
 };
@@ -54,13 +55,13 @@ function insertConsumers() {
 
   return dynamoDb.batchWrite({
     RequestItems: {
-      consumers: consumerList,
+      [consumersTable]: consumerList,
     },
   }).promise();
 }
 
 function getAllConsumers() {
-  return dynamoDb.scan({ TableName: 'consumers' }).promise();
+  return dynamoDb.scan({ TableName: consumersTable }).promise();
 }
 
 function deleteConsumers() {
@@ -78,7 +79,7 @@ function deleteConsumers() {
       }
       return dynamoDb.batchWrite({
         RequestItems: {
-          consumers: consumerList,
+          [consumersTable]: consumerList,
         },
       }).promise();
     });

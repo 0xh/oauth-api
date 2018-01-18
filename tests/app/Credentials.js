@@ -15,6 +15,8 @@ import Credentials from '../../src/app/Credentials';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 
 const dynamoDb = DynamoDB.getClient();
+const credentialsTable = DynamoDB.tableNames().credentials;
+const consumersTable = DynamoDB.tableNames().consumers;
 const headers = {
   'X-StorageApi-Token': process.env.KBC_STORAGE_API_TOKEN,
 };
@@ -108,8 +110,8 @@ function prepareData() {
 
   return dynamoDb.batchWrite({
     RequestItems: {
-      consumers: consumerList,
-      credentials: credentialsList,
+      [consumersTable]: consumerList,
+      [credentialsTable]: credentialsList,
     },
   }).promise();
 }
@@ -121,7 +123,7 @@ function prepareConsumers() {
 
   return dynamoDb.batchWrite({
     RequestItems: {
-      consumers: consumerList,
+      [consumersTable]: consumerList,
     },
   }).promise();
 }
@@ -136,7 +138,7 @@ function clearData() {
   }), [consumer1, consumer2]);
 
   return dynamoDb.scan({
-    TableName: 'credentials',
+    TableName: credentialsTable,
   }).promise().then((res) => {
     const credentialsList = R.map(item => ({
       DeleteRequest: {
@@ -148,11 +150,11 @@ function clearData() {
 
     const params = { RequestItems: {} };
     if (!R.isEmpty(consumerList)) {
-      params.RequestItems.consumers = consumerList;
+      params.RequestItems[consumersTable] = consumerList;
     }
 
     if (!R.isEmpty(credentialsList)) {
-      params.RequestItems.credentials = credentialsList;
+      params.RequestItems[credentialsTable] = credentialsList;
     }
 
     return dynamoDb.batchWrite(params).promise();

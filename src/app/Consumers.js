@@ -4,8 +4,9 @@ import Joi from 'joi';
 import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler/src/index';
 import Validator from '../lib/Validator';
+import DynamoDB from '../lib/DynamoDB';
 
-const tableName = 'consumers';
+const tableName = DynamoDB.tableNames().consumers;
 
 class Consumers {
   constructor(dynamoDb, kbc) {

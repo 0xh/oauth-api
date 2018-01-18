@@ -4,9 +4,10 @@ import Joi from 'joi';
 import R from 'ramda';
 import uniqid from 'uniqid';
 import { UserError } from '@keboola/serverless-request-handler';
+import DynamoDB from '../lib/DynamoDB';
 import Validator from '../lib/Validator';
 
-const tableName = 'credentials';
+const tableName = DynamoDB.tableNames().credentials;
 
 const getOneParamsFn = (name, componentId, projectId) => ({
   TableName: tableName,
@@ -73,7 +74,7 @@ class Credentials {
       return Promise.reject(UserError.badRequest('Missing \'id\' url parameter'));
     }
     const consumerParams = {
-      TableName: 'consumers',
+      TableName: DynamoDB.tableNames().consumers,
       Key: {
         component_id: componentId,
       },
@@ -132,7 +133,7 @@ class Credentials {
       },
     });
     const consumerParams = {
-      TableName: 'consumers',
+      TableName: DynamoDB.tableNames().consumers,
       Key: {
         component_id: componentId,
       },

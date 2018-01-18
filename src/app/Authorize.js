@@ -4,6 +4,10 @@ import R from 'ramda';
 import uniqid from 'uniqid';
 import { UserError } from '@keboola/serverless-request-handler/src/index';
 import OAuthFactory from '../lib/OAuth/OAuthFactory';
+import DynamoDB from "../lib/DynamoDB";
+
+const credentialsTable = DynamoDB.tableNames().credentials;
+const consumersTable = DynamoDB.tableNames().consumers;
 
 const getCallbackUrl = (event) => {
   // @todo try to use event.requestContext.path and host
@@ -25,7 +29,7 @@ const getDataFromSession = (sessionData) => {
 };
 
 const getCredentials = (dynamoDb, name, componentId, projectId) => dynamoDb.scan({
-    TableName: 'credentials',
+    TableName: credentialsTable,
     FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
     ExpressionAttributeNames: {
       '#cred_name': 'name',
@@ -38,7 +42,7 @@ const getCredentials = (dynamoDb, name, componentId, projectId) => dynamoDb.scan
   }).promise().then((res) => res.Items);
 
 const getConsumer = (dynamoDb, componentId) => dynamoDb.get({
-    TableName: 'consumers',
+    TableName: consumersTable,
     Key: {
       component_id: componentId,
     },
@@ -133,7 +137,7 @@ class Authorize {
               app_docker_secret: allEncrypted[1],
             });
             const params = {
-              TableName: 'credentials',
+              TableName: credentialsTable,
               Item: finalItem,
             };
 
