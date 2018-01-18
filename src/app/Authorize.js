@@ -12,19 +12,37 @@ const getCallbackUrl = (event) => {
 };
 
 const getDataFromSession = (sessionData) => {
-  const fromSessionOr = R.propOr(R.__, R.__, sessionData);
+  const sessionOrNull = R.propOr(null, R.__, sessionData);
 
   return {
-    authorized_for: fromSessionOr('', 'authorizedFor'),
-    auth_url: fromSessionOr(null, 'authUrl'),
-    token_url: fromSessionOr(null, 'tokenUrl'),
-    request_token_url: fromSessionOr(null, 'requestTokenUrl'),
-    app_key: fromSessionOr(null, 'appKey'),
-    app_secret: fromSessionOr(null, 'appSecret'),
+    authorized_for: sessionOrNull('authorizedFor'),
+    auth_url: sessionOrNull('authUrl'),
+    token_url: sessionOrNull('tokenUrl'),
+    request_token_url: sessionOrNull('requestTokenUrl'),
+    app_key: sessionOrNull('appKey'),
+    app_secret: sessionOrNull('appSecret'),
   };
 };
 
-const getConsumer = (dynamoDb, params) => dynamoDb.get(params).promise()
+const getCredentials = (dynamoDb, name, componentId, projectId) => dynamoDb.scan({
+    TableName: 'credentials',
+    FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
+    ExpressionAttributeNames: {
+      '#cred_name': 'name',
+    },
+    ExpressionAttributeValues: {
+      ':name': name,
+      ':component_id': componentId,
+      ':project_id': R.toString(projectId),
+    },
+  }).promise().then((res) => res.Items);
+
+const getConsumer = (dynamoDb, componentId) => dynamoDb.get({
+    TableName: 'consumers',
+    Key: {
+      component_id: componentId,
+    },
+  }).promise()
   .then((res) => {
     if (R.isEmpty(res)) {
       throw UserError.notFound('Consumer not found');
@@ -44,28 +62,15 @@ class Authorize {
   }
 
   init(event) {
-    const consumerParams = {
-      TableName: 'consumers',
-      Key: {
-        component_id: event.pathParameters.componentId,
-      },
-    };
-
-    return getConsumer(this.dynamoDb, consumerParams)
+    return getConsumer(this.dynamoDb, event.pathParameters.componentId)
       .then(consumer => OAuthFactory.getOAuth(consumer))
       .then(oauth => oauth.getRedirectData(getCallbackUrl(event)));
   }
 
   callback(event, sessionData) {
     const componentId = event.pathParameters.componentId;
-    const consumerParams = {
-      TableName: 'consumers',
-      Key: {
-        component_id: componentId,
-      },
-    };
 
-    return getConsumer(this.dynamoDb, consumerParams)
+    return getConsumer(this.dynamoDb, componentId)
       .then(consumer => OAuthFactory.getOAuth(consumer))
       .then((oauth) => {
         if (R.has('oauthData', sessionData)) {
@@ -86,14 +91,25 @@ class Authorize {
       return tokens;
     }
 
+    const name = R.type(sessionData.id) === 'String' ? sessionData.id : R.toString(sessionData.id);
+
     return this.encryption.decrypt(sessionData.token)
       .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes))
       .then((kbcTokenRes) => {
-        // @todo: add validation?
+        // check if exists
+        return getCredentials(this.dynamoDb, name, componentId, R.toString(kbcTokenRes.project))
+          .then((item) => {
+            if (R.isEmpty(item)) {
+              return Promise.resolve(kbcTokenRes);
+            }
+            throw UserError.error(`Credentials with name ${name} already exists in this project`);
+          });
+      })
+      .then((kbcTokenRes) => {
         const item = R.merge(
           {
             id: uniqid(),
-            name: R.type(sessionData.id) === 'String' ? sessionData.id : R.toString(sessionData.id),
+            name: name,
             component_id: componentId,
             project_id: R.toString(kbcTokenRes.project),
             creator: {
@@ -112,7 +128,6 @@ class Authorize {
           dockerEncrypt(item.appSecret),
         ])
           .then((allEncrypted) => {
-            console.log(allEncrypted);
             const finalItem = R.merge(item, {
               data: allEncrypted[0],
               app_docker_secret: allEncrypted[1],

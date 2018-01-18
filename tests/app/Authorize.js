@@ -9,6 +9,7 @@ import OAuth20 from '../../src/lib/OAuth/OAuth20';
 import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
+import R from "ramda";
 
 const dynamoDb = DynamoDB.getClient();
 
@@ -38,6 +39,27 @@ function deleteConsumer() {
   };
 
   return dynamoDb.delete(params).promise().then(res => res);
+}
+
+function deleteCredentials() {
+  return dynamoDb.scan({
+    TableName: 'credentials',
+  }).promise().then((res) => {
+    const credentialsList = R.map(item => ({
+      DeleteRequest: {
+        Key: {
+          id: item.id,
+        },
+      },
+    }), res.Items);
+
+    const params = { RequestItems: {} };
+    if (!R.isEmpty(credentialsList)) {
+      params.RequestItems.credentials = credentialsList;
+    }
+
+    return dynamoDb.batchWrite(params).promise();
+  });
 }
 
 const eventInit = {
@@ -122,21 +144,51 @@ describe('Authorize', () => {
   );
 
   it('save credentials', () => insertConsumer()
+    .then(() => deleteCredentials())
     .then(() => encryption.encrypt(process.env.KBC_STORAGE_API_TOKEN))
     .then(encryptedToken => authorize.saveCredentials(
       {
-        access_token: '12345',
+        access_token: 'secretToken6789',
       },
       'keboola.ex-google-analytics',
       {
-        id: '12345',
+        id: '56789',
         token: encryptedToken,
         authorizedFor: 'miro',
       }
     ))
     .then((res) => {
       expect(res, 'to have properties', {
-        name: '12345',
+        name: '56789',
+        component_id: 'keboola.ex-google-analytics',
+        project_id: '219',
+        authorized_for: 'miro',
+        auth_url: null,
+        token_url: null,
+        request_token_url: null,
+        app_key: null,
+        app_secret: null,
+      });
+    })
+    .then(() => {
+      return dynamoDb.scan({
+        TableName: 'credentials',
+        FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
+        ExpressionAttributeNames: {
+          '#cred_name': 'name',
+        },
+        ExpressionAttributeValues: {
+          ':name': '56789',
+          ':component_id': 'keboola.ex-google-analytics',
+          ':project_id': '219',
+        },
+      }).promise();
+    })
+    .then((res) => {
+      const credentials = res.Items[0];
+      expect(res.Count, 'to be', 1);
+      expect(credentials, 'to have properties', {
+        name: '56789',
         component_id: 'keboola.ex-google-analytics',
         project_id: '219',
         authorized_for: 'miro',
