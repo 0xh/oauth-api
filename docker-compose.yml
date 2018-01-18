@@ -73,20 +73,13 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - SLS_DEBUG=true
-#      - KBC_MANAGE_API_TOKEN
-#      - KBC_STORAGE_API_TOKEN
-#      - REDIRECT_URI_BASE=$REDIRECT_URI_BASE_DEV
-#      - TW_APP_KEY
-#      - TW_APP_SECRET
     command: >
              sh -c '
              serverless deploy
              '
 
   lint:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     command: >
              sh -c '
              ./node_modules/.bin/eslint .

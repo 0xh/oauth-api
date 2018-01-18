@@ -7,8 +7,10 @@ RUN curl --silent https://dl.yarnpkg.com/rpm/yarn.repo > /etc/yum.repos.d/yarn.r
 RUN yum -y install nodejs npm yarn python27 wget
 
 # java
-RUN wget --no-cookies --header "Cookie: gpw_e24=xxx; oraclelicense=accept-securebackup-cookie;" "http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jre-8u151-linux-x64.rpm"
-RUN rpm -Uvh jre-8u151-linux-x64.rpm
+RUN wget --no-cookies --header "Cookie: gpw_e24=xxx; oraclelicense=accept-securebackup-cookie;" \
+"http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.rpm"
+
+RUN rpm -Uvh jdk-8u161-linux-x64.rpm
 RUN java -version
 
 # serverless
