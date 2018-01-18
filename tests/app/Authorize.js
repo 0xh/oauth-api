@@ -1,8 +1,3 @@
-/**
- * Author: miro@keboola.com
- * Date: 27/11/2017
- */
-
 'use strict';
 
 import expect from 'unexpected';
@@ -128,9 +123,9 @@ describe('Authorize', () => {
 
   it('save credentials', () => insertConsumer()
     .then(() => encryption.encrypt(process.env.KBC_STORAGE_API_TOKEN))
-    .then((encryptedToken) => authorize.saveCredentials(
+    .then(encryptedToken => authorize.saveCredentials(
       {
-        access_token: '12345'
+        access_token: '12345',
       },
       'keboola.ex-google-analytics',
       {

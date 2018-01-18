@@ -74,13 +74,13 @@ class OAuth10 {
         sessionData.oauth_token,
         sessionData.oauth_token_secret,
         query.oauth_verifier,
-        (err, oauth_access_token, oauth_access_token_secret) => {
+        (err, oauthAccessToken, oauthAccessTokenSecret) => {
           if (err) {
             return reject(err);
           }
           return resolve({
-            oauth_token: oauth_access_token,
-            oauth_token_secret: oauth_access_token_secret,
+            oauth_token: oauthAccessToken,
+            oauth_token_secret: oauthAccessTokenSecret,
           });
         }
       );

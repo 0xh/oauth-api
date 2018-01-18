@@ -1,9 +1,9 @@
 'use strict';
 
 import R from 'ramda';
+import uniqid from 'uniqid';
 import { UserError } from '@keboola/serverless-request-handler/src/index';
 import OAuthFactory from '../lib/OAuth/OAuthFactory';
-import uniqid from "uniqid";
 
 const getCallbackUrl = (event) => {
   // @todo try to use event.requestContext.path and host
@@ -12,15 +12,15 @@ const getCallbackUrl = (event) => {
 };
 
 const getDataFromSession = (sessionData) => {
-  const fromSessionOrDefault = R.propOr(R.__, R.__, sessionData);
+  const fromSessionOr = R.propOr(R.__, R.__, sessionData);
 
   return {
-    authorized_for: fromSessionOrDefault('', 'authorizedFor'),
-    auth_url: fromSessionOrDefault(null, 'authUrl'),
-    token_url: fromSessionOrDefault(null, 'tokenUrl'),
-    request_token_url: fromSessionOrDefault(null, 'requestTokenUrl'),
-    app_key: fromSessionOrDefault(null, 'appKey'),
-    app_secret: fromSessionOrDefault(null, 'appSecret'),
+    authorized_for: fromSessionOr('', 'authorizedFor'),
+    auth_url: fromSessionOr(null, 'authUrl'),
+    token_url: fromSessionOr(null, 'tokenUrl'),
+    request_token_url: fromSessionOr(null, 'requestTokenUrl'),
+    app_key: fromSessionOr(null, 'appKey'),
+    app_secret: fromSessionOr(null, 'appSecret'),
   };
 };
 
@@ -32,9 +32,8 @@ const getConsumer = (dynamoDb, params) => dynamoDb.get(params).promise()
     return res.Item;
   });
 
-const dockerEncryptFn = (encryptor, componentId, projectId) => {
-  return (string) => encryptor.encrypt(componentId, projectId, string);
-};
+const dockerEncryptFn = (encryptor, componentId, projectId) =>
+  string => encryptor.encrypt(componentId, projectId, string);
 
 class Authorize {
   constructor(dynamoDb, encryption, kbc, dockerRunner) {
@@ -109,9 +108,9 @@ class Authorize {
         const dockerEncrypt = dockerEncryptFn(this.dockerRunner, componentId, kbcTokenRes.project);
 
         return Promise.all([
-            dockerEncrypt(JSON.stringify(tokens)),
-            dockerEncrypt(item.appSecret)
-          ])
+          dockerEncrypt(JSON.stringify(tokens)),
+          dockerEncrypt(item.appSecret),
+        ])
           .then((allEncrypted) => {
             console.log(allEncrypted);
             const finalItem = R.merge(item, {

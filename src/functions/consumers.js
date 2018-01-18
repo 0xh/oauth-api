@@ -37,8 +37,8 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
   }
 
   return RequestHandler.responsePromise(promise, event, context, callback, code, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-      'Access-Control-Allow-Headers': 'X-StorageApi-Token, X-KBC-ManageApiToken'
-    });
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': true,
+    'Access-Control-Allow-Headers': 'X-StorageApi-Token, X-KBC-ManageApiToken',
+  });
 }, event, context, callback);

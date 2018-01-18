@@ -34,7 +34,7 @@ function requestToSession(event, encryption, oauthRes) {
     if (R.hasIn('token', sessionData)) {
       return encryption.encrypt(sessionData.token)
         .then(encryptedToken => R.merge(sessionData, { token: encryptedToken }))
-        .then(sessionData => oauthDataToSession(oauthRes, sessionData, encryption));
+        .then(sessionDataRes => oauthDataToSession(oauthRes, sessionDataRes, encryption));
     }
   }
 
@@ -100,7 +100,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
 
   return promise
     .then(res => RequestHandler.response(
-      null, res.response, event, context, callback, res.code, res.headers)
-    )
+      null, res.response, event, context, callback, res.code, res.headers
+    ))
     .catch(err => RequestHandler.response(err, null, event, context, callback, null));
 }, event, context, callback);
