@@ -67,23 +67,22 @@ class Authorize {
 
   init(event) {
     return getConsumer(this.dynamoDb, event.pathParameters.componentId)
-      .then(consumer => OAuthFactory.getOAuth(consumer))
-      .then(oauth => oauth.getRedirectData(getCallbackUrl(event)));
+      .then(consumer => OAuthFactory.getOAuth(consumer).getRedirectData(getCallbackUrl(event)));
   }
 
   callback(event, sessionData) {
     const componentId = event.pathParameters.componentId;
 
     return getConsumer(this.dynamoDb, componentId)
-      .then(consumer => OAuthFactory.getOAuth(consumer))
-      .then((oauth) => {
+      .then(consumer => {
+        const oauth = OAuthFactory.getOAuth(consumer);
         if (R.has('oauthData', sessionData)) {
           return this.encryption.decrypt(sessionData.oauthData)
             .then(oauthDataRes => oauth.getToken(
               getCallbackUrl(event),
               JSON.parse(oauthDataRes),
-              event.queryStringParameters)
-            );
+              event.queryStringParameters
+            ));
         }
         return oauth.getToken(getCallbackUrl(event), {}, event.queryStringParameters);
       })

@@ -36,6 +36,8 @@ class Facebook {
       redirect_uri: callbackUrl,
       scope: this.authUrl,
     };
+    // @todo: should save state to session
+
     // graphVersion is stored in tokenUrl
     const graphVersion = this.tokenUrl;
 
@@ -43,6 +45,8 @@ class Facebook {
   }
 
   getToken(callbackUrl, sessionData, query) {
+    // @todo: validate state param
+
     if (!R.hasIn('code', query)) {
       throw UserError.error("'code' not returned in query from the auth API!");
     }

@@ -83,6 +83,7 @@ functions:
       - http:
           method: get
           path: "/authorize/{componentId}/callback"
+
   consumers:
     handler: src/functions/consumers.handler
     tags:
