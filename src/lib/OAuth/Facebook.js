@@ -1,85 +1,45 @@
-/**
- * Author: miro@keboola.com
- * Date: 30/11/2017
- */
-
 import axios from 'axios';
-import FB from 'fb';
-import qs from 'qs';
 import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler';
-import uuid from 'uuid';
+import OAuth20 from './OAuth20';
 
-const BASE_URL = 'https://www.facebook.com';
+const fbApi = (url, params, method = 'get') =>  axios({
+    method: method,
+    url: url,
+    headers: {
+      Accept: 'application/json',
+    },
+    params: params,
+  })
+    .then(res => res.data)
+    .catch((err) => {
+      console.log(err.response);
+      throw UserError.error(`FB API error: ${err.response.data.error}`);
+    });
 
-class Facebook {
-  /**
-   * @param {Object} config
-   *  - authUrl: {String} Authentication endpoint
-   *  - tokenUrl: {String} Token endpoint
-   *  - appKey: {String} OAuth client ID
-   *  - appSecret: {String} OAuth client secret
-   */
-  constructor(config) {
-    this.authUrl = config.auth_url;
-    this.tokenUrl = config.token_url;
-    this.appKey = config.app_key;
-    this.appSecret = config.app_secret;
-  }
-
-  getRedirectData(callbackUrl) {
-    // permissions are stored in db under auth_url column
-    const params = {
-      client_id: this.appKey,
-      state: uuid.v4(),
-      response_type: 'code',
-      redirect_uri: callbackUrl,
-      scope: this.authUrl,
-    };
-    // @todo: should save state to session
-
-    // graphVersion is stored in tokenUrl
-    const graphVersion = this.tokenUrl;
-
-    return { url: `${BASE_URL}/${graphVersion}/dialog/oauth?${qs.stringify(params)}` };
-  }
-
+class Facebook extends OAuth20 {
   getToken(callbackUrl, sessionData, query) {
-    // @todo: validate state param
-
     if (!R.hasIn('code', query)) {
       throw UserError.error("'code' not returned in query from the auth API!");
     }
 
-    return FB.api('oauth/access_token', {
+    return fbApi(this.tokenUrl, {
       client_id: this.appKey,
       client_secret: this.appSecret,
       redirect_uri: callbackUrl,
       code: query.code,
     })
-      .then((accessToken) => {
-        if (!R.hasIn('expires', accessToken)) {
-          return Promise.resolve(accessToken);
+      .then((response) => {
+        if (!R.has('expires_in', response)) {
+          return Promise.resolve(response);
         }
         // exchange for long-lived access token
-        return axios({
-          method: 'get',
-          url: `${BASE_URL}/oauth/access_token`,
-          headers: {
-            Accept: 'application/json',
-          },
-          params: {
-            client_id: this.appKey,
-            client_secret: this.appSecret,
-            grant_type: 'fb_exchange_token',
-            fb_exchange_token: accessToken.access_token,
-          },
-        })
-          .then(res => res.data)
-          .catch((err) => {
-            console.log(err.response);
-            throw UserError.error(`Authentication error: ${err.response.data.error}`);
-          });
+        return fbApi(this.tokenUrl, {
+          client_id: this.appKey,
+          client_secret: this.appSecret,
+          grant_type: 'fb_exchange_token',
+          fb_exchange_token: response.access_token,
+        });
       });
   }
 }
