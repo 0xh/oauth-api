@@ -173,20 +173,18 @@ describe('Authorize', () => {
         app_secret: null,
       });
     })
-    .then(() => {
-      return dynamoDb.scan({
-        TableName: credentialsTable,
-        FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
-        ExpressionAttributeNames: {
-          '#cred_name': 'name',
-        },
-        ExpressionAttributeValues: {
-          ':name': '56789',
-          ':component_id': 'keboola.ex-google-analytics',
-          ':project_id': '219',
-        },
-      }).promise();
-    })
+    .then(() => dynamoDb.scan({
+      TableName: credentialsTable,
+      FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
+      ExpressionAttributeNames: {
+        '#cred_name': 'name',
+      },
+      ExpressionAttributeValues: {
+        ':name': '56789',
+        ':component_id': 'keboola.ex-google-analytics',
+        ':project_id': '219',
+      },
+    }).promise())
     .then((res) => {
       const credentials = res.Items[0];
       expect(res.Count, 'to be', 1);

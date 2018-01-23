@@ -99,11 +99,11 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
   }
 
   return promise
-    .then(res => {
+    .then((res) => {
       console.log(res);
       return RequestHandler.response(
         null, res.response, event, context, callback, res.code, res.headers
-      )
+      );
     })
     .catch(err => RequestHandler.response(err, null, event, context, callback, null));
 }, event, context, callback);

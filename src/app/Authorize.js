@@ -4,7 +4,7 @@ import R from 'ramda';
 import uniqid from 'uniqid';
 import { UserError } from '@keboola/serverless-request-handler/src/index';
 import OAuthFactory from '../lib/OAuth/OAuthFactory';
-import DynamoDB from "../lib/DynamoDB";
+import DynamoDB from '../lib/DynamoDB';
 
 const credentialsTable = DynamoDB.tableNames().credentials;
 const consumersTable = DynamoDB.tableNames().consumers;
@@ -29,24 +29,24 @@ const getDataFromSession = (sessionData) => {
 };
 
 const getCredentials = (dynamoDb, name, componentId, projectId) => dynamoDb.scan({
-    TableName: credentialsTable,
-    FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
-    ExpressionAttributeNames: {
-      '#cred_name': 'name',
-    },
-    ExpressionAttributeValues: {
-      ':name': name,
-      ':component_id': componentId,
-      ':project_id': R.toString(projectId),
-    },
-  }).promise().then((res) => res.Items);
+  TableName: credentialsTable,
+  FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
+  ExpressionAttributeNames: {
+    '#cred_name': 'name',
+  },
+  ExpressionAttributeValues: {
+    ':name': name,
+    ':component_id': componentId,
+    ':project_id': R.toString(projectId),
+  },
+}).promise().then(res => res.Items);
 
 const getConsumer = (dynamoDb, componentId) => dynamoDb.get({
-    TableName: consumersTable,
-    Key: {
-      component_id: componentId,
-    },
-  }).promise()
+  TableName: consumersTable,
+  Key: {
+    component_id: componentId,
+  },
+}).promise()
   .then((res) => {
     if (R.isEmpty(res)) {
       throw UserError.notFound('Consumer not found');
@@ -74,7 +74,7 @@ class Authorize {
     const componentId = event.pathParameters.componentId;
 
     return getConsumer(this.dynamoDb, componentId)
-      .then(consumer => {
+      .then((consumer) => {
         const oauth = OAuthFactory.getOAuth(consumer);
         if (R.has('oauthData', sessionData)) {
           return this.encryption.decrypt(sessionData.oauthData)
@@ -98,21 +98,21 @@ class Authorize {
 
     return this.encryption.decrypt(sessionData.token)
       .then(tokenDecryptRes => this.kbc.authStorage(tokenDecryptRes))
-      .then((kbcTokenRes) => {
+      .then(kbcTokenRes =>
         // check if exists
-        return getCredentials(this.dynamoDb, name, componentId, R.toString(kbcTokenRes.project))
+        getCredentials(this.dynamoDb, name, componentId, R.toString(kbcTokenRes.project))
           .then((item) => {
             if (R.isEmpty(item)) {
               return Promise.resolve(kbcTokenRes);
             }
             throw UserError.error(`Credentials with name ${name} already exists in this project`);
-          });
-      })
+          })
+      )
       .then((kbcTokenRes) => {
         const item = R.merge(
           {
             id: uniqid(),
-            name: name,
+            name,
             component_id: componentId,
             project_id: R.toString(kbcTokenRes.project),
             creator: {

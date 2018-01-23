@@ -3,19 +3,19 @@ import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler';
 import OAuth20 from './OAuth20';
 
-const fbApi = (url, params, method = 'get') =>  axios({
-    method: method,
-    url: url,
-    headers: {
-      Accept: 'application/json',
-    },
-    params: params,
-  })
-    .then(res => res.data)
-    .catch((err) => {
-      console.log(err.response);
-      throw UserError.error(`FB API error: ${err.response.data.error}`);
-    });
+const fbApi = (url, params, method = 'get') => axios({
+  method,
+  url,
+  headers: {
+    Accept: 'application/json',
+  },
+  params,
+})
+  .then(res => res.data)
+  .catch((err) => {
+    console.log(err.response);
+    throw UserError.error(`FB API error: ${err.response.data.error}`);
+  });
 
 class Facebook extends OAuth20 {
   getToken(callbackUrl, sessionData, query) {
