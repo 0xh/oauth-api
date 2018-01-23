@@ -67,12 +67,31 @@ services:
       - REGION
       - AWS_KMS_KEY_ID
       - SERVICE_NAME
-      - STAGE
+      - STAGE="dev"
       - KEBOOLA_STACK
       - KBC_URL
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - SLS_DEBUG=true
+    command: >
+             sh -c '
+             serverless deploy
+             '
+
+  deploy-test:
+    build: .
+    environment:
+      - ACCOUNT_ID
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - REGION=eu-central-1
+      - AWS_KMS_KEY_ID
+      - SERVICE_NAME
+      - STAGE=test
+      - KEBOOLA_STACK
+      - KBC_URL
+      - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
     command: >
              sh -c '
              serverless deploy

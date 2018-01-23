@@ -9,9 +9,9 @@ before_script:
   - docker-compose build
   - docker-compose run --rm tests
 
-#script:
-#  - travis_wait docker-compose run deploy-testing
-#
+script:
+  - travis_wait docker-compose run deploy-testing
+
 #deploy:
 #  provider: script
 #  script: docker-compose run deploy-production

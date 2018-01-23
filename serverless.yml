@@ -41,7 +41,8 @@ provider:
           - ".execute-api."
           - Ref: AWS::Region
           - ".amazonaws.com"
-          - "/dev"
+          - "/"
+          - ${env:STAGE}
 
 package:
   individually: true
@@ -188,7 +189,7 @@ resources:
     oauthLambdaRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: "${env:SERVICE_NAME}-lambda-role"
+        RoleName: "${env:SERVICE_NAME}-${env:STAGE}-lambda-role"
         AssumeRolePolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -200,7 +201,7 @@ resources:
         ManagedPolicyArns:
           - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
         Policies:
-          - PolicyName: "${env:SERVICE_NAME}-lambda-policy"
+          - PolicyName: "${env:SERVICE_NAME}-${env:STAGE}-lambda-policy"
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
