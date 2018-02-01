@@ -15,11 +15,29 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
 5. Cd into directory: `cd oauth-api`
 6. Install dependencies: `yarn install`
 7. Either save AWS credentials to `~/.aws/credentials` (see http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-multiple-profiles) or set env variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` prior to running following commands
-8. Create `.env` file for docker
-9. Run `docker-compose run --rm deploy-dev`
+8. Create `.env` file from template `.env.tmp`
 
 ### Development
 
 Conform your code to included ESLint rules.
 
-Local instance can be started using `docker-compose run --rm --service-ports run-dev`. The API will be accessible using url `http://localhost:3000/` 
+Run tests:
+```
+docker-compose run --rm tests
+```
+
+Start local instance: (The API will be accessible using url `http://localhost:3030/`)
+```
+docker-compose run --rm --service-ports dev
+```
+
+### Deploy 
+Deploy service to `dev` environment:
+```
+docker-compose run --rm deploy-dev
+```
+
+Deploy service to `test` environment:
+```
+docker-compose run --rm deploy-test
+```
