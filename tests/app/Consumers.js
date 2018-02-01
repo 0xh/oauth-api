@@ -145,7 +145,10 @@ describe('Consumers', () => {
     headers,
     body: JSON.stringify(consumer1),
   }).then((res) => {
-    expect(res, 'to have own properties', consumer1);
+    expect(res, 'to have own properties', {
+      status: 'created',
+      component_id: consumer1.component_id
+    });
   }));
 
   it('add - invalid body', () => expect(

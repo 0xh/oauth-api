@@ -77,7 +77,10 @@ class Consumers {
           TableName: tableName,
           Item: consumer,
         }).promise())
-        .then(() => consumer)
+        .then(() => ({
+          status: 'created',
+          component_id: consumer.component_id
+        }))
       );
   }
 
