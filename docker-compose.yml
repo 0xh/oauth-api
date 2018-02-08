@@ -36,14 +36,14 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - "SERVICE_NAME=oauth-api-tests"
-      - "STAGE=test"
-      - "KEBOOLA_STACK=oauth-api-tests"
-      - "KBC_URL=https://connection.keboola.com"
-      - "SESSION_HASH_PREFIX"
-      - "SESSION_COOKIE_NAME"
-      - "KBC_MANAGE_API_TOKEN=${TEST_KBC_MANAGE_API_TOKEN}"
-      - "KBC_STORAGE_API_TOKEN=${TEST_KBC_STORAGE_API_TOKEN}"
+      - SERVICE_NAME=oauth-api-tests
+      - STAGE=test
+      - KEBOOLA_STACK=oauth-api-tests
+      - KBC_URL=https://connection.keboola.com
+      - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
+      - KBC_MANAGE_API_TOKEN=${TEST_KBC_MANAGE_API_TOKEN}
+      - KBC_STORAGE_API_TOKEN=${TEST_KBC_STORAGE_API_TOKEN}
       - TW_APP_KEY
       - TW_APP_SECRET
     command: ./tests/run.sh
@@ -74,15 +74,15 @@ services:
   deploy-test:
     build: .
     environment:
-      - "ACCOUNT_ID=${TEST_ACCOUNT_ID}"
-      - "REGION=${TEST_REGION}"
-      - "AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}"
-      - "AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}"
+      - ACCOUNT_ID=${TEST_ACCOUNT_ID}
+      - REGION=${TEST_REGION}
+      - AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}
       - AWS_KMS_KEY_ID
-      - "SERVICE_NAME=${TEST_SERVICE_NAME}"
-      - "STAGE=test"
-      - "KEBOOLA_STACK=${TEST_SERVICE_NAME}"
-      - "KBC_URL=https://connection.keboola.com"
+      - SERVICE_NAME=${TEST_SERVICE_NAME}
+      - STAGE=test
+      - KEBOOLA_STACK=${TEST_SERVICE_NAME}
+      - KBC_URL=https://connection.keboola.com
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
     command: >
