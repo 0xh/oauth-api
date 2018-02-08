@@ -10,10 +10,6 @@ services:
       - "3030:3000"
     environment:
       - ACCOUNT_ID
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_KMS_KEY_ID
-      - AWS_REGION
       - REGION
       - SERVICE_NAME
       - STAGE
@@ -36,21 +32,14 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - ACCOUNT_ID
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - REGION
-      - AWS_KMS_KEY_ID
-      - AWS_REGION
-      - SERVICE_NAME
-      - STAGE
-      - KEBOOLA_STACK
-      - KBC_URL
+      - SERVICE_NAME=oauth-api-tests
+      - STAGE=test
+      - KEBOOLA_STACK=oauth-api-tests
+      - KBC_URL=https://connection.keboola.com
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
-      - KBC_MANAGE_API_TOKEN
-      - KBC_STORAGE_API_TOKEN
-      - REDIRECT_URI_BASE
+      - KBC_MANAGE_API_TOKEN=${TEST_KBC_MANAGE_API_TOKEN}
+      - KBC_STORAGE_API_TOKEN=${TEST_KBC_STORAGE_API_TOKEN}
       - TW_APP_KEY
       - TW_APP_SECRET
     command: ./tests/run.sh
@@ -73,33 +62,40 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - SLS_DEBUG=true
-    command: >
-             sh -c '
-             serverless deploy
-             '
+    command: serverless deploy
 
   deploy-test:
     build: .
     environment:
-      - ACCOUNT_ID
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - REGION=eu-central-1
+      - ACCOUNT_ID=${TEST_ACCOUNT_ID}
+      - REGION=${TEST_REGION}
+      - AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}
       - AWS_KMS_KEY_ID
-      - SERVICE_NAME
+      - SERVICE_NAME=${TEST_SERVICE_NAME}
       - STAGE=test
-      - KEBOOLA_STACK
-      - KBC_URL
+      - KEBOOLA_STACK=${TEST_SERVICE_NAME}
+      - KBC_URL=https://connection.keboola.com
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
-    command: >
-             sh -c '
-             serverless deploy
-             '
+    command: serverless deploy
+
+  deploy-prod-eu:
+    build: .
+    environment:
+      - ACCOUNT_ID=${PROD_ACCOUNT_ID}
+      - REGION=eu-central-1
+      - AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${PROD_AWS_SECRET_ACCESS_KEY}
+      - AWS_KMS_KEY_ID
+      - SERVICE_NAME=oauth-api-eu-central-1
+      - STAGE=prod
+      - KEBOOLA_STACK=oauth-api-eu-central-1
+      - KBC_URL=https://connection.eu-central-1.keboola.com
+      - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
+    command: serverless deploy
 
   lint:
     build: .
-    command: >
-             sh -c '
-             ./node_modules/.bin/eslint .
-             '
+    command: ./node_modules/.bin/eslint .

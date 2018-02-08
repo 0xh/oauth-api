@@ -92,7 +92,7 @@ const eventCallback = {
 };
 
 
-describe('Authorize', () => {
+describe.skip('Authorize', () => {
   const encryption = new Encryption(new AWS.KMS());
   const authorize = new Authorize(dynamoDb, encryption, new KbcApi(), new DockerRunnerApi());
 

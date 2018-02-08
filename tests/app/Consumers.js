@@ -85,7 +85,7 @@ function deleteConsumers() {
     });
 }
 
-describe('Consumers', () => {
+describe.skip('Consumers', () => {
   const consumers = new Consumers(dynamoDb, new KbcApi());
 
   beforeEach(() => deleteConsumers());
