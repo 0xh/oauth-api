@@ -259,6 +259,28 @@
           ]
         }
       }
+    },
+    "ServerlessDeployGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "GroupName":  {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "KeboolaStack"
+              },
+              "oauth-api-deploy"
+            ]
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Ref": "ServerlessDeployPolicy"
+          }
+        ],
+        "Path": "/"
+      }
     }
   },
   "Outputs": {
