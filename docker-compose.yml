@@ -36,21 +36,16 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - ACCOUNT_ID
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - REGION
-      - AWS_KMS_KEY_ID
-      - AWS_REGION
-      - SERVICE_NAME
-      - STAGE
-      - KEBOOLA_STACK
-      - KBC_URL
-      - SESSION_HASH_PREFIX
-      - SESSION_COOKIE_NAME
-      - KBC_MANAGE_API_TOKEN
-      - KBC_STORAGE_API_TOKEN
-      - REDIRECT_URI_BASE
+      - "ACCOUNT_ID=${TEST_ACCOUNT_ID}"
+      - "REGION=${TEST_REGION}"
+      - "SERVICE_NAME=oauth-api-tests"
+      - "STAGE=test"
+      - "KEBOOLA_STACK=oauth-api-tests"
+      - "KBC_URL=https://connection.keboola.com"
+      - "SESSION_HASH_PREFIX"
+      - "SESSION_COOKIE_NAME"
+      - "KBC_MANAGE_API_TOKEN=${TEST_KBC_MANAGE_API_TOKEN}"
+      - "KBC_STORAGE_API_TOKEN=${TEST_KBC_STORAGE_API_TOKEN}"
       - TW_APP_KEY
       - TW_APP_SECRET
     command: ./tests/run.sh
