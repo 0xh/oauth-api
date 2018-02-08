@@ -12,8 +12,10 @@ before_script:
 script:
   - travis_wait docker-compose run deploy-test
 
-#deploy:
-#  provider: script
-#  script: docker-compose run deploy-production
-#  on:
-#    tags: true
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: ./deploy.sh
+  on:
+    branch: master
+    tags: true

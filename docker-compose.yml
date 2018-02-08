@@ -80,6 +80,22 @@ services:
       - SESSION_COOKIE_NAME
     command: serverless deploy
 
+  deploy-prod-eu:
+    build: .
+    environment:
+      - ACCOUNT_ID=${PROD_ACCOUNT_ID}
+      - REGION=eu-central-1
+      - AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${PROD_AWS_SECRET_ACCESS_KEY}
+      - AWS_KMS_KEY_ID
+      - SERVICE_NAME=oauth-api-eu-central-1
+      - STAGE=prod
+      - KEBOOLA_STACK=oauth-api-eu-central-1
+      - KBC_URL=https://connection.eu-central-1.keboola.com
+      - SESSION_HASH_PREFIX
+      - SESSION_COOKIE_NAME
+    command: serverless deploy
+
   lint:
     build: .
     command: ./node_modules/.bin/eslint .
