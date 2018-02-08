@@ -161,7 +161,7 @@ function clearData() {
   });
 }
 
-describe('Credentials', () => {
+describe.skip('Credentials', () => {
   const credentials = new Credentials(dynamoDb, new KbcApi(), new DockerRunnerApi());
 
   beforeEach(() => clearData());
