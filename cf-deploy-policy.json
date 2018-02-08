@@ -67,7 +67,7 @@
                       {
                         "Ref": "Stage"
                       },
-                      "/"
+                      "/*"
                     ]
                   ]
                 }
@@ -149,11 +149,55 @@
               ]
             },
             {
+              "Effect":"Allow",
+              "Action":[
+                "dynamodb:*"
+              ],
+              "Resource":[
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:dynamodb:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":table/",
+                      {
+                        "Ref": "ServiceName"
+                      },
+                      "-",
+                      {
+                        "Ref": "Stage"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
               "Effect": "Allow",
               "Action": [
                 "apigateway:*"
               ],
               "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "::/restapis"
+                    ]
+                  ]
+                },
                 {
                   "Fn::Join": [
                     "",
@@ -175,7 +219,9 @@
                 "iam:DeleteRole",
                 "iam:PassRole",
                 "iam:DeleteRolePolicy",
-                "iam:PutRolePolicy"
+                "iam:PutRolePolicy",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy"
               ],
               "Resource":[
                 {
@@ -189,6 +235,10 @@
                       ":role/",
                       {
                         "Ref": "ServiceName"
+                      },
+                      "-",
+                      {
+                        "Ref": "Stage"
                       },
                       "-lambda-role"
                     ]
