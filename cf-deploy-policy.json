@@ -244,22 +244,6 @@
                       "-lambda-role"
                     ]
                   ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:iam::",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":role/",
-                      {
-                        "Ref": "ServiceName"
-                      },
-                      "-sms-role"
-                    ]
-                  ]
                 }
               ]
             },
