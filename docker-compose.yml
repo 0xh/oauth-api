@@ -62,10 +62,7 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - SLS_DEBUG=true
-    command: >
-             sh -c '
-             serverless deploy
-             '
+    command: serverless deploy
 
   deploy-test:
     build: .
@@ -81,14 +78,8 @@ services:
       - KBC_URL=https://connection.keboola.com
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
-    command: >
-             sh -c '
-             serverless deploy
-             '
+    command: serverless deploy
 
   lint:
     build: .
-    command: >
-             sh -c '
-             ./node_modules/.bin/eslint .
-             '
+    command: ./node_modules/.bin/eslint .
