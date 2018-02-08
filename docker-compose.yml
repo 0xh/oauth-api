@@ -36,9 +36,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - "ACCOUNT_ID=${TEST_ACCOUNT_ID}"
-      - "REGION=${TEST_REGION}"
-      - "AWS_REGION=${TEST_REGION}"
       - "SERVICE_NAME=oauth-api-tests"
       - "STAGE=test"
       - "KEBOOLA_STACK=oauth-api-tests"
