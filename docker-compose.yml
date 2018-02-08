@@ -38,6 +38,7 @@ services:
     environment:
       - "ACCOUNT_ID=${TEST_ACCOUNT_ID}"
       - "REGION=${TEST_REGION}"
+      - "AWS_REGION=${TEST_REGION}"
       - "SERVICE_NAME=oauth-api-tests"
       - "STAGE=test"
       - "KEBOOLA_STACK=oauth-api-tests"
@@ -76,15 +77,15 @@ services:
   deploy-test:
     build: .
     environment:
-      - ACCOUNT_ID
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - REGION=eu-central-1
+      - "ACCOUNT_ID=${TEST_ACCOUNT_ID}"
+      - "REGION=${TEST_REGION}"
+      - "AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}"
+      - "AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}"
       - AWS_KMS_KEY_ID
-      - SERVICE_NAME
-      - STAGE=test
-      - KEBOOLA_STACK
-      - KBC_URL
+      - "SERVICE_NAME=${TEST_SERVICE_NAME}"
+      - "STAGE=test"
+      - "KEBOOLA_STACK=${TEST_SERVICE_NAME}"
+      - "KBC_URL=https://connection.keboola.com"
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
     command: >
