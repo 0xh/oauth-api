@@ -1,5 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Keboola Oauth - creates IAM Group for Oauth API deployment with scoped permissions. Assign this group to ci/deploy user.",
   "Parameters" : {
     "KeboolaStack" : {
       "Type" : "String",
@@ -7,11 +8,11 @@
     },
     "ServiceName": {
       "Type": "String",
-      "Description": "Deploy service name"
+      "Description": "Service name."
     },
     "Stage": {
       "Type": "String",
-      "Description": "Service stage",
+      "Description": "Srvice stage",
       "AllowedValues" : ["dev", "test", "prod"]
     }
   },
@@ -332,8 +333,5 @@
         "Path": "/"
       }
     }
-  },
-  "Outputs": {
-
   }
 }

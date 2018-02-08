@@ -17,11 +17,7 @@ services:
       - KBC_URL
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
-      - KBC_MANAGE_API_TOKEN
-      - KBC_STORAGE_API_TOKEN
       - REDIRECT_URI_BASE
-      - TW_APP_KEY
-      - TW_APP_SECRET
     command: >
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0
@@ -68,9 +64,9 @@ services:
     build: .
     environment:
       - ACCOUNT_ID=${TEST_ACCOUNT_ID}
-      - REGION=${TEST_REGION}
       - AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}
+      - REGION=${TEST_REGION}
       - AWS_KMS_KEY_ID
       - SERVICE_NAME=${TEST_SERVICE_NAME}
       - STAGE=test
@@ -84,9 +80,9 @@ services:
     build: .
     environment:
       - ACCOUNT_ID=${PROD_ACCOUNT_ID}
-      - REGION=eu-central-1
       - AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${PROD_AWS_SECRET_ACCESS_KEY}
+      - REGION=eu-central-1
       - AWS_KMS_KEY_ID
       - SERVICE_NAME=oauth-api-eu-central-1
       - STAGE=prod
