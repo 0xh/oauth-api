@@ -9,8 +9,8 @@ const _ = require('lodash');
 axiosRetry(axios, { retries: 5 });
 
 class KbcApi {
-  constructor(baseUri = 'https://connection.keboola.com') {
-    this.baseUri = baseUri;
+  constructor(baseUri = null) {
+    this.baseUri = baseUri !== null ? baseUri : `${process.env.KBC_URL}/docker`;
   }
 
   static getStorageToken(event) {

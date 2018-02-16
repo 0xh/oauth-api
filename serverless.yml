@@ -1,8 +1,8 @@
 service: ${env:SERVICE_NAME}
 
 plugins:
-  - serverless-dynamodb-local
   - serverless-webpack
+  - serverless-dynamodb-local
   - serverless-offline
 
 custom:

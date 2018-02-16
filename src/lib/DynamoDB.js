@@ -12,8 +12,8 @@ const tableNames = {
 };
 
 class DynamoDB {
-  static getClient() {
-    return new AWS.DynamoDB.DocumentClient();
+  static getClient(options) {
+    return new AWS.DynamoDB.DocumentClient(options);
   }
 
   static tableNames() {

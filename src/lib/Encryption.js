@@ -1,13 +1,8 @@
-/**
- * Author: miro@keboola.com
- * Date: 29/11/2017
- */
-
 'use strict';
 
 class Encryption {
-  constructor(awsKms) {
-    this.kms = awsKms;
+  constructor(kms) {
+    this.kms = kms;
     this.keyId = process.env.AWS_KMS_KEY_ID;
   }
 

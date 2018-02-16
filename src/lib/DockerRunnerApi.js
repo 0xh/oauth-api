@@ -11,8 +11,8 @@ import axiosRetry from 'axios-retry';
 axiosRetry(axios, { retries: 5 });
 
 class DockerRunnerApi {
-  constructor(baseUri = 'https://syrup.keboola.com/docker') {
-    this.baseUri = baseUri;
+  constructor(baseUri = null) {
+    this.baseUri = baseUri !== null ? baseUri : `${process.env.SYRUP_URL}/docker`;
   }
 
   encrypt(componentId, projectId, plainText) {

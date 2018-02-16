@@ -24,10 +24,17 @@ services:
              '
   tests:
     build: .
+    volumes:
+      - .:/code
     working_dir: /code
     ports:
       - "3000:3000"
     environment:
+      - ACCOUNT_ID
+      - REGION
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test123
+      - AWS_KMS_KEY_ID=test123
       - SERVICE_NAME=oauth-api-tests
       - STAGE=test
       - KEBOOLA_STACK=oauth-api-tests
@@ -39,6 +46,11 @@ services:
       - TW_APP_KEY
       - TW_APP_SECRET
     command: ./tests/run.sh
+    links:
+      - dynamodb
+
+  dynamodb:
+    image: quay.io/keboola/dynamodb-extractor-dynamodb
 
   deploy-dev:
     build: .
