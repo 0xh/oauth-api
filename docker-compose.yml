@@ -24,8 +24,6 @@ services:
              '
   tests:
     build: .
-    volumes:
-      - .:/code
     working_dir: /code
     ports:
       - "3000:3000"
