@@ -1,9 +1,3 @@
-/**
- * Author: miro@keboola.com
- * Date: 22/11/2017
- */
-
-
 'use strict';
 
 import expect from 'unexpected';

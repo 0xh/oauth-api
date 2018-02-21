@@ -1,6 +1,7 @@
 'use strict';
 
-import AWS from 'aws-sdk';
+import AWSSDK from 'aws-sdk';
+import AWS from 'aws-sdk-mock';
 import expect from 'unexpected';
 import sinon from 'sinon';
 import R from 'ramda';
@@ -11,7 +12,12 @@ import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 
-const dynamoDb = DynamoDB.getClient();
+AWS.setSDKInstance(AWSSDK);
+
+const dynamoDb = DynamoDB.getClient({
+  region: 'eu-central-1',
+  endpoint: 'http://dynamodb:8000'
+});
 
 const credentialsTable = DynamoDB.tableNames().credentials;
 const consumersTable = DynamoDB.tableNames().consumers;
@@ -25,6 +31,79 @@ const consumer1 = {
   friendly_name: 'Google Analytics Extractor',
   oauth_version: '2.0',
 };
+
+function createTables() {
+  const dynamo = new AWSSDK.DynamoDB({
+    region: 'eu-central-1',
+    endpoint: 'http://dynamodb:8000'
+  });
+
+  return dynamo.listTables({})
+    .promise().then((res) => {
+      if (!R.isEmpty(res.TableNames)) {
+        return Promise.resolve();
+      }
+      return Promise.all([
+        dynamo.createTable({
+          TableName: DynamoDB.tableNames().consumers,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'component_id',
+              AttributeType: 'S'
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'component_id',
+              KeyType: 'HASH'
+            }
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+          }
+        }).promise(),
+        dynamo.createTable({
+          TableName: DynamoDB.tableNames().credentials,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S'
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'id',
+              KeyType: 'HASH'
+            }
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+          }
+        }).promise(),
+        dynamo.createTable({
+          TableName: DynamoDB.tableNames().sessions,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S'
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'id',
+              KeyType: 'HASH'
+            }
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+          }
+        }).promise()
+      ]);
+    });
+}
 
 function insertConsumer() {
   return dynamoDb.put({
@@ -91,32 +170,53 @@ const eventCallback = {
   body: null,
 };
 
+function getEncryption() {
+  AWS.mock('KMS', 'encrypt', function (params, callback) {
+    return callback(null, {
+      CiphertextBlob: params.Plaintext
+    });
+  });
 
-describe.skip('Authorize', () => {
-  const encryption = new Encryption(new AWS.KMS());
-  const authorize = new Authorize(dynamoDb, encryption, new KbcApi(), new DockerRunnerApi());
+  AWS.mock('KMS', 'decrypt', function (params, callback) {
+    return callback(null, {
+      Plaintext: params.CiphertextBlob
+    });
+  });
 
-  before(() => {
+  return new Encryption(new AWSSDK.KMS());
+}
+
+function getAuthorize() {
+  return new Authorize(
+    dynamoDb,
+    getEncryption(),
+    new KbcApi(process.env.KBC_URL),
+    new DockerRunnerApi()
+  );
+}
+
+describe('Authorize', () => {
+  before(() => createTables().then(() => {
     sinon.stub(OAuth20.prototype, 'getToken').returns(
       Promise.resolve({
         refresh_token: 1234,
         access_token: 5678,
       })
-    );
-  });
+    )
+  }));
 
   beforeEach(() => deleteConsumer());
 
   it('init', () => insertConsumer()
-    .then(() => authorize.init(eventInit))
+    .then(() => getAuthorize().init(eventInit))
     .then((res) => {
       expect(res, 'to have property', 'url', `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=${process.env.REDIRECT_URI_BASE}/authorize/keboola.ex-google-drive/callback&client_id=test&access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets.readonly`);
     })
   );
 
   it('callback', () => insertConsumer()
-    .then(() => encryption.encrypt(process.env.KBC_STORAGE_API_TOKEN))
-    .then(encryptedToken => authorize.callback(eventCallback, {
+    .then(() => getEncryption().encrypt(process.env.KBC_STORAGE_API_TOKEN))
+    .then(encryptedToken => getAuthorize().callback(eventCallback, {
       id: '12345',
       token: encryptedToken,
       authorizedFor: 'miro',
@@ -138,7 +238,7 @@ describe.skip('Authorize', () => {
   );
 
   it('callback browser', () => insertConsumer()
-    .then(() => authorize.callback(eventCallback, {
+    .then(() => getAuthorize().callback(eventCallback, {
       returnData: true,
     }))
     .then((res) => {
@@ -148,8 +248,8 @@ describe.skip('Authorize', () => {
 
   it('save credentials', () => insertConsumer()
     .then(() => deleteCredentials())
-    .then(() => encryption.encrypt(process.env.KBC_STORAGE_API_TOKEN))
-    .then(encryptedToken => authorize.saveCredentials(
+    .then(() => getEncryption().encrypt(process.env.KBC_STORAGE_API_TOKEN))
+    .then(encryptedToken => getAuthorize().saveCredentials(
       {
         access_token: 'secretToken6789',
       },
@@ -201,5 +301,7 @@ describe.skip('Authorize', () => {
       });
     })
   );
+
+  after(() => AWS.restore());
 });
 
