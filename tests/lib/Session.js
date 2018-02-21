@@ -6,7 +6,10 @@ import { UserError } from '@keboola/serverless-request-handler/src/index';
 import DynamoDB from '../../src/lib/DynamoDB';
 import Session from '../../src/lib/Session';
 
-const dynamoDb = DynamoDB.getClient();
+const dynamoDb = DynamoDB.getClient({
+  region: 'eu-central-1',
+  endpoint: 'http://dynamodb:8000'
+});
 
 const eventInit = {
   headers: {
@@ -48,7 +51,7 @@ describe('Session', () => {
     expect(sid, 'to be', sid2);
   });
 
-  it.skip('set/get - ok', () => {
+  it('set/get - ok', () => {
     const sid = session.init(eventInit);
     const sessionData = getSessionData(eventInit);
     return session.set(sid, sessionData)
@@ -56,7 +59,7 @@ describe('Session', () => {
       .then(res => expect(res, 'to have properties', sessionData));
   });
 
-  it.skip('set/get - expired', () => {
+  it('set/get - expired', () => {
     // session will expire in 1 second
     const expiredSession = new Session(dynamoDb, { ttl: 1000 });
     const sid = expiredSession.init(eventInit);
