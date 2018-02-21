@@ -25,12 +25,7 @@ services:
   tests:
     build: .
     working_dir: /code
-    ports:
-      - "3000:3000"
     environment:
-      - ACCOUNT_ID
-      - REGION
-      - AWS_REGION="eu-central-1"
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test123
       - AWS_KMS_KEY_ID=test123
