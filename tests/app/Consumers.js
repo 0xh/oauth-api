@@ -85,7 +85,7 @@ function deleteConsumers() {
 }
 
 describe('Consumers', () => {
-  const consumers = new Consumers(dynamoDb, new KbcApi(process.env.KBC_URL));
+  const consumers = new Consumers(dynamoDb, new KbcApi());
 
   before(() => DynamoDBLocal.createTables());
 
