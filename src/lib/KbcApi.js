@@ -10,7 +10,10 @@ axiosRetry(axios, { retries: 5 });
 
 class KbcApi {
   constructor(baseUri = null) {
-    this.baseUri = baseUri !== null ? baseUri : `${process.env.KBC_URL}/docker`;
+    this.baseUri = baseUri !== null ? baseUri : `${process.env.KBC_URL}`;
+    if (!this.baseUri) {
+      throw UserError.error('KBC url must be set');
+    }
   }
 
   static getStorageToken(event) {

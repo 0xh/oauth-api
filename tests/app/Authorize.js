@@ -11,6 +11,7 @@ import OAuth20 from '../../src/lib/OAuth/OAuth20';
 import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
 import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
+import DynamoDBLocal from '../DynamoDBLocal';
 
 AWS.setSDKInstance(AWSSDK);
 
@@ -31,79 +32,6 @@ const consumer1 = {
   friendly_name: 'Google Analytics Extractor',
   oauth_version: '2.0',
 };
-
-function createTables() {
-  const dynamo = new AWSSDK.DynamoDB({
-    region: 'eu-central-1',
-    endpoint: 'http://dynamodb:8000'
-  });
-
-  return dynamo.listTables({})
-    .promise().then((res) => {
-      if (!R.isEmpty(res.TableNames)) {
-        return Promise.resolve();
-      }
-      return Promise.all([
-        dynamo.createTable({
-          TableName: DynamoDB.tableNames().consumers,
-          AttributeDefinitions: [
-            {
-              AttributeName: 'component_id',
-              AttributeType: 'S'
-            }
-          ],
-          KeySchema: [
-            {
-              AttributeName: 'component_id',
-              KeyType: 'HASH'
-            }
-          ],
-          ProvisionedThroughput: {
-            ReadCapacityUnits: 1,
-            WriteCapacityUnits: 1
-          }
-        }).promise(),
-        dynamo.createTable({
-          TableName: DynamoDB.tableNames().credentials,
-          AttributeDefinitions: [
-            {
-              AttributeName: 'id',
-              AttributeType: 'S'
-            }
-          ],
-          KeySchema: [
-            {
-              AttributeName: 'id',
-              KeyType: 'HASH'
-            }
-          ],
-          ProvisionedThroughput: {
-            ReadCapacityUnits: 1,
-            WriteCapacityUnits: 1
-          }
-        }).promise(),
-        dynamo.createTable({
-          TableName: DynamoDB.tableNames().sessions,
-          AttributeDefinitions: [
-            {
-              AttributeName: 'id',
-              AttributeType: 'S'
-            }
-          ],
-          KeySchema: [
-            {
-              AttributeName: 'id',
-              KeyType: 'HASH'
-            }
-          ],
-          ProvisionedThroughput: {
-            ReadCapacityUnits: 1,
-            WriteCapacityUnits: 1
-          }
-        }).promise()
-      ]);
-    });
-}
 
 function insertConsumer() {
   return dynamoDb.put({
@@ -196,7 +124,7 @@ function getAuthorize() {
 }
 
 describe('Authorize', () => {
-  before(() => createTables().then(() => {
+  before(() => DynamoDBLocal.createTables().then(() => {
     sinon.stub(OAuth20.prototype, 'getToken').returns(
       Promise.resolve({
         refresh_token: 1234,

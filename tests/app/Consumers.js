@@ -7,8 +7,12 @@ import { UserError } from '@keboola/serverless-request-handler/src/index';
 import Consumers from '../../src/app/Consumers';
 import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
+import DynamoDBLocal from '../DynamoDBLocal';
 
-const dynamoDb = DynamoDB.getClient();
+const dynamoDb = DynamoDB.getClient({
+  region: 'eu-central-1',
+  endpoint: 'http://dynamodb:8000'
+});
 const consumersTable = DynamoDB.tableNames().consumers;
 const headers = {
   'X-KBC-ManageApiToken': process.env.KBC_MANAGE_API_TOKEN,
@@ -80,8 +84,10 @@ function deleteConsumers() {
     });
 }
 
-describe.skip('Consumers', () => {
-  const consumers = new Consumers(dynamoDb, new KbcApi());
+describe('Consumers', () => {
+  const consumers = new Consumers(dynamoDb, new KbcApi(process.env.KBC_URL));
+
+  before(() => DynamoDBLocal.createTables());
 
   beforeEach(() => deleteConsumers());
 
