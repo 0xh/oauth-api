@@ -11,7 +11,7 @@ import DynamoDBLocal from '../DynamoDBLocal';
 
 const dynamoDb = DynamoDB.getClient({
   region: 'eu-central-1',
-  endpoint: 'http://dynamodb:8000'
+  endpoint: 'http://dynamodb:8000',
 });
 const consumersTable = DynamoDB.tableNames().consumers;
 const headers = {
@@ -148,7 +148,7 @@ describe('Consumers', () => {
   }).then((res) => {
     expect(res, 'to have own properties', {
       status: 'created',
-      component_id: consumer1.component_id
+      component_id: consumer1.component_id,
     });
   }));
 

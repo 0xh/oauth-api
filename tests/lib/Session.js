@@ -8,7 +8,7 @@ import Session from '../../src/lib/Session';
 
 const dynamoDb = DynamoDB.getClient({
   region: 'eu-central-1',
-  endpoint: 'http://dynamodb:8000'
+  endpoint: 'http://dynamodb:8000',
 });
 
 const eventInit = {

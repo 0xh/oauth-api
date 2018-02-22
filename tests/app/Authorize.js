@@ -17,7 +17,7 @@ AWS.setSDKInstance(AWSSDK);
 
 const dynamoDb = DynamoDB.getClient({
   region: 'eu-central-1',
-  endpoint: 'http://dynamodb:8000'
+  endpoint: 'http://dynamodb:8000',
 });
 
 const credentialsTable = DynamoDB.tableNames().credentials;
@@ -99,17 +99,13 @@ const eventCallback = {
 };
 
 function getEncryption() {
-  AWS.mock('KMS', 'encrypt', function (params, callback) {
-    return callback(null, {
-      CiphertextBlob: params.Plaintext
-    });
-  });
+  AWS.mock('KMS', 'encrypt', (params, callback) => callback(null, {
+    CiphertextBlob: params.Plaintext,
+  }));
 
-  AWS.mock('KMS', 'decrypt', function (params, callback) {
-    return callback(null, {
-      Plaintext: params.CiphertextBlob
-    });
-  });
+  AWS.mock('KMS', 'decrypt', (params, callback) => callback(null, {
+    Plaintext: params.CiphertextBlob,
+  }));
 
   return new Encryption(new AWSSDK.KMS());
 }
@@ -130,7 +126,7 @@ describe('Authorize', () => {
         refresh_token: 1234,
         access_token: 5678,
       })
-    )
+    );
   }));
 
   beforeEach(() => deleteConsumer());

@@ -79,7 +79,7 @@ class Consumers {
         }).promise())
         .then(() => ({
           status: 'created',
-          component_id: consumer.component_id
+          component_id: consumer.component_id,
         }))
       );
   }

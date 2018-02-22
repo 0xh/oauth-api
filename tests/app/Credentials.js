@@ -11,7 +11,7 @@ import DynamoDBLocal from '../DynamoDBLocal';
 
 const dynamoDb = DynamoDB.getClient({
   region: 'eu-central-1',
-  endpoint: 'http://dynamodb:8000'
+  endpoint: 'http://dynamodb:8000',
 });
 const credentialsTable = DynamoDB.tableNames().credentials;
 const consumersTable = DynamoDB.tableNames().consumers;
