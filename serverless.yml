@@ -254,7 +254,6 @@ resources:
     oauthKmsKey:
       Type: AWS::KMS::Key
       Properties:
-        AliasName: ""
         Description: "OAuth API KMS key"
         KeyPolicy:
           Version: "2012-10-17"
@@ -265,8 +264,15 @@ resources:
               AWS:
                 Fn::Join:
                   - ""
-                  - "arn:aws:iam::"
-                  - Ref: AWS::AccountId
-                  - ":root"
+                  - - "arn:aws:iam::"
+                    - Ref: AWS::AccountId
+                    - ":user/"
+                    - ${env:USER_NAME}
             Action: "kms:*"
             Resource: "*"
+    oauthKmsKeyAlias:
+      Type: AWS::KMS::Alias
+      Properties:
+        AliasName: ${self:custom:kmsAlias}
+        TargetKeyId:
+          Ref: oauthKmsKey

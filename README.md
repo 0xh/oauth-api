@@ -22,6 +22,9 @@ AWS_SECRET_ACCESS_KEY=
 # Your AWS account id
 ACCOUNT_ID=
 
+# Name of user created in step 2
+USER_NAME=
+
 # AWS region where the stack was created
 REGION=
 
