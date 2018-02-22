@@ -59,7 +59,7 @@ services:
       - REGION
       - AWS_KMS_KEY_ID
       - SERVICE_NAME
-      - STAGE="dev"
+      - STAGE=dev
       - KEBOOLA_STACK
       - KBC_URL
       - SESSION_HASH_PREFIX

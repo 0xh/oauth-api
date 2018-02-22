@@ -7,11 +7,12 @@ plugins:
 
 custom:
   webpackIncludeModules: true
+  kmsAlias: "alias/${env:SERVICE_NAME}-${env:STAGE}"
   dynamodb:
     tables:
-      consumers: ${env:SERVICE_NAME}-${env:STAGE}_consumers
-      credentials: ${env:SERVICE_NAME}-${env:STAGE}_credentials
-      sessions: ${env:SERVICE_NAME}-${env:STAGE}_sessions
+      consumers: "${env:SERVICE_NAME}-${env:STAGE}_consumers"
+      credentials: "${env:SERVICE_NAME}-${env:STAGE}_credentials"
+      sessions: "${env:SERVICE_NAME}-${env:STAGE}_sessions"
     start:
       port: 9000
       inMemory: true
@@ -27,7 +28,7 @@ provider:
   environment:
     KEBOOLA_STACK: ${env:KEBOOLA_STACK}
     REGION: ${env:REGION}
-    AWS_KMS_KEY_ID: ${env:AWS_KMS_KEY_ID}
+    AWS_KMS_KEY_ID: ${self:custom:kmsAlias}
     SERVICE_NAME: ${env:SERVICE_NAME}
     STAGE: ${env:STAGE}
     KBC_URL: ${env:KBC_URL}
@@ -250,3 +251,22 @@ resources:
                           - Ref: AWS::Region
                           - Ref: AWS::AccountId
                           - "table/${self:custom.dynamodb.tables.sessions}"
+    oauthKmsKey:
+      Type: AWS::KMS::Key
+      Properties:
+        AliasName: ""
+        Description: "OAuth API KMS key"
+        KeyPolicy:
+          Version: "2012-10-17"
+          Statement:
+            Sid: "Allow administration of the key in IAM"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - "arn:aws:iam::"
+                  - Ref: AWS::AccountId
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
