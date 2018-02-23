@@ -9,10 +9,13 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
 ### Installation
 
 1. Download git repository: `git clone git@github.com:keboola/oauth-api.git`
-2. Create AWS User for service
- - Choose a `SERVICE_NAME` like `martin-oauth-api-dev`
- - Create a stack [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json) with permissions, use SERVICE_NAME as parameter
- - Create IAM user eq. `martin-oauth-api-dev-deploy`, assign this user to Group created in previous step  and create AWS credentials for this user
+2. Create a AWS User, which will be used to deploy app to `dev` environment:
+ - Choose a `SERVICE_NAME` like `martin-oauth-api`
+ - Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
+    - name your stack like `martin-oauth-api-dev-deploy`
+    - ServiceName = SERVICE_NAME
+    - KeboolaStack = SERVICE_NAME 
+ - Create IAM user (with same name as stack) `martin-oauth-api-dev-deploy`, assign this user to Group created in previous step  and create AWS credentials for this user
 2. Create `.env` file
 ```
 # AWS keys created in step 2
@@ -22,9 +25,6 @@ AWS_SECRET_ACCESS_KEY=
 # Your AWS account id
 ACCOUNT_ID=
 
-# Name of user created in step 2
-USER_NAME=
-
 # AWS region where the stack was created
 REGION=
 
@@ -33,7 +33,9 @@ SERVICE_NAME=
 
 STAGE=dev
 
+# Same as SERVICE_NAME
 KEBOOLA_STACK=
+
 KBC_URL=https://connection.keboola.com
 
 # Keboola Manage API application token with oauth:manage scope

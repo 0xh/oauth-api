@@ -8,11 +8,11 @@
     },
     "ServiceName": {
       "Type": "String",
-      "Description": "Service name."
+      "Description": "Service name"
     },
     "Stage": {
       "Type": "String",
-      "Description": "Srvice stage",
+      "Description": "Service stage",
       "AllowedValues" : ["dev", "test", "prod"]
     }
   },
@@ -286,6 +286,26 @@
                 "iam:GetUser",
                 "iam:GetRole",
                 "cloudformation:ValidateTemplate"
+              ],
+              "Resource":[
+                "*"
+              ]
+            },
+            {
+              "Effect":"Allow",
+              "Action":[
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion"
               ],
               "Resource":[
                 "*"

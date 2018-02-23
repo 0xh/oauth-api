@@ -58,7 +58,6 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - REGION
       - SERVICE_NAME
-      - USER_NAME
       - STAGE=dev
       - KEBOOLA_STACK
       - KBC_URL
