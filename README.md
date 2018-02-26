@@ -10,12 +10,12 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
 
 1. Download git repository: `git clone git@github.com:keboola/oauth-api.git`
 2. Create a AWS User, which will be used to deploy app to `dev` environment:
- - Choose a `SERVICE_NAME` (i.e. `martin-oauth-api`)
- - Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
-    - name your stack (i.e. `martin-oauth-api-dev-deploy`)
-    - set a ServiceName = SERVICE_NAME
-    - set a KeboolaStack name `kbc-eu-central-1` or `kbc-us-east-1`, it doesn't really matter for development/testing
- - Create IAM user (with the same name as stack for example), assign this user to Group created in previous step  and create AWS credentials for this user
+    1. Choose a `SERVICE_NAME` (i.e. `martin-oauth-api`)
+    2. Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
+        - name your stack (i.e. `martin-oauth-api-dev-deploy`)
+        - set a ServiceName = SERVICE_NAME
+        - set a KeboolaStack name `kbc-eu-central-1` or `kbc-us-east-1`, it doesn't really matter for development/testing
+    3. Create IAM user (with the same name as stack for example), assign this user to Group created in previous step  and create AWS credentials for this user
 2. Create `.env` file
 ```
 # AWS keys created in step 2
@@ -28,12 +28,12 @@ ACCOUNT_ID=
 # AWS region where the stack was created
 REGION=
 
-# SERVICE_NAME from step 1
+# SERVICE_NAME from step 2.i.
 SERVICE_NAME=
 
 STAGE=dev
 
-# Same as SERVICE_NAME
+# KeboolaStack from step 2.ii.
 KEBOOLA_STACK=
 
 KBC_URL=https://connection.keboola.com
@@ -48,7 +48,7 @@ TEST_KBC_STORAGE_API_TOKEN=
 SESSION_HASH_PREFIX=somePrefix
 SESSION_COOKIE_NAME=oauthSessionId
 
-
+# Hostname of the app (i.e. http://0.0.0.0:3000 for local development)
 REDIRECT_URI_BASE=
 
 # Twitter settings for tests
