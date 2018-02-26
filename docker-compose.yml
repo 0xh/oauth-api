@@ -48,8 +48,6 @@ services:
 
   deploy:
     build: .
-    volumes:
-      - .:/code
     working_dir: /code
     environment:
       - ACCOUNT_ID

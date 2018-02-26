@@ -3728,9 +3728,9 @@ serverless-offline@^3.16.0:
     lodash "^4.17.4"
     velocityjs "^0.9.3"
 
-serverless-webpack@^3.1.0:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-3.1.2.tgz#f1ee61649414e141a1659cdce0ad6294a414d470"
+serverless-webpack@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/serverless-webpack/-/serverless-webpack-4.3.0.tgz#6fd662d9a9e8a0ab1d5f08ce911b21080c4cb9c7"
   dependencies:
     archiver "^2.0.0"
     bluebird "^3.5.0"
