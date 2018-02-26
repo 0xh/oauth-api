@@ -10,12 +10,12 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
 
 1. Download git repository: `git clone git@github.com:keboola/oauth-api.git`
 2. Create a AWS User, which will be used to deploy app to `dev` environment:
- - Choose a `SERVICE_NAME` like `martin-oauth-api`
+ - Choose a `SERVICE_NAME` (i.e. `martin-oauth-api`)
  - Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
-    - name your stack like `martin-oauth-api-dev-deploy`
-    - ServiceName = SERVICE_NAME
-    - KeboolaStack = SERVICE_NAME 
- - Create IAM user (with same name as stack) `martin-oauth-api-dev-deploy`, assign this user to Group created in previous step  and create AWS credentials for this user
+    - name your stack (i.e. `martin-oauth-api-dev-deploy`)
+    - set a ServiceName = SERVICE_NAME
+    - set a KeboolaStack name `kbc-eu-central-1` or `kbc-us-east-1`, it doesn't really matter for development/testing
+ - Create IAM user (with the same name as stack for example), assign this user to Group created in previous step  and create AWS credentials for this user
 2. Create `.env` file
 ```
 # AWS keys created in step 2
