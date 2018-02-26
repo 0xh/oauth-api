@@ -46,7 +46,7 @@ services:
     links:
       - localstack
 
-  deploy-dev:
+  deploy:
     build: .
     volumes:
       - .:/code
@@ -63,36 +63,6 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - SLS_DEBUG=true
-    command: serverless deploy
-
-  deploy-test:
-    build: .
-    environment:
-      - ACCOUNT_ID=${TEST_ACCOUNT_ID}
-      - AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}
-      - REGION=${TEST_REGION}
-      - SERVICE_NAME=${TEST_SERVICE_NAME}
-      - STAGE=test
-      - KEBOOLA_STACK=${TEST_SERVICE_NAME}
-      - KBC_URL=https://connection.keboola.com
-      - SESSION_HASH_PREFIX
-      - SESSION_COOKIE_NAME
-    command: serverless deploy
-
-  deploy-prod-eu:
-    build: .
-    environment:
-      - ACCOUNT_ID=${PROD_ACCOUNT_ID}
-      - AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${PROD_AWS_SECRET_ACCESS_KEY}
-      - REGION=eu-central-1
-      - SERVICE_NAME=oauth-api-eu-central-1
-      - STAGE=prod
-      - KEBOOLA_STACK=oauth-api-eu-central-1
-      - KBC_URL=https://connection.eu-central-1.keboola.com
-      - SESSION_HASH_PREFIX
-      - SESSION_COOKIE_NAME
     command: serverless deploy
 
   localstack:

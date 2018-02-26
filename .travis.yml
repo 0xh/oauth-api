@@ -9,9 +9,21 @@ before_script:
   - docker-compose build
   - docker-compose run --rm tests
 
+# Deploy to testing
 script:
-  - travis_wait docker-compose run deploy-test
+  - |
+    travis_wait docker-compose run \
+      -e ACCOUNT_ID=${TEST_ACCOUNT_ID} \
+      -e AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID} \
+      -e AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY} \
+      -e REGION=${TEST_REGION} \
+      -e SERVICE_NAME=${TEST_SERVICE_NAME} \
+      -e STAGE=test \
+      -e KEBOOLA_STACK=${TEST_SERVICE_NAME} \
+      -e KBC_URL=https://connection.keboola.com \
+      deploy
 
+# Deploy to production
 deploy:
   provider: script
   skip_cleanup: true

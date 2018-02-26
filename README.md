@@ -48,7 +48,7 @@ TEST_KBC_STORAGE_API_TOKEN=
 SESSION_HASH_PREFIX=somePrefix
 SESSION_COOKIE_NAME=oauthSessionId
 
-# Hostname of the app (i.e. http://0.0.0.0:3000 for local development)
+# Hostname of the app (i.e. http://0.0.0.0:3030 for local development)
 REDIRECT_URI_BASE=
 
 # Twitter settings for tests
