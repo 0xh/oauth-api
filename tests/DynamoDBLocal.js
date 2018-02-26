@@ -5,10 +5,15 @@ import AWS from 'aws-sdk';
 import DynamoDB from '../src/lib/DynamoDB';
 
 export default {
+  getClient: () => DynamoDB.getClient({
+    region: process.env.REGION,
+    endpoint: process.env.DYNAMO_ENDPOINT,
+  }),
+
   createTables: () => {
     const dynamo = new AWS.DynamoDB({
-      region: 'eu-central-1',
-      endpoint: 'http://dynamodb:8000',
+      region: process.env.REGION,
+      endpoint: process.env.DYNAMO_ENDPOINT,
     });
 
     return dynamo.listTables({})

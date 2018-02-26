@@ -15,11 +15,7 @@ import DynamoDBLocal from '../DynamoDBLocal';
 
 AWS.setSDKInstance(AWSSDK);
 
-const dynamoDb = DynamoDB.getClient({
-  region: 'eu-central-1',
-  endpoint: 'http://dynamodb:8000',
-});
-
+const dynamoDb = DynamoDBLocal.getClient();
 const credentialsTable = DynamoDB.tableNames().credentials;
 const consumersTable = DynamoDB.tableNames().consumers;
 

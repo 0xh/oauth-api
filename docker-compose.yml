@@ -29,11 +29,13 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test123
       - AWS_KMS_KEY_ID=test123
+      - REGION=eu-central-1
       - SERVICE_NAME=oauth-api-tests
       - STAGE=test
       - KEBOOLA_STACK=oauth-api-tests
       - KBC_URL=https://connection.keboola.com
       - SYRUP_URL=https://syrup.keboola.com
+      - DYNAMO_ENDPOINT=http://localstack:4569
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - KBC_MANAGE_API_TOKEN=${TEST_KBC_MANAGE_API_TOKEN}
@@ -42,10 +44,7 @@ services:
       - TW_APP_SECRET
     command: ./tests/run.sh
     links:
-      - dynamodb
-
-  dynamodb:
-    image: quay.io/keboola/dynamodb-extractor-dynamodb
+      - localstack
 
   deploy-dev:
     build: .
@@ -96,6 +95,9 @@ services:
       - SESSION_COOKIE_NAME
     command: serverless deploy
 
-  lint:
-    build: .
-    command: ./node_modules/.bin/eslint .
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4569:4569"
+    environment:
+      - "SERVICES=dynamodb"

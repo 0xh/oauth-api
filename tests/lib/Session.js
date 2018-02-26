@@ -3,13 +3,10 @@
 import expect from 'unexpected';
 import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler/src/index';
-import DynamoDB from '../../src/lib/DynamoDB';
 import Session from '../../src/lib/Session';
+import DynamoDBLocal from '../DynamoDBLocal';
 
-const dynamoDb = DynamoDB.getClient({
-  region: 'eu-central-1',
-  endpoint: 'http://dynamodb:8000',
-});
+const dynamoDb = DynamoDBLocal.getClient();
 
 const eventInit = {
   headers: {
