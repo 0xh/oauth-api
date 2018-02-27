@@ -13,7 +13,6 @@ const fbApi = (url, params, method = 'get') => axios({
 })
   .then(res => res.data)
   .catch((err) => {
-    console.log(err.response);
     throw UserError.error(`FB API error: ${err.response.data.error}`);
   });
 

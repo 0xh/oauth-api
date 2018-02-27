@@ -54,7 +54,6 @@ class OAuth20 {
       },
     }).then(res => res.data)
       .catch((err) => {
-        console.log(err.response);
         throw UserError.error(`Authentication error: ${err.response.data.error}`);
       });
   }
