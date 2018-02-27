@@ -13,9 +13,6 @@ RUN wget --no-cookies --header "Cookie: gpw_e24=xxx; oraclelicense=accept-secure
 RUN rpm -Uvh jdk-8u161-linux-x64.rpm
 RUN java -version
 
-# serverless
-RUN npm install -g serverless@1.24.1
-
 # working directory
 ADD ./ /code
 WORKDIR /code
