@@ -10,6 +10,7 @@ import Session from '../lib/Session';
 import Encryption from '../lib/Encryption';
 import KbcApi from '../lib/KbcApi';
 import DockerRunnerApi from '../lib/DockerRunnerApi';
+import DynamoDB from '../lib/DynamoDB';
 
 AWS.config.setPromisesDependency(Bluebird);
 
@@ -42,7 +43,7 @@ function requestToSession(event, encryption, oauthRes) {
 }
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
-  const dynamoDb = new AWS.DynamoDB.DocumentClient();
+  const dynamoDb = DynamoDB.getDocClient();
   const session = new Session(dynamoDb);
   const encryption = new Encryption(new AWS.KMS());
   const authorize = new Authorize(dynamoDb, encryption, new KbcApi(), new DockerRunnerApi());
@@ -99,11 +100,8 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
   }
 
   return promise
-    .then((res) => {
-      console.log(res);
-      return RequestHandler.response(
-        null, res.response, event, context, callback, res.code, res.headers
-      );
-    })
+    .then(res => RequestHandler.response(
+      null, res.response, event, context, callback, res.code, res.headers
+    ))
     .catch(err => RequestHandler.response(err, null, event, context, callback, null));
 }, event, context, callback);

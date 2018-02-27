@@ -17,6 +17,7 @@ custom:
     start:
       port: 9000
       inMemory: true
+      migrate: true
 
 provider:
   name: aws

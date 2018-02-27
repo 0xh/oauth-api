@@ -8,11 +8,6 @@ export default {
   getClient: () => DynamoDB.getDocClient(),
 
   createTables: () => {
-    // const dynamo = new AWS.DynamoDB({
-    //   region: process.env.REGION,
-    //   endpoint: process.env.DYNAMO_ENDPOINT,
-    // });
-
     const dynamo = DynamoDB.getRawClient();
 
     return dynamo.listTables({})

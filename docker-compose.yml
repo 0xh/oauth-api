@@ -10,11 +10,15 @@ services:
       - "3030:3000"
     environment:
       - ACCOUNT_ID
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
       - REGION
       - SERVICE_NAME
       - STAGE
       - KEBOOLA_STACK
       - KBC_URL
+      - SYRUP_URL
+      - DYNAMO_ENDPOINT=http://localhost:9000
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - REDIRECT_URI_BASE
