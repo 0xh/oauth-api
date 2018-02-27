@@ -7,7 +7,7 @@ import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
-  const dynamoDb = DynamoDB.getClient();
+  const dynamoDb = DynamoDB.getDocClient();
   const kbcApi = new KbcApi();
   const credentials = new Credentials(dynamoDb, kbcApi, new DockerRunnerApi());
   let promise;

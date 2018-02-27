@@ -6,7 +6,7 @@ import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
-  const dynamoDb = DynamoDB.getClient();
+  const dynamoDb = DynamoDB.getDocClient();
   const consumers = new Consumers(dynamoDb, new KbcApi());
   let promise;
   let code;

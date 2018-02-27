@@ -1,20 +1,19 @@
 'use strict';
 
+// import AWS from 'aws-sdk';
 import R from 'ramda';
-import AWS from 'aws-sdk';
 import DynamoDB from '../src/lib/DynamoDB';
 
 export default {
-  getClient: () => DynamoDB.getClient({
-    region: process.env.REGION,
-    endpoint: process.env.DYNAMO_ENDPOINT,
-  }),
+  getClient: () => DynamoDB.getDocClient(),
 
   createTables: () => {
-    const dynamo = new AWS.DynamoDB({
-      region: process.env.REGION,
-      endpoint: process.env.DYNAMO_ENDPOINT,
-    });
+    // const dynamo = new AWS.DynamoDB({
+    //   region: process.env.REGION,
+    //   endpoint: process.env.DYNAMO_ENDPOINT,
+    // });
+
+    const dynamo = DynamoDB.getRawClient();
 
     return dynamo.listTables({})
       .promise().then((res) => {
