@@ -67,21 +67,23 @@ Run tests:
 docker-compose run --rm tests
 ```
 
-Start local instance: (The API will be accessible using url `http://localhost:3030/`)
+Start local instance: 
+ - API will be accessible on `http://localhost:3030/`
+ - you need to run Deploy to `dev` environment first
 ```bash
 docker-compose run --rm --service-ports dev
 ```
 
-Run Linter, automatically fixing error:
+Run Linter, automatically fixing errors:
 ```bash
-./node_modules/.bin/eslint --fix .
+docker-compose run --rm dev ./node_modules/.bin/eslint --fix .
 ```
 
 ### Deploy 
 
 Deploy service to `dev` environment:
 ```bash
-docker-compose run --rm deploy-dev
+docker-compose run --rm deploy
 ```
 
 ### CI
