@@ -1,0 +1,72 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Keboola Oauth - creates IAM Group for Oauth API offline development with scoped permissions. Assign this group to dev user.",
+  "Parameters" : {
+    "KeboolaStack" : {
+      "Type" : "String",
+      "Description" : "IAM Policy and Group for offline development"
+    },
+    "ServiceName": {
+      "Type": "String",
+      "Description": "Service name"
+    }
+  },
+  "Resources": {
+    "ServerlessDeployPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            " - ",
+            [
+              {
+                "Ref": "KeboolaStack"
+              },
+              "Oauth API Dev"
+            ]
+          ]
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement":[
+            {
+              "Effect":"Allow",
+              "Action":[
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey"
+              ],
+              "Resource":[
+                "*"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "ServerlessDevGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "GroupName":  {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "KeboolaStack"
+              },
+              "oauth-api-dev"
+            ]
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Ref": "ServerlessDeployPolicy"
+          }
+        ],
+        "Path": "/"
+      }
+    }
+  }
+}

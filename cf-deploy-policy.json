@@ -297,9 +297,7 @@
                 "kms:Create*",
                 "kms:Describe*",
                 "kms:List*",
-                "kms:Put*",
-                "kms:Encrypt",
-                "kms:Decrypt"
+                "kms:Put*"
               ],
               "Resource":[
                 "*"
