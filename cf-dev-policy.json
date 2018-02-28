@@ -67,6 +67,55 @@
         ],
         "Path": "/"
       }
+    },
+    "OauthKmsKey": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "Description": "OAuth API KMS key",
+        "KeyPolicy": {
+          "Version": "2012-10-17",
+          "Statement": {
+            "Sid": "Allow administration of the key in IAM",
+            "Effect": "Allow",
+            "Action": "kms:*",
+            "Resource": "*",
+            "Principal": {
+              "AWS": {
+                "Fn::Join": [
+                  ":",
+                  [
+                    "arn:aws:iam:",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    "root"
+                  ]
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "OauthKmsKeyAlias": {
+      "Type": "AWS::KMS::Alias",
+      "Properties": {
+        "AliasName": {
+          "Fn::Join": [
+            "",
+            [
+              "alias/",
+              {
+                "Ref": "ServiceName"
+              },
+              "-dev"
+            ]
+          ]
+        },
+        "TargetKeyId": {
+          "Ref": "OauthKmsKey"
+        }
+      }
     }
   }
 }

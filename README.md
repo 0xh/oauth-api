@@ -12,8 +12,8 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
     1. Choose a `SERVICE_NAME` (i.e. `miro-oauth-api`)
     2. Create a stack from template [cf-dev-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-dev-policy.json)
         - name your stack (i.e. `miro-oauth-api-local`)
+        - set a KeboolaStack name (i.e. `miro-oauth-api-local`)
         - set a ServiceName = SERVICE_NAME
-        - set a KeboolaStack name (i.e. `miro-oauth-local`)
     3. Create IAM user (same name as stack for example), with programmatic access and assign this user to Group created in previous step and create AWS credentials for this user
 3. Create `.env` file:
     ```dotenv
@@ -74,8 +74,8 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
 1. Create another AWS User, which will be used to deploy the app to `dev` environment:    
     1. Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
         - name your stack (i.e. `miro-oauth-api-deploy`)
+        - set a KeboolaStack name (i.e. `miro-oauth-api-deploy`)
         - set a ServiceName = SERVICE_NAME
-        - set a KeboolaStack name (i.e. `miro-oauth-deploy`)
         - set Stage to `dev`
     3. Create IAM user (with the same name as stack for example), programmatic access, assign this user to Group created in previous step and create AWS credentials for this user
 2. Update AWS credentials in your `.env` file
