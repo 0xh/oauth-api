@@ -22,6 +22,7 @@ services:
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
       - REDIRECT_URI_BASE
+      - SLS_DEBUG=true
     command: >
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0

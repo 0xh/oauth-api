@@ -30,6 +30,7 @@ provider:
   environment:
     KEBOOLA_STACK: ${env:KEBOOLA_STACK}
     REGION: ${env:REGION}
+    AWS_REGION: ${env:REGION} # sls offline bug workaround
     AWS_KMS_KEY_ID: ${self:custom.kmsAlias}
     SERVICE_NAME: ${env:SERVICE_NAME}
     STAGE: ${env:STAGE}
