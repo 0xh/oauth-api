@@ -1,7 +1,3 @@
-/**
- * Author: miro@keboola.com
- * Date: 30/11/2017
- */
 import { UserError } from '@keboola/serverless-request-handler';
 import OAuth from 'oauth';
 import R from 'ramda';

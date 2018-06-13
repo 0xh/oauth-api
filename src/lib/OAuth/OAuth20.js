@@ -1,7 +1,3 @@
-/**
- * Author: miro@keboola.com
- * Date: 27/11/2017
- */
 import { UserError } from '@keboola/serverless-request-handler';
 import axios from 'axios';
 import R from 'ramda';
