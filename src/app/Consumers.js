@@ -8,10 +8,36 @@ import DynamoDB from '../lib/DynamoDB';
 
 const tableName = DynamoDB.tableNames().consumers;
 
+const getConsumer = (dynamoDb, encryption, componentId) => {
+  const params = {
+    TableName: tableName,
+    Key: { component_id: componentId },
+  };
+
+  return dynamoDb.get(params).promise()
+    .then((res) => {
+      if (R.isEmpty(res)) {
+        throw UserError.notFound(`Consumer "${componentId}" not found`);
+      }
+      return res.Item;
+    })
+    .then(consumerItem => encryption.decrypt(consumerItem.app_secret)
+      .then(appSecretPlain => R.merge(consumerItem, { app_secret: appSecretPlain }))
+    );
+};
+
+const putConsumer = (dynamoDb, encryption, consumer) => encryption.encrypt(consumer.app_secret)
+  .then(encryptedSecret => R.merge(consumer, { app_secret: encryptedSecret }))
+  .then(consumerToSave => dynamoDb.put({
+    TableName: tableName,
+    Item: consumerToSave,
+  }).promise());
+
 class Consumers {
-  constructor(dynamoDb, kbc) {
+  constructor(dynamoDb, kbc, encryption) {
     this.dynamoDb = dynamoDb;
     this.kbc = kbc;
+    this.encryption = encryption;
     this.schema = {
       component_id: Joi.string().required(),
       auth_url: Joi.string().required(),
@@ -45,19 +71,9 @@ class Consumers {
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
-    const params = {
-      TableName: tableName,
-      Key: { component_id: componentId },
-    };
 
     return this.kbc.authManageToken(event)
-      .then(() => this.dynamoDb.get(params).promise())
-      .then((res) => {
-        if (R.isEmpty(res)) {
-          throw UserError.notFound(`Consumer "${componentId}" not found`);
-        }
-        return res.Item;
-      });
+      .then(() => getConsumer(this.dynamoDb, this.encryption, componentId));
   }
 
   add(event) {
@@ -73,10 +89,7 @@ class Consumers {
           }
           return res;
         })
-        .then(() => this.dynamoDb.put({
-          TableName: tableName,
-          Item: consumer,
-        }).promise())
+        .then(() => putConsumer(this.dynamoDb, this.encryption, consumer))
         .then(() => ({
           status: 'created',
           component_id: consumer.component_id,
@@ -101,24 +114,11 @@ class Consumers {
 
     return Validator.validate(event, patchSchema)
       .then(updateAttributes => this.kbc.authManageToken(event)
-        .then(() => this.dynamoDb.get({
-          TableName: tableName,
-          Key: { component_id: componentId },
-        }).promise())
-        .then((res) => {
-          if (R.isEmpty(res)) {
-            throw UserError.notFound(`Consumer "${componentId}" not found`);
-          }
-          return res.Item;
-        })
-        .then((item) => {
-          const updatedItem = R.merge(item, updateAttributes);
-          return this.dynamoDb.put({
-            TableName: tableName,
-            Item: updatedItem,
-          }).promise()
-            .then(() => updatedItem);
-        })
+        .then(() => getConsumer(this.dynamoDb, this.encryption, componentId))
+        .then(item => R.merge(item, updateAttributes))
+        .then(updatedItem => putConsumer(this.dynamoDb, this.encryption, updatedItem)
+          .then(() => updatedItem)
+        )
       );
   }
 

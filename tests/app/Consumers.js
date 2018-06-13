@@ -1,5 +1,7 @@
 'use strict';
 
+import AWSSDK from 'aws-sdk';
+import AWS from 'aws-sdk-mock';
 import expect from 'unexpected';
 import { List } from 'immutable';
 import R from 'ramda';
@@ -8,6 +10,9 @@ import Consumers from '../../src/app/Consumers';
 import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 import DynamoDBLocal from '../DynamoDBLocal';
+import Encryption from '../../src/lib/Encryption';
+
+AWS.setSDKInstance(AWSSDK);
 
 const dynamoDb = DynamoDBLocal.getClient();
 const consumersTable = DynamoDB.tableNames().consumers;
@@ -81,14 +86,32 @@ function deleteConsumers() {
     });
 }
 
-describe('Consumers', () => {
-  const consumers = new Consumers(dynamoDb, new KbcApi());
+function getEncryption() {
+  AWS.mock('KMS', 'encrypt', (params, callback) => callback(null, {
+    CiphertextBlob: params.Plaintext,
+  }));
 
+  AWS.mock('KMS', 'decrypt', (params, callback) => callback(null, {
+    Plaintext: params.CiphertextBlob,
+  }));
+
+  return new Encryption(new AWSSDK.KMS());
+}
+
+function getConsumersInstance() {
+  return new Consumers(
+    dynamoDb,
+    new KbcApi(process.env.KBC_URL),
+    getEncryption(),
+  );
+}
+
+describe('Consumers', () => {
   before(() => DynamoDBLocal.createTables());
 
   beforeEach(() => deleteConsumers());
 
-  it('list', () => insertConsumers().then(() => consumers.list({
+  it('list', () => insertConsumers().then(() => getConsumersInstance().list({
     headers,
   }).then((res) => {
     expect(res, 'to have length', 2);
@@ -102,13 +125,13 @@ describe('Consumers', () => {
     });
   })));
 
-  it('list - empty', () => consumers.list({
+  it('list - empty', () => getConsumersInstance().list({
     headers,
   }).then((res) => {
     expect(res, 'to be empty');
   }));
 
-  it('get', () => insertConsumers().then(() => consumers.get({
+  it('get', () => insertConsumers().then(() => getConsumersInstance().get({
     headers,
     pathParameters: {
       componentId: 'keboola.ex-google-drive',
@@ -118,7 +141,7 @@ describe('Consumers', () => {
   })));
 
   it('get - not found', () => deleteConsumers().then(() => expect(
-    consumers.get({
+    getConsumersInstance().get({
       headers,
       pathParameters: {
         componentId: 'keboola.ex-google-drive',
@@ -130,7 +153,7 @@ describe('Consumers', () => {
 
   it('get - missing params', () => insertConsumers()
     .then(() => expect(
-      consumers.get({
+      getConsumersInstance().get({
         headers,
         pathParameters: { },
       }),
@@ -139,7 +162,7 @@ describe('Consumers', () => {
     ))
   );
 
-  it('add', () => consumers.add({
+  it('add', () => getConsumersInstance().add({
     headers,
     body: JSON.stringify(consumer1),
   }).then((res) => {
@@ -150,7 +173,7 @@ describe('Consumers', () => {
   }));
 
   it('add - invalid body', () => expect(
-    consumers.add({
+    getConsumersInstance().add({
       headers,
       body: JSON.stringify(consumerFlawed),
     }),
@@ -160,7 +183,7 @@ describe('Consumers', () => {
   );
 
   it('patch', () => insertConsumers()
-    .then(() => consumers.patch({
+    .then(() => getConsumersInstance().patch({
       headers,
       pathParameters: {
         componentId: 'keboola.ex-google-drive',
@@ -184,14 +207,14 @@ describe('Consumers', () => {
   );
 
   it('delete', () => insertConsumers()
-    .then(() => consumers.delete({
+    .then(() => getConsumersInstance().delete({
       headers,
       pathParameters: {
         componentId: 'keboola.ex-google-drive',
       },
     }))
     .then(() => expect(
-      consumers.get({
+      getConsumersInstance().get({
         headers,
         pathParameters: {
           componentId: 'keboola.ex-google-drive',

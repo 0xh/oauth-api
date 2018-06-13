@@ -1,13 +1,19 @@
 'use strict';
 
+import AWS from 'aws-sdk';
+import Bluebird from 'bluebird';
 import { RequestHandler, UserError } from '@keboola/serverless-request-handler';
 import Consumers from '../app/Consumers';
 import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
+import Encryption from '../lib/Encryption';
+
+AWS.config.setPromisesDependency(Bluebird);
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = DynamoDB.getDocClient();
-  const consumers = new Consumers(dynamoDb, new KbcApi());
+  const encryption = new Encryption(new AWS.KMS());
+  const consumers = new Consumers(dynamoDb, new KbcApi(), encryption);
   let promise;
   let code;
 
