@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "@keboola/serverless-request-handler": "^1.1.0",
-    "aws-sdk": "^2.49.0",
-    "aws-sdk-mock": "^1.7.0",
     "axios": "^0.16.2",
     "axios-retry": "^3.0.1",
     "babel-polyfill": "^6.26.0",
@@ -26,14 +24,13 @@
     "qs": "^6.5.1",
     "ramda": "^0.25.0",
     "source-map-support": "^0.4.15",
-    "uniqid": "^4.1.1",
-    "uuid": "^3.1.0",
-    "winston": "^2.3.1",
-    "winston-papertrail": "^1.0.5"
+    "uniqid": "^4.1.1"
   },
   "devDependencies": {
     "@keboola/serverless-default-error-responses": "^1.0.0",
     "@keboola/serverless-papertrail-logging": "^1.0.5",
+    "aws-sdk": "^2.49.0",
+    "aws-sdk-mock": "^1.7.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",

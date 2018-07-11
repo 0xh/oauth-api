@@ -1,11 +1,11 @@
-FROM amazonlinux
+FROM amazonlinux:2018.03
 
 ENV JAVA_VERSION=8u171
 ENV JAVA_BUILD=b11
 ENV JAVA_VERSION_WITH_BUILD=${JAVA_VERSION}-${JAVA_BUILD}
 
 # node + yarn
-RUN curl --silent --location https://rpm.nodesource.com/setup_6.x | bash -
+RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
 RUN curl --silent https://dl.yarnpkg.com/rpm/yarn.repo > /etc/yum.repos.d/yarn.repo
 RUN yum -y install findutils nodejs npm yarn python27 wget
 
