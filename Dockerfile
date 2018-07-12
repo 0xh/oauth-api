@@ -19,5 +19,5 @@ RUN java -version
 ADD ./ /code
 WORKDIR /code
 
-RUN yarn global add serverless@1.26
+RUN yarn global add serverless@1.27
 RUN yarn install
