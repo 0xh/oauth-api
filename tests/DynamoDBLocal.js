@@ -76,4 +76,31 @@ export default {
         ]);
       });
   },
+
+  truncateTable: (tableName, key) => {
+    const docClient = DynamoDB.getDocClient();
+
+    return docClient.scan({
+      TableName: tableName,
+    }).promise().then((res) => {
+      if (R.isEmpty(res.Items)) {
+        return Promise.resolve();
+      }
+
+      const requests = R.map(item => ({
+        DeleteRequest: {
+          Key: {
+            [key]: item[key],
+          },
+        },
+      }), res.Items);
+
+      const params = { RequestItems: {} };
+      if (!R.isEmpty(requests)) {
+        params.RequestItems[tableName] = requests;
+      }
+
+      return docClient.batchWrite(params).promise();
+    });
+  },
 };

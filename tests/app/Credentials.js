@@ -16,6 +16,8 @@ const headers = {
   'X-StorageApi-Token': process.env.KBC_STORAGE_API_TOKEN,
 };
 
+const projectIdFromToken = () => R.head(R.split('-', process.env.KBC_STORAGE_API_TOKEN));
+
 const consumer1 = {
   component_id: 'keboola.ex-google-analytics',
   auth_url: 'some url',
@@ -42,7 +44,7 @@ const credentials1 = {
   id: '0',
   name: '12',
   component_id: 'keboola.ex-google-analytics',
-  project_id: '219',
+  project_id: projectIdFromToken(),
   creator: {
     id: '789',
     description: 'miro',
@@ -56,7 +58,7 @@ const credentials2 = {
   id: '1',
   name: '13',
   component_id: 'keboola.ex-google-drive',
-  project_id: '219',
+  project_id: projectIdFromToken(),
   creator: {
     id: '789',
     description: 'miro',
@@ -70,7 +72,7 @@ const credentials3 = {
   id: '2',
   name: '14',
   component_id: 'keboola.ex-google-drive',
-  project_id: '123',
+  project_id: 'non_existent',
   creator: {
     id: '789',
     description: 'miro',
@@ -84,7 +86,7 @@ const credentials4 = {
   id: '3',
   name: '15',
   component_id: 'keboola.ex-google-analytics',
-  project_id: '219',
+  project_id: projectIdFromToken(),
   creator: {
     id: '789',
     description: 'miro',
@@ -93,6 +95,11 @@ const credentials4 = {
   authorized_for: 'me',
   created: Date.now(),
 };
+
+function clearData() {
+  return DynamoDBLocal.truncateTable(credentialsTable, 'id')
+    .then(() => DynamoDBLocal.truncateTable(consumersTable, 'component_id'));
+}
 
 function prepareData() {
   const consumerList = R.map(item => ({
@@ -121,39 +128,6 @@ function prepareConsumers() {
       [consumersTable]: consumerList,
     },
   }).promise();
-}
-
-function clearData() {
-  const consumerList = R.map(item => ({
-    DeleteRequest: {
-      Key: {
-        component_id: item.component_id,
-      },
-    },
-  }), [consumer1, consumer2]);
-
-  return dynamoDb.scan({
-    TableName: credentialsTable,
-  }).promise().then((res) => {
-    const credentialsList = R.map(item => ({
-      DeleteRequest: {
-        Key: {
-          id: item.id,
-        },
-      },
-    }), res.Items);
-
-    const params = { RequestItems: {} };
-    if (!R.isEmpty(consumerList)) {
-      params.RequestItems[consumersTable] = consumerList;
-    }
-
-    if (!R.isEmpty(credentialsList)) {
-      params.RequestItems[credentialsTable] = credentialsList;
-    }
-
-    return dynamoDb.batchWrite(params).promise();
-  });
 }
 
 describe('Credentials', () => {
@@ -192,9 +166,11 @@ describe('Credentials', () => {
     pathParameters: {
       componentId: 'keboola.ex-google-analytics',
     },
-  }).then((res) => {
+  })
+  .then((res) => {
     expect(res, 'to be empty');
   }));
+
 
   it('get', () => prepareData().then(() => credentials.get({
     headers,
@@ -239,7 +215,6 @@ describe('Credentials', () => {
       UserError.badRequest('Missing \'id\' url parameter')
     )));
 
-  // @todo check if data are really in the database
   it('add', () => prepareConsumers()
     .then(() => credentials.add({
       headers,
@@ -268,7 +243,8 @@ describe('Credentials', () => {
       ]);
     }));
 
-  it('delete', () => prepareData()
+  it('delete', () => clearData()
+    .then(() => prepareData())
     .then(() => credentials.delete({
       headers,
       pathParameters: {

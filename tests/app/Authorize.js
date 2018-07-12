@@ -19,6 +19,8 @@ const dynamoDb = DynamoDBLocal.getClient();
 const credentialsTable = DynamoDB.tableNames().credentials;
 const consumersTable = DynamoDB.tableNames().consumers;
 
+const projectIdFromToken = () => R.head(R.split('-', process.env.KBC_STORAGE_API_TOKEN));
+
 const consumer1 = {
   component_id: 'keboola.ex-google-analytics',
   auth_url: 'https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=%%redirect_uri%%&client_id=%%client_id%%&access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets.readonly',
@@ -142,7 +144,7 @@ describe('Authorize', () => {
       expect(res, 'to have properties', {
         name: '12345',
         component_id: 'keboola.ex-google-analytics',
-        project_id: '219',
+        project_id: projectIdFromToken(),
         authorized_for: 'miro',
         auth_url: null,
         token_url: null,
@@ -179,7 +181,7 @@ describe('Authorize', () => {
       expect(res, 'to have properties', {
         name: '56789',
         component_id: 'keboola.ex-google-analytics',
-        project_id: '219',
+        project_id: projectIdFromToken(),
         authorized_for: 'miro',
         auth_url: null,
         token_url: null,
@@ -197,7 +199,7 @@ describe('Authorize', () => {
       ExpressionAttributeValues: {
         ':name': '56789',
         ':component_id': 'keboola.ex-google-analytics',
-        ':project_id': '219',
+        ':project_id': projectIdFromToken(),
       },
     }).promise())
     .then((res) => {
@@ -206,7 +208,7 @@ describe('Authorize', () => {
       expect(credentials, 'to have properties', {
         name: '56789',
         component_id: 'keboola.ex-google-analytics',
-        project_id: '219',
+        project_id: projectIdFromToken(),
         authorized_for: 'miro',
         auth_url: null,
         token_url: null,
