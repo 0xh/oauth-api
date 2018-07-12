@@ -237,8 +237,7 @@ describe('Credentials', () => {
       }),
       'to be rejected with error satisfying',
       UserError.badRequest('Missing \'id\' url parameter')
-    ))
-  );
+    )));
 
   // @todo check if data are really in the database
   it('add', () => prepareConsumers()
@@ -267,8 +266,7 @@ describe('Credentials', () => {
         'appKey',
         '#appSecret',
       ]);
-    })
-  );
+    }));
 
   it('delete', () => prepareData()
     .then(() => credentials.delete({
@@ -286,6 +284,5 @@ describe('Credentials', () => {
     })
       .then((res) => {
         expect(res, 'to have length', 0);
-      }))
-  );
+      })));
 });

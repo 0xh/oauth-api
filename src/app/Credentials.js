@@ -41,7 +41,7 @@ class Credentials {
   }
 
   list(event) {
-    const componentId = event.pathParameters.componentId;
+    const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
     }
@@ -65,8 +65,7 @@ class Credentials {
   }
 
   get(event) {
-    const componentId = event.pathParameters.componentId;
-    const name = event.pathParameters.name;
+    const { componentId, name } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
     }
@@ -81,9 +80,7 @@ class Credentials {
     };
 
     return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
-      .then(tokenRes => this.dynamoDb.scan(
-        getOneParamsFn(name, componentId, tokenRes.project)
-      ).promise())
+      .then(tokenRes => this.dynamoDb.scan(getOneParamsFn(name, componentId, tokenRes.project)).promise())
       .then((credentialsRes) => {
         if (credentialsRes.Count === 0) {
           throw UserError.notFound('Credentials not found');
@@ -109,7 +106,7 @@ class Credentials {
   }
 
   add(event) {
-    const componentId = event.pathParameters.componentId;
+    const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
     }
@@ -170,16 +167,12 @@ class Credentials {
                       ? consumer.app_secret_docker
                       : credentials.app_secret_docker,
                   };
-                })
-              );
-          })
-        )
-      );
+                }));
+          })));
   }
 
   delete(event) {
-    const componentId = event.pathParameters.componentId;
-    const name = event.pathParameters.name;
+    const { componentId, name } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
     }
@@ -192,9 +185,7 @@ class Credentials {
     });
 
     return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
-      .then(tokenRes => this.dynamoDb.scan(
-        getOneParamsFn(name, componentId, tokenRes.project)
-      ).promise())
+      .then(tokenRes => this.dynamoDb.scan(getOneParamsFn(name, componentId, tokenRes.project)).promise())
       .then((credentialsRes) => {
         if (credentialsRes.Count === 0) {
           throw UserError.notFound('Credentials not found');

@@ -14,7 +14,16 @@
     "no-underscore-dangle": ["error", {
       "allow": ["__"]
     }],
-    "camelcase": 1
+    "camelcase": 1,
+    "max-len": ["error", {
+      "code": 120,
+      "ignoreComments": true,
+      "ignoreTrailingComments": true,
+      "ignoreUrls": true,
+      "ignoreStrings": true,
+      "ignoreTemplateLiterals": true,
+      "ignoreRegExpLiterals": true
+    }]
   },
   "env": {
     "node": true,

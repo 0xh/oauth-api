@@ -64,8 +64,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
               'Set-Cookie': session.getCookieHeaderValue(sessionId, '/'),
               Location: oauthRes.url,
             },
-          }))
-        );
+          })));
       break;
     case '/authorize/{componentId}/callback':
       promise = session.get(sessionId)
@@ -92,16 +91,13 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
                 Location: sessionData.returnUrl,
               },
             };
-          })
-        );
+          }));
       break;
     default:
       throw UserError.notFound();
   }
 
   return promise
-    .then(res => RequestHandler.response(
-      null, res.response, event, context, callback, res.code, res.headers
-    ))
+    .then(res => RequestHandler.response(null, res.response, event, context, callback, res.code, res.headers))
     .catch(err => RequestHandler.response(err, null, event, context, callback, null));
 }, event, context, callback);

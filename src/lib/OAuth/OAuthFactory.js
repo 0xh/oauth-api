@@ -21,9 +21,7 @@ class OAuthFactory {
       case 'quickbooks':
         return new Quickbooks(consumer);
       default:
-        throw UserError.notFound(
-          `Type '${version}' is not supported. Allowed types are OAuth20, OAuth10, Facebook, Quickbooks`
-        );
+        throw UserError.notFound(`Type '${version}' is not supported. Allowed types are OAuth20, OAuth10, Facebook, Quickbooks`);
     }
   }
 }

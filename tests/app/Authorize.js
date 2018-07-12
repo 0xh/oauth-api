@@ -117,12 +117,10 @@ function getAuthorize() {
 
 describe('Authorize', () => {
   before(() => DynamoDBLocal.createTables().then(() => {
-    sinon.stub(OAuth20.prototype, 'getToken').returns(
-      Promise.resolve({
-        refresh_token: 1234,
-        access_token: 5678,
-      })
-    );
+    sinon.stub(OAuth20.prototype, 'getToken').returns(Promise.resolve({
+      refresh_token: 1234,
+      access_token: 5678,
+    }));
   }));
 
   beforeEach(() => deleteConsumer());
@@ -131,8 +129,7 @@ describe('Authorize', () => {
     .then(() => getAuthorize().init(eventInit))
     .then((res) => {
       expect(res, 'to have property', 'url', `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=${process.env.REDIRECT_URI_BASE}/authorize/keboola.ex-google-drive/callback&client_id=test&access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets.readonly`);
-    })
-  );
+    }));
 
   it('callback', () => insertConsumer()
     .then(() => getEncryption().encrypt(process.env.KBC_STORAGE_API_TOKEN))
@@ -154,8 +151,7 @@ describe('Authorize', () => {
         app_secret: null,
       });
       expect(res, 'to have properties', ['creator', 'data', 'app_docker_secret']);
-    })
-  );
+    }));
 
   it('callback browser', () => insertConsumer()
     .then(() => getAuthorize().callback(eventCallback, {
@@ -163,8 +159,7 @@ describe('Authorize', () => {
     }))
     .then((res) => {
       expect(res, 'to have properties', { refresh_token: 1234, access_token: 5678 });
-    })
-  );
+    }));
 
   it('save credentials', () => insertConsumer()
     .then(() => deleteCredentials())
@@ -219,8 +214,7 @@ describe('Authorize', () => {
         app_key: null,
         app_secret: null,
       });
-    })
-  );
+    }));
 
   after(() => AWS.restore());
 });

@@ -27,7 +27,8 @@ class OAuth10 {
       this.appSecret,
       '1.0',
       callbackUrl,
-      'HMAC-SHA1');
+      'HMAC-SHA1'
+    );
   }
 
   getRedirectData(callbackUrl) {

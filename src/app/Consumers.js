@@ -22,8 +22,7 @@ const getConsumer = (dynamoDb, encryption, componentId) => {
       return res.Item;
     })
     .then(consumerItem => encryption.decrypt(consumerItem.app_secret)
-      .then(appSecretPlain => R.merge(consumerItem, { app_secret: appSecretPlain }))
-    );
+      .then(appSecretPlain => R.merge(consumerItem, { app_secret: appSecretPlain })));
 };
 
 const putConsumer = (dynamoDb, encryption, consumer) => encryption.encrypt(consumer.app_secret)
@@ -67,7 +66,7 @@ class Consumers {
   }
 
   get(event) {
-    const componentId = event.pathParameters.componentId;
+    const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
@@ -93,12 +92,11 @@ class Consumers {
         .then(() => ({
           status: 'created',
           component_id: consumer.component_id,
-        }))
-      );
+        })));
   }
 
   patch(event) {
-    const componentId = event.pathParameters.componentId;
+    const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
@@ -117,13 +115,11 @@ class Consumers {
         .then(() => getConsumer(this.dynamoDb, this.encryption, componentId))
         .then(item => R.merge(item, updateAttributes))
         .then(updatedItem => putConsumer(this.dynamoDb, this.encryption, updatedItem)
-          .then(() => updatedItem)
-        )
-      );
+          .then(() => updatedItem)));
   }
 
   delete(event) {
-    const componentId = event.pathParameters.componentId;
+    const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
       return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }

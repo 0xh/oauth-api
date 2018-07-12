@@ -17,8 +17,7 @@ describe('OAuth 1.0', () => {
     return oauth10.getRedirectData(callbackUrl).then((res) => {
       expect(res.url, 'not to be empty');
       expect(res.sessionData, 'not to be empty');
-      const url = res.url;
-      const sessionData = res.sessionData;
+      const { sessionData, url } = res;
       expect(sessionData, 'to have properties', ['oauth_token', 'oauth_token_secret']);
       const token = sessionData.oauth_token;
       expect(url, 'to be', `https://api.twitter.com/oauth/authorize?oauth_token=${token}`);

@@ -71,7 +71,7 @@ class Authorize {
   }
 
   callback(event, sessionData) {
-    const componentId = event.pathParameters.componentId;
+    const { componentId } = event.pathParameters;
 
     return getConsumer(this.dynamoDb, componentId)
       .then((consumer) => {
@@ -106,8 +106,7 @@ class Authorize {
               return Promise.resolve(kbcTokenRes);
             }
             throw UserError.error(`Credentials with name ${name} already exists in this project`);
-          })
-      )
+          }))
       .then((kbcTokenRes) => {
         const item = R.merge(
           {

@@ -159,8 +159,7 @@ describe('Consumers', () => {
       }),
       'to be rejected with error satisfying',
       UserError.badRequest('Missing "componentId" url parameter')
-    ))
-  );
+    )));
 
   it('add', () => getConsumersInstance().add({
     headers,
@@ -179,8 +178,7 @@ describe('Consumers', () => {
     }),
     'to be rejected with error satisfying',
     UserError.unprocessable('child "component_id" fails because ["component_id" is required]')
-  )
-  );
+  ));
 
   it('patch', () => insertConsumers()
     .then(() => getConsumersInstance().patch({
@@ -203,8 +201,7 @@ describe('Consumers', () => {
         app_secret: 'fsfsg',
         component_id: 'keboola.ex-google-drive',
       });
-    })
-  );
+    }));
 
   it('delete', () => insertConsumers()
     .then(() => getConsumersInstance().delete({
@@ -222,6 +219,5 @@ describe('Consumers', () => {
       }),
       'to be rejected with error satisfying',
       UserError.notFound('Consumer "keboola.ex-google-drive" not found')
-    ))
-  );
+    )));
 });

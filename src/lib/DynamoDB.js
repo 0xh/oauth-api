@@ -14,9 +14,7 @@ const tableNames = {
 const isOffline = () =>
   // Depends on serverless-offline plugin which adds
   // IS_OFFLINE to process.env when running offline
-  process.env.IS_OFFLINE || !!process.env.DYNAMO_ENDPOINT
-;
-
+  process.env.IS_OFFLINE || !!process.env.DYNAMO_ENDPOINT;
 class DynamoDB {
   static getDocClient() {
     if (isOffline()) {
