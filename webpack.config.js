@@ -3,6 +3,7 @@ const nodeExternals = require('webpack-node-externals');
 const slsw = require('serverless-webpack');
 
 module.exports = {
+  mode: process.env.STAGE === 'dev' ? 'development' : 'production',
   entry: slsw.lib.entries,
   target: 'node',
   devtool: 'source-map',
@@ -10,7 +11,7 @@ module.exports = {
     modulesFromFile: true,
   })],
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         loaders: ['babel-loader'],
