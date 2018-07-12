@@ -26,7 +26,7 @@
     "uniqid": "^4.1.1"
   },
   "devDependencies": {
-    "@keboola/serverless-default-error-responses": "^1.1.0",
+    "@keboola/serverless-default-error-responses": "^1.0.0",
     "@keboola/serverless-papertrail-logging": "^1.1.0",
     "aws-sdk": "^2.250.1",
     "aws-sdk-mock": "^3.0.0",
@@ -39,8 +39,8 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.12.0",
     "mocha": "^5.0.4",
-    "serverless-offline": "^3.16.0",
     "serverless-dynamodb-local": "^0.2.26",
+    "serverless-offline": "^3.16.0",
     "serverless-webpack": "^5.1.5",
     "sinon": "^6.0.0",
     "unexpected": "^10.36.2",
