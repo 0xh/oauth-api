@@ -402,8 +402,8 @@ aws-sdk-mock@^3.0.0:
     traverse "^0.6.6"
 
 aws-sdk@^2.250.1, aws-sdk@^2.3.0, aws-sdk@^2.7.0:
-  version "2.273.1"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.273.1.tgz#69398a128090c71f0c66480b5c32054773e4c03f"
+  version "2.274.1"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.274.1.tgz#a3335fcfa6f5df7e23b6bf1761a50808207a0e3c"
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
@@ -1730,8 +1730,8 @@ eslint-restricted-globals@^0.1.1:
   resolved "https://registry.yarnpkg.com/eslint-restricted-globals/-/eslint-restricted-globals-0.1.1.tgz#35f0d5cbc64c2e3ed62e93b4b1a7af05ba7ed4d7"
 
 eslint-scope@^3.7.1:
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-3.7.2.tgz#59152c94e2e2cbf64c03b8d3bdc5072a39d54043"
+  version "3.7.3"
+  resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-3.7.3.tgz#bb507200d3d17f60247636160b4826284b108535"
   dependencies:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
@@ -4401,10 +4401,8 @@ url@^0.11.0:
     querystring "0.2.0"
 
 use@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/use/-/use-3.1.0.tgz#14716bf03fdfefd03040aef58d8b4b85f3a7c544"
-  dependencies:
-    kind-of "^6.0.2"
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
 
 util-deprecate@~1.0.1:
   version "1.0.2"
