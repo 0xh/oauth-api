@@ -1,4 +1,4 @@
-FROM amazonlinux:2018.03
+FROM amazonlinux
 
 ENV JAVA_VERSION=8u171
 ENV JAVA_BUILD=b11
