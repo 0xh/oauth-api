@@ -166,11 +166,9 @@ describe('Credentials', () => {
     pathParameters: {
       componentId: 'keboola.ex-google-analytics',
     },
-  })
-  .then((res) => {
+  }).then((res) => {
     expect(res, 'to be empty');
   }));
-
 
   it('get', () => prepareData().then(() => credentials.get({
     headers,
