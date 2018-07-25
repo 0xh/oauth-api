@@ -23,10 +23,28 @@ services:
       - SESSION_COOKIE_NAME
       - REDIRECT_URI_BASE
       - SLS_DEBUG=true
+      - LOG_PORT
     command: >
              sh -c '
              serverless dynamodb install && serverless offline start --host 0.0.0.0
              '
+
+  deploy:
+    build: .
+    working_dir: /code
+    environment:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - REGION
+    - SERVICE_NAME
+    - STAGE=dev
+    - KEBOOLA_STACK
+    - KBC_URL
+    - SESSION_HASH_PREFIX
+    - SESSION_COOKIE_NAME
+    - SLS_DEBUG=true
+    - LOG_PORT
+    command: serverless deploy
 
   tests:
     build: .
@@ -79,22 +97,6 @@ services:
     command: ./tests/run.sh
     links:
       - localstack
-
-  deploy:
-    build: .
-    working_dir: /code
-    environment:
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - REGION
-      - SERVICE_NAME
-      - STAGE=dev
-      - KEBOOLA_STACK
-      - KBC_URL
-      - SESSION_HASH_PREFIX
-      - SESSION_COOKIE_NAME
-      - SLS_DEBUG=true
-    command: serverless deploy
 
   localstack:
     image: localstack/localstack

@@ -1,6 +1,8 @@
 service: ${env:SERVICE_NAME}
 
 plugins:
+  - '@keboola/serverless-papertrail-logging'
+  - '@keboola/serverless-default-error-responses'
   - serverless-webpack
   - serverless-dynamodb-local
   - serverless-offline
@@ -8,6 +10,8 @@ plugins:
 custom:
   webpackIncludeModules: true
   kmsAlias: "alias/${env:SERVICE_NAME}-${env:STAGE}"
+  papertrail:
+    port: ${env:LOG_PORT}
   dynamodb:
     prefix: "${env:SERVICE_NAME}-${env:STAGE}"
     tables:
