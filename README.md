@@ -21,9 +21,6 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
     AWS_ACCESS_KEY_ID=
     AWS_SECRET_ACCESS_KEY=
     
-    # Your AWS account id
-    ACCOUNT_ID=
-    
     # AWS region where the stack was created
     REGION=
     

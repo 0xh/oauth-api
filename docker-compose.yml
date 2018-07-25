@@ -9,7 +9,6 @@ services:
     ports:
       - "3030:3000"
     environment:
-      - ACCOUNT_ID
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_REGION=${REGION}
@@ -85,7 +84,6 @@ services:
     build: .
     working_dir: /code
     environment:
-      - ACCOUNT_ID
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - REGION
