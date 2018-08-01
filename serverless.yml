@@ -8,7 +8,13 @@ plugins:
   - serverless-offline
 
 custom:
-  webpackIncludeModules: true
+  webpack:
+    webpackConfig: "webpack.config.js"
+    packager: yarn
+    includeModules:
+      forceExclude:
+        - aws-sdk
+        - serverless
   kmsAlias: "alias/${env:SERVICE_NAME}-${env:STAGE}"
   papertrail:
     port: ${env:LOG_PORT}
