@@ -16,7 +16,7 @@ class Encryption {
   decrypt(encryptedText) {
     return this.kms.decrypt({
       CiphertextBlob: encryptedText,
-    }).promise().then(res => res.Plaintext);
+    }).promise().then(res => res.Plaintext.toString('ascii'));
   }
 }
 export default Encryption;
