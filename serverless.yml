@@ -28,6 +28,16 @@ custom:
       port: 9000
       inMemory: true
       migrate: true
+  cors:
+    origin: '*'
+    headers:
+      - Authorization
+      - Content-Type
+      - X-Amz-Date
+      - X-Amz-Security-Token
+      - X-Amz-User-Agent
+      - X-StorageApi-Token
+    allowCredentials: false
 
 provider:
   name: aws
@@ -91,12 +101,15 @@ functions:
       - http:
           method: get
           path: "/authorize/{componentId}"
+          cors: ${self:custom.cors}
       - http:
           method: post
           path: "/authorize/{componentId}"
+          cors: ${self:custom.cors}
       - http:
           method: get
           path: "/authorize/{componentId}/callback"
+          cors: ${self:custom.cors}
 
   consumers:
     handler: src/functions/consumers.handler
@@ -106,18 +119,24 @@ functions:
       - http:
           method: get
           path: "/manage"
+          cors: ${self:custom.cors}
       - http:
           method: post
           path: "/manage"
+          cors: ${self:custom.cors}
       - http:
           method: get
           path: "/manage/{componentId}"
+          cors: ${self:custom.cors}
       - http:
           method: patch
           path: "/manage/{componentId}"
+          cors: ${self:custom.cors}
       - http:
           method: delete
           path: "/manage/{componentId}"
+          cors: ${self:custom.cors}
+
   credentials:
     handler: src/functions/credentials.handler
     tags:
@@ -126,37 +145,19 @@ functions:
       - http:
           method: get
           path: "/credentials/{componentId}"
-          cors:
-            origin: '*'
-            headers:
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-              - X-StorageApi-Token
-            allowCredentials: false
+          cors: ${self:custom.cors}
       - http:
           method: post
           path: "/credentials/{componentId}"
+          cors: ${self:custom.cors}
       - http:
           method: get
           path: "/credentials/{componentId}/{name}"
-          cors:
-            origin: '*'
-            headers:
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-              - X-StorageApi-Token
-            allowCredentials: false
+          cors: ${self:custom.cors}
       - http:
           method: delete
           path: "/credentials/{componentId}/{name}"
+          cors: ${self:custom.cors}
 
 resources:
   Resources:

@@ -33,6 +33,7 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
     KEBOOLA_STACK=
     
     KBC_URL=https://connection.keboola.com
+    DOCKER_RUNNER_URL=https://docker-runner.keboola.com
     
     # Keboola Manage API application token with oauth:manage scope
     TEST_KBC_MANAGE_API_TOKEN=
