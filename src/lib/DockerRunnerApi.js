@@ -22,7 +22,7 @@ class DockerRunnerApi {
       data: plainText,
     }).then(response => response.data)
       .catch((error) => {
-        const errorMessage = !!error.response.data ? error.response.data : error.message;
+        const errorMessage = error.response.data ? error.response.data : error.message;
         throw UserError.error(`Docker encryption error: ${errorMessage}`);
       });
   }
