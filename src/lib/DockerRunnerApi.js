@@ -7,8 +7,11 @@ import { UserError } from '@keboola/serverless-request-handler/src/index';
 axiosRetry(axios, { retries: 5 });
 
 class DockerRunnerApi {
-  constructor(baseUri = null) {
-    this.baseUri = baseUri !== null ? baseUri : `${process.env.DOCKER_RUNNER_URL}/docker`;
+  constructor(baseUri = process.env.DOCKER_RUNNER_URL) {
+    if (!baseUri) {
+      throw new Error('Docker Runner API url must not be empty');
+    }
+    this.baseUri = `${baseUri}/docker`;
   }
 
   encrypt(componentId, projectId, plainText) {
@@ -17,9 +20,10 @@ class DockerRunnerApi {
       url: `${this.baseUri}/encrypt?componentId=${componentId}&projectId=${projectId}`,
       headers: { 'Content-Type': 'text/plain' },
       data: plainText,
-    }).then(res => res.data)
-      .catch((err) => {
-        throw UserError.error(`Docker encryption error: ${err.response.data.error}`);
+    }).then(response => response.data)
+      .catch((error) => {
+        const errorMessage = !!error.response.data ? error.response.data : error.message;
+        throw UserError.error(`Docker encryption error: ${errorMessage}`);
       });
   }
 }
