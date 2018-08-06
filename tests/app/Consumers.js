@@ -177,7 +177,7 @@ describe('Consumers', () => {
       body: JSON.stringify(consumerFlawed),
     }),
     'to be rejected with error satisfying',
-    UserError.unprocessable('child "component_id" fails because ["component_id" is required]')
+    UserError.unprocessable('"component_id" is required')
   ));
 
   it('patch', () => insertConsumers()
