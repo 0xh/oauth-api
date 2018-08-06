@@ -34,6 +34,21 @@ const getCredentials = (dynamoDb, name, componentId, tokenRes) => dynamoDb.scan(
   tokenRes.project
 )).promise();
 
+const createResponse = (credentials, consumer) => ({
+  id: credentials.name,
+  authorizedFor: credentials.authorized_for,
+  creator: credentials.creator,
+  created: credentials.created,
+  '#data': credentials.data,
+  oauthVersion: consumer.oauth_version,
+  appKey: R.isEmpty(credentials.app_key)
+    ? consumer.app_key
+    : credentials.app_key,
+  '#appSecret': R.isEmpty(credentials.app_secret_docker)
+    ? consumer.app_secret_docker
+    : credentials.app_secret_docker,
+});
+
 class Credentials {
   constructor(dynamoDb, kbc, dockerRunner) {
     this.dynamoDb = dynamoDb;
@@ -94,20 +109,7 @@ class Credentials {
         const credentials = credentialsRes.Items[0];
         return this.dynamoDb.get(consumerParams).promise()
           .then(consumerRes => consumerRes.Item)
-          .then(consumer => ({
-            id: name,
-            authorizedFor: credentials.authorized_for,
-            creator: credentials.creator,
-            created: credentials.created,
-            '#data': credentials.data,
-            oauthVersion: consumer.oauth_version,
-            appKey: R.isEmpty(credentials.app_key)
-              ? consumer.app_key
-              : credentials.app_key,
-            '#appSecret': R.isEmpty(credentials.app_secret_docker)
-              ? consumer.app_secret_docker
-              : credentials.app_secret_docker,
-          }));
+          .then(consumer => createResponse(credentials, consumer));
       });
   }
 
@@ -164,24 +166,7 @@ class Credentials {
               )
                 .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
                 .then(params => this.dynamoDb.put(params).promise()
-                  .then(() => {
-                    const credentials = params.Item;
-                    const consumer = consumerRes.Item;
-                    return {
-                      id: credentials.name,
-                      authorizedFor: credentials.authorized_for,
-                      creator: credentials.creator,
-                      created: credentials.created,
-                      '#data': credentials.data,
-                      oauthVersion: consumer.oauth_version,
-                      appKey: R.isEmpty(credentials.app_key)
-                        ? consumer.app_key
-                        : credentials.app_key,
-                      '#appSecret': R.isEmpty(credentials.app_secret_docker)
-                        ? consumer.app_secret_docker
-                        : credentials.app_secret_docker,
-                    };
-                  })));
+                  .then(() => createResponse(params.Item, consumerRes.Item))));
           })));
   }
 
