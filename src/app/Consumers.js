@@ -38,14 +38,21 @@ class Consumers {
     this.kbc = kbc;
     this.encryption = encryption;
     this.schema = {
-      component_id: Joi.string().required(),
-      auth_url: Joi.string().required(),
-      token_url: Joi.string().required(),
+      component_id: Joi.string().required()
+        .error(UserError.badRequest('"component_id" is required')),
+      auth_url: Joi.string().required()
+        .error(UserError.badRequest('"auth_url" is required')),
+      token_url: Joi.string().required()
+        .error(UserError.badRequest('"token_url" is required')),
       request_token_url: Joi.string(),
-      app_key: Joi.string().required(),
-      app_secret: Joi.string().required(),
-      friendly_name: Joi.string().required(),
-      oauth_version: Joi.string().required(),
+      app_key: Joi.string().required()
+        .error(UserError.badRequest('"app_key" is required')),
+      app_secret: Joi.string().required()
+        .error(UserError.badRequest('"app_secret" is required')),
+      friendly_name: Joi.string().required()
+        .error(UserError.badRequest('"friendly_name" is required')),
+      oauth_version: Joi.string().required()
+        .error(UserError.badRequest('"oauth_version" is required')),
     };
   }
 

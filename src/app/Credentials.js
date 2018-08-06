@@ -49,7 +49,7 @@ class Credentials {
     this.kbc = kbc;
     this.dockerRunner = dockerRunner;
     this.schema = {
-      id: Joi.string().required(),
+      id: Joi.string().required().error(UserError.badRequest('"id" is required')),
       authorizedFor: Joi.string(),
       data: Joi.object(),
     };
