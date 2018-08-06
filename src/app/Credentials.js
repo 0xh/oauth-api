@@ -9,7 +9,13 @@ import Validator from '../lib/Validator';
 
 const tableName = DynamoDB.tableNames().credentials;
 
-const getOneParamsFn = (name, componentId, projectId) => ({
+const getHeader = (name, event) => {
+  const headerInverted = R.invertObj(event.headers);
+  const headers = R.invertObj(R.map(item => R.toLower(item), headerInverted));
+  return R.prop(R.toLower(name), headers);
+};
+
+const getCredentials = (dynamoDb, name, componentId, projectId) => dynamoDb.scan({
   TableName: tableName,
   FilterExpression: '#cred_name = :name AND component_id = :component_id AND project_id = :project_id',
   ExpressionAttributeNames: {
@@ -18,21 +24,9 @@ const getOneParamsFn = (name, componentId, projectId) => ({
   ExpressionAttributeValues: {
     ':name': name,
     ':component_id': componentId,
-    ':project_id': R.toString(projectId),
+    ':project_id': projectId.toString(),
   },
-});
-
-const getHeader = (name, event) => {
-  const headerInverted = R.invertObj(event.headers);
-  const headers = R.invertObj(R.map(item => R.toLower(item), headerInverted));
-  return R.prop(R.toLower(name), headers);
-};
-
-const getCredentials = (dynamoDb, name, componentId, tokenRes) => dynamoDb.scan(getOneParamsFn(
-  name,
-  componentId,
-  tokenRes.project
-)).promise();
+}).promise();
 
 const createResponse = (credentials, consumer) => ({
   id: credentials.name,
@@ -101,7 +95,7 @@ class Credentials {
     };
 
     return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
-      .then(tokenRes => getCredentials(this.dynamoDb, name, componentId, tokenRes))
+      .then(tokenRes => getCredentials(this.dynamoDb, name, componentId, tokenRes.project))
       .then((credentialsRes) => {
         if (credentialsRes.Count === 0) {
           throw UserError.notFound('Credentials not found');
@@ -127,7 +121,7 @@ class Credentials {
         id: uniqid(),
         component_id: componentId,
         project_id: R.toString(token.project),
-        name: R.toString(requestBody.id),
+        name: requestBody.id.toString(),
         authorized_for: requestBody.authorizedFor,
         creator: {
           id: token.id,
@@ -152,8 +146,8 @@ class Credentials {
               return Promise.reject(UserError.notFound(`Consumer "${componentId}" not found`));
             }
 
-            const credentialsName = R.toString(requestBody.id);
-            return getCredentials(this.dynamoDb, credentialsName, componentId, tokenRes)
+            const credentialsName = requestBody.id.toString();
+            return getCredentials(this.dynamoDb, credentialsName, componentId, tokenRes.project)
               .then((credentialsRes) => {
                 if (credentialsRes.Count > 0) {
                   throw UserError.error(`Credentials "${credentialsName}" already exists for component "${componentId}"`);
@@ -184,7 +178,7 @@ class Credentials {
     });
 
     return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
-      .then(tokenRes => this.dynamoDb.scan(getOneParamsFn(name, componentId, tokenRes.project)).promise())
+      .then(tokenRes => getCredentials(this.dynamoDb, name, componentId, tokenRes.project))
       .then((credentialsRes) => {
         if (credentialsRes.Count === 0) {
           throw UserError.notFound('Credentials not found');
