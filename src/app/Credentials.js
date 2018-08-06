@@ -28,6 +28,12 @@ const getHeader = (name, event) => {
   return R.prop(R.toLower(name), headers);
 };
 
+const getCredentials = (dynamoDb, name, componentId, tokenRes) => dynamoDb.scan(getOneParamsFn(
+  name,
+  componentId,
+  tokenRes.project
+)).promise();
+
 class Credentials {
   constructor(dynamoDb, kbc, dockerRunner) {
     this.dynamoDb = dynamoDb;
@@ -80,7 +86,7 @@ class Credentials {
     };
 
     return this.kbc.authStorage(getHeader('X-StorageApi-Token', event))
-      .then(tokenRes => this.dynamoDb.scan(getOneParamsFn(name, componentId, tokenRes.project)).promise())
+      .then(tokenRes => getCredentials(this.dynamoDb, name, componentId, tokenRes))
       .then((credentialsRes) => {
         if (credentialsRes.Count === 0) {
           throw UserError.notFound('Credentials not found');
@@ -141,33 +147,41 @@ class Credentials {
         .then(tokenRes => this.dynamoDb.get(consumerParams).promise()
           .then((consumerRes) => {
             if (R.isEmpty(consumerRes)) {
-              return Promise.reject(UserError.notFound(`Consumer '${componentId}' not found`));
+              return Promise.reject(UserError.notFound(`Consumer "${componentId}" not found`));
             }
-            return this.dockerRunner.encrypt(
-              componentId,
-              tokenRes.project,
-              JSON.stringify(requestBody.data)
-            )
-              .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
-              .then(params => this.dynamoDb.put(params).promise()
-                .then(() => {
-                  const credentials = params.Item;
-                  const consumer = consumerRes.Item;
-                  return {
-                    id: credentials.name,
-                    authorizedFor: credentials.authorized_for,
-                    creator: credentials.creator,
-                    created: credentials.created,
-                    '#data': credentials.data,
-                    oauthVersion: consumer.oauth_version,
-                    appKey: R.isEmpty(credentials.app_key)
-                      ? consumer.app_key
-                      : credentials.app_key,
-                    '#appSecret': R.isEmpty(credentials.app_secret_docker)
-                      ? consumer.app_secret_docker
-                      : credentials.app_secret_docker,
-                  };
-                }));
+
+            const credentialsName = R.toString(requestBody.id);
+            return getCredentials(this.dynamoDb, credentialsName, componentId, tokenRes)
+              .then((credentialsRes) => {
+                if (credentialsRes.Count > 0) {
+                  throw UserError.error(`Credentials "${credentialsName}" already exists for component "${componentId}"`);
+                }
+              })
+              .then(() => this.dockerRunner.encrypt(
+                componentId,
+                tokenRes.project,
+                JSON.stringify(requestBody.data)
+              )
+                .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
+                .then(params => this.dynamoDb.put(params).promise()
+                  .then(() => {
+                    const credentials = params.Item;
+                    const consumer = consumerRes.Item;
+                    return {
+                      id: credentials.name,
+                      authorizedFor: credentials.authorized_for,
+                      creator: credentials.creator,
+                      created: credentials.created,
+                      '#data': credentials.data,
+                      oauthVersion: consumer.oauth_version,
+                      appKey: R.isEmpty(credentials.app_key)
+                        ? consumer.app_key
+                        : credentials.app_key,
+                      '#appSecret': R.isEmpty(credentials.app_secret_docker)
+                        ? consumer.app_secret_docker
+                        : credentials.app_secret_docker,
+                    };
+                  })));
           })));
   }
 
