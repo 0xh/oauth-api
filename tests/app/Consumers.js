@@ -11,6 +11,7 @@ import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 import DynamoDBLocal from '../DynamoDBLocal';
 import Encryption from '../../src/lib/Encryption';
+import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 
 AWS.setSDKInstance(AWSSDK);
 
@@ -18,6 +19,7 @@ const dynamoDb = DynamoDBLocal.getClient();
 const consumersTable = DynamoDB.tableNames().consumers;
 const headers = {
   'X-KBC-ManageApiToken': process.env.KBC_MANAGE_API_TOKEN,
+  'X-StorageApi-Token': process.env.KBC_STORAGE_API_TOKEN,
 };
 
 const consumer1 = {
@@ -103,6 +105,7 @@ function getConsumersInstance() {
     dynamoDb,
     new KbcApi(process.env.KBC_URL),
     getEncryption(),
+    new DockerRunnerApi()
   );
 }
 
