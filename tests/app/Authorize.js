@@ -98,11 +98,11 @@ const eventCallback = {
 
 function getEncryption() {
   AWS.mock('KMS', 'encrypt', (params, callback) => callback(null, {
-    CiphertextBlob: params.Plaintext,
+    CiphertextBlob: Buffer.from(params.Plaintext),
   }));
 
   AWS.mock('KMS', 'decrypt', (params, callback) => callback(null, {
-    Plaintext: params.CiphertextBlob,
+    Plaintext: Buffer.from(params.CiphertextBlob),
   }));
 
   return new Encryption(new AWSSDK.KMS());

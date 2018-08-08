@@ -195,7 +195,7 @@ describe('Consumers', () => {
     },
   }).then((res) => {
     expect(res, 'to have own properties', R.omit(['app_secret_docker'], consumer2));
-    expect(res.app_secret_docker, 'to begin with', 'KBC::ProjectSecure::eJwBMAHP');
+    expect(res.app_secret_docker, 'to begin with', 'KBC::ProjectSecure::');
   })));
 
   it('patch', () => insertConsumers()
