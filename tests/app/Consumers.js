@@ -29,6 +29,7 @@ const consumer1 = {
   request_token_url: 'another url',
   app_key: 'test',
   app_secret: 'fsfsg',
+  app_secret_docker: 'fsfsg',
   friendly_name: 'Google Analytics Extractor',
   oauth_version: '2.0',
 };
@@ -40,6 +41,7 @@ const consumer2 = {
   request_token_url: 'another url what?',
   app_key: 'test',
   app_secret: 'fsfsg',
+  app_secret_docker: 'fsfsg',
   friendly_name: 'Google Drive Extractor',
   oauth_version: '2.0',
 };
@@ -166,7 +168,7 @@ describe('Consumers', () => {
 
   it('add', () => getConsumersInstance().add({
     headers,
-    body: JSON.stringify(consumer1),
+    body: JSON.stringify(R.omit(['app_secret_docker'], consumer1)),
   }).then((res) => {
     expect(res, 'to have own properties', {
       status: 'created',
@@ -182,6 +184,19 @@ describe('Consumers', () => {
     'to be rejected with error satisfying',
     UserError.unprocessable('"component_id" is required')
   ));
+
+  it('add & get', () => getConsumersInstance().add({
+    headers,
+    body: JSON.stringify(R.omit(['app_secret_docker'], consumer2)),
+  }).then(() => getConsumersInstance().get({
+    headers,
+    pathParameters: {
+      componentId: 'keboola.ex-google-drive',
+    },
+  }).then((res) => {
+    expect(res, 'to have own properties', R.omit(['app_secret_docker'], consumer2));
+    expect(res.app_secret_docker, 'to begin with', 'KBC::ProjectSecure::eJwBMAHP');
+  })));
 
   it('patch', () => insertConsumers()
     .then(() => getConsumersInstance().patch({
@@ -202,6 +217,7 @@ describe('Consumers', () => {
         token_url: 'some other url',
         request_token_url: 'another url what?',
         app_secret: 'fsfsg',
+        app_secret_docker: 'fsfsg',
         component_id: 'keboola.ex-google-drive',
       });
     }));
