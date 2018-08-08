@@ -41,7 +41,7 @@ const getCredentials = (dynamoDb, name, componentId, projectId) => dynamoDb.scan
   },
 }).promise().then(res => res.Items);
 
-const getConsumer = (dynamoDb, componentId) => dynamoDb.get({
+const getConsumerFn = (dynamoDb, encryption) => componentId => dynamoDb.get({
   TableName: consumersTable,
   Key: {
     component_id: componentId,
@@ -52,7 +52,9 @@ const getConsumer = (dynamoDb, componentId) => dynamoDb.get({
       throw UserError.notFound('Consumer not found');
     }
     return res.Item;
-  });
+  })
+  .then(consumer => encryption.decrypt(consumer.app_secret)
+    .then(appSecretPlain => R.set(R.lensProp('app_secret'), appSecretPlain, consumer)));
 
 const dockerEncryptFn = (encryptor, componentId, projectId) =>
   string => encryptor.encrypt(componentId, projectId, string);
@@ -63,17 +65,18 @@ class Authorize {
     this.encryption = encryption;
     this.kbc = kbc;
     this.dockerRunner = dockerRunner;
+    this.getConsumer = getConsumerFn(this.dynamoDb, this.encryption);
   }
 
   init(event) {
-    return getConsumer(this.dynamoDb, event.pathParameters.componentId)
+    return this.getConsumer(event.pathParameters.componentId)
       .then(consumer => OAuthFactory.getOAuth(consumer).getRedirectData(getCallbackUrl(event)));
   }
 
   callback(event, sessionData) {
     const { componentId } = event.pathParameters;
 
-    return getConsumer(this.dynamoDb, componentId)
+    return this.getConsumer(componentId)
       .then((consumer) => {
         const oauth = OAuthFactory.getOAuth(consumer);
         if (R.has('oauthData', sessionData)) {
