@@ -1,3 +1,5 @@
+'use strict';
+
 import { UserError } from '@keboola/serverless-request-handler';
 import OAuth from 'oauth';
 import R from 'ramda';

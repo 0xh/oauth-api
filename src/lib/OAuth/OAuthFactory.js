@@ -1,7 +1,5 @@
-/**
- * Author: miro@keboola.com
- * Date: 27/11/2017
- */
+'use strict';
+
 import { UserError } from '@keboola/serverless-request-handler';
 import OAuth10 from './OAuth10';
 import OAuth20 from './OAuth20';
