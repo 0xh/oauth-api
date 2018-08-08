@@ -1,3 +1,5 @@
+'use strict';
+
 import axios from 'axios';
 import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler';

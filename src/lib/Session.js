@@ -1,8 +1,3 @@
-/**
- * Author: miro@keboola.com
- * Date: 24/11/2017
- */
-
 'use strict';
 
 import { UserError } from '@keboola/serverless-request-handler';

@@ -1,7 +1,5 @@
-/**
- * Author: miro@keboola.com
- * Date: 30/11/2017
- */
+'use strict';
+
 import axios from 'axios';
 import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler';
