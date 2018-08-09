@@ -67,7 +67,7 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
         docker-compose run --rm dev ./node_modules/.bin/eslint --fix .
         ```  
 
-### Deployment
+### Deployment (dev)
 
 1. Create another AWS User, which will be used to deploy the app to `dev` environment:    
     1. Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
