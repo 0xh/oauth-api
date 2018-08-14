@@ -241,6 +241,10 @@
                       {
                         "Ref": "Stage"
                       },
+                      "-",
+                      {
+                        "Ref": "AWS::Region"
+                      },
                       "-lambda-role"
                     ]
                   ]
