@@ -21,6 +21,7 @@ script:
       -e STAGE=test \
       -e KEBOOLA_STACK=${TEST_SERVICE_NAME} \
       -e KBC_URL=https://connection.keboola.com \
+      -e DOCKER_RUNNER_URL=https://docker-runner.keboola.com \
       -e LOG_PORT=49730 \
       deploy
 
