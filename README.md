@@ -6,6 +6,8 @@
 Application based on Serverless framework utilizing AWS Lamda, API Gateway to manage OAuth credentials.
 
 ### Development
+To run the app locally we need to setup some resources in AWS, which can't be run in Localstack e.g. KMS.
+The resources are configured in a CloudFormation template [cf-dev-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-dev-policy.json).
 
 1. Clone git repository: `git clone git@github.com:keboola/oauth-api.git`
 2. Create a AWS User, which will be used for local development, using `serrverless-offline`:
@@ -67,13 +69,14 @@ Application based on Serverless framework utilizing AWS Lamda, API Gateway to ma
         docker-compose run --rm dev ./node_modules/.bin/eslint --fix .
         ```  
 
-### Deployment (dev)
+### Deployment
+This guide shows deployment to `dev` environment, but the same steps apply to `test` and `prod` environment.
 
 1. Create another AWS User, which will be used to deploy the app to `dev` environment:    
     1. Create a stack from template [cf-deploy-policy.json](https://github.com/keboola/oauth-api/blob/master/cf-deploy-policy.json)
-        - name your stack (i.e. `miro-oauth-api-deploy`)
-        - set a KeboolaStack name (i.e. `miro-oauth-api-deploy`)
-        - set a ServiceName = SERVICE_NAME
+        - name your stack (i.e. `miro-oauth-api-dev`)
+        - set a KeboolaStack name (i.e. `kbc-us-east-1-dev`)
+        - set a ServiceName = SERVICE_NAME (i.e. `oauth-api`)
         - set Stage to `dev`
     3. Create IAM user (with the same name as stack for example), programmatic access, assign this user to Group created in previous step and create AWS credentials for this user
 2. Update AWS credentials in your `.env` file
