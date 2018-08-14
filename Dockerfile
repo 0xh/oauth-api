@@ -12,5 +12,5 @@ RUN yum install -y java-1.8.0-openjdk java-1.8.0-openjdk-devel && yum clean all
 ADD ./ /code
 WORKDIR /code
 
-RUN yarn global add serverless@1.27
+RUN yarn global add serverless@1.30.0
 RUN yarn install
