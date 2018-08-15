@@ -1,7 +1,7 @@
 version: "2"
 
 services:
-  dev:
+  app:
     build: .
     volumes:
       - .:/code
@@ -17,7 +17,6 @@ services:
       - STAGE=dev
       - KEBOOLA_STACK
       - KBC_URL
-      - DOCKER_RUNNER_URL
       - DYNAMO_ENDPOINT=http://localhost:9000
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
@@ -58,7 +57,6 @@ services:
       - STAGE=test
       - KEBOOLA_STACK=oauth-api-tests
       - KBC_URL=https://connection.keboola.com
-      - DOCKER_RUNNER_URL=https://docker-runner.keboola.com
       - DYNAMO_ENDPOINT=http://localstack:4569
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME
@@ -85,7 +83,6 @@ services:
       - STAGE=test
       - KEBOOLA_STACK=oauth-api-tests
       - KBC_URL=https://connection.keboola.com
-      - DOCKER_RUNNER_URL=https://docker-runner.keboola.com
       - DYNAMO_ENDPOINT=http://localstack:4569
       - SESSION_HASH_PREFIX
       - SESSION_COOKIE_NAME

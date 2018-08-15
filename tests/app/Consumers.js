@@ -11,7 +11,6 @@ import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 import DynamoDBLocal from '../DynamoDBLocal';
 import Encryption from '../../src/lib/Encryption';
-import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 
 AWS.setSDKInstance(AWSSDK);
 
@@ -106,8 +105,7 @@ function getConsumersInstance() {
   return new Consumers(
     dynamoDb,
     new KbcApi(process.env.KBC_URL),
-    getEncryption(),
-    new DockerRunnerApi()
+    getEncryption()
   );
 }
 

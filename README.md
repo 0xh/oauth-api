@@ -55,18 +55,18 @@ The resources are configured in a CloudFormation template [cf-dev-policy.json](h
     TW_APP_SECRET=
     ```
 4. Develop and test. Conform your code to included ESLint rules.
-    1. Run tests:
+    1. Run tests (with mapped volume):
         ```bash
-        docker-compose run --rm tests
+        docker-compose run --rm tests-dev
         ```
     2. Start local instance: 
         - API will be accessible on `http://localhost:3030/` 
         ```bash
-        docker-compose run --rm --service-ports dev
+        docker-compose run --rm --service-ports app
         ```    
     3. Run Linter, automatically fixing errors:
         ```bash
-        docker-compose run --rm dev ./node_modules/.bin/eslint --fix .
+        docker-compose run --rm app ./node_modules/.bin/eslint --fix .
         ```  
 
 ### Deployment

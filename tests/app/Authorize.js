@@ -10,7 +10,6 @@ import DynamoDB from '../../src/lib/DynamoDB';
 import OAuth20 from '../../src/lib/OAuth/OAuth20';
 import Encryption from '../../src/lib/Encryption';
 import KbcApi from '../../src/lib/KbcApi';
-import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 import DynamoDBLocal from '../DynamoDBLocal';
 
 AWS.setSDKInstance(AWSSDK);
@@ -112,8 +111,7 @@ function getAuthorize() {
   return new Authorize(
     dynamoDb,
     getEncryption(),
-    new KbcApi(process.env.KBC_URL),
-    new DockerRunnerApi()
+    new KbcApi(process.env.KBC_URL)
   );
 }
 

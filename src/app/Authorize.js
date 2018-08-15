@@ -56,15 +56,14 @@ const getConsumerFn = (dynamoDb, encryption) => componentId => dynamoDb.get({
   .then(consumer => encryption.decrypt(consumer.app_secret)
     .then(appSecretPlain => R.set(R.lensProp('app_secret'), appSecretPlain, consumer)));
 
-const dockerEncryptFn = (encryptor, componentId, projectId) =>
-  string => encryptor.encrypt(componentId, projectId, string);
+const dockerEncryptFn = (kbcApi, tokenRes, componentId) => string => kbcApi.getDockerRunner(tokenRes.token)
+  .then(dockerRunner => dockerRunner.encrypt(componentId, tokenRes.project, string));
 
 class Authorize {
-  constructor(dynamoDb, encryption, kbc, dockerRunner) {
+  constructor(dynamoDb, encryption, kbc) {
     this.dynamoDb = dynamoDb;
     this.encryption = encryption;
     this.kbc = kbc;
-    this.dockerRunner = dockerRunner;
     this.getConsumer = getConsumerFn(this.dynamoDb, this.encryption);
   }
 
@@ -126,7 +125,7 @@ class Authorize {
           getDataFromSession(sessionData)
         );
 
-        const dockerEncrypt = dockerEncryptFn(this.dockerRunner, componentId, kbcTokenRes.project);
+        const dockerEncrypt = dockerEncryptFn(this.kbc, kbcTokenRes, componentId);
 
         return Promise.all([
           dockerEncrypt(JSON.stringify(tokens)),
