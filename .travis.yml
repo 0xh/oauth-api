@@ -3,59 +3,34 @@ language: bash
 services:
   - docker
 
-before_install:
+before_script:
   - docker -v
   - docker-compose -v
 
-jobs:
-  include:
-    - stage: build
-      script: docker-compose build
+script:
+  # unit tests
+  - docker-compose run --rm tests
 
-    - stage: tests
-      script: docker-compose run --rm tests
+  # deploy to testing
+  - >-
+    docker-compose run --rm
+    -e ACCOUNT_ID=${TEST_ACCOUNT_ID}
+    -e AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}
+    -e AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}
+    -e REGION=${TEST_REGION}
+    -e SERVICE_NAME=${TEST_SERVICE_NAME}
+    -e STAGE=test
+    -e KEBOOLA_STACK=${TEST_SERVICE_NAME}
+    -e KBC_URL=${TEST_KBC_URL}
+    -e DOCKER_RUNNER_URL=${TEST_KBC_DOCKER_RUNNER_URL}
+    -e LOG_PORT=${TEST_LOG_PORT}
+    deploy
 
-    - stage: deploy to testing
-      script:
-        - >-
-          docker-compose run --rm
-          -e ACCOUNT_ID=${TEST_ACCOUNT_ID}
-          -e AWS_ACCESS_KEY_ID=${TEST_AWS_ACCESS_KEY_ID}
-          -e AWS_SECRET_ACCESS_KEY=${TEST_AWS_SECRET_ACCESS_KEY}
-          -e REGION=${TEST_REGION}
-          -e SERVICE_NAME=${TEST_SERVICE_NAME}
-          -e STAGE=test
-          -e KEBOOLA_STACK=${TEST_SERVICE_NAME}
-          -e KBC_URL=${TEST_KBC_URL}
-          -e DOCKER_RUNNER_URL=${TEST_KBC_DOCKER_RUNNER_URL}
-          -e LOG_PORT=${TEST_LOG_PORT}
-          deploy
-
-    - stage: deploy to production
-      if: tag IS present
-      script:
-        - >-
-          docker-compose run --rm
-          -e STAGE=prod
-          -e AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}
-          -e AWS_SECRET_ACCESS_KEY=${PROD_AWS_ACCESS_KEY_ID}
-          -e SERVICE_NAME=${PROD_SERVICE_NAME}
-          -e REGION=${PROD_EU_REGION}
-          -e KEBOOLA_STACK=${PROD_EU_KEBOOLA_STACK}
-          -e KBC_URL=${PROD_EU_KBC_URL}
-          -e DOCKER_RUNNER_URL=${PROD_EU_DOCKER_RUNNER_URL}
-          -e LOG_PORT=${PROD_EU_LOG_PORT}
-          deploy
-
-        - >-
-          docker-compose run --rm
-          -e STAGE=prod
-          -e AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}
-          -e AWS_SECRET_ACCESS_KEY=${PROD_AWS_ACCESS_KEY_ID}
-          -e SERVICE_NAME=${PROD_SERVICE_NAME}
-          -e REGION=${PROD_US_REGION}
-          -e KEBOOLA_STACK=${PROD_US_KEBOOLA_STACK}
-          -e KBC_URL=${PROD_US_KBC_URL}
-          -e DOCKER_RUNNER_URL=${PROD_US_DOCKER_RUNNER_URL}
-          -e LOG_PORT=${PROD_US_LOG_PORT}
-          deploy
+# Deploy to production
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: ./deploy.sh
+  on:
+    branch: master
+    tags: true
