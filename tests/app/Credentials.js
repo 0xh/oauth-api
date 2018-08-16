@@ -209,7 +209,7 @@ describe('Credentials', () => {
         },
       }),
       'to be rejected with error satisfying',
-      UserError.badRequest('Missing \'id\' url parameter')
+      UserError.badRequest('Missing "id" url parameter')
     )));
 
   it('add', () => prepareConsumers()

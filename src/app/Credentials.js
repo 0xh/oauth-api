@@ -60,7 +60,7 @@ class Credentials {
   list(event) {
     const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
-      return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
     const paramsFn = projectId => ({
       TableName: tableName,
@@ -84,10 +84,10 @@ class Credentials {
   get(event) {
     const { componentId, name } = event.pathParameters;
     if (R.isNil(componentId)) {
-      return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
     if (R.isNil(name)) {
-      return Promise.reject(UserError.badRequest('Missing \'id\' url parameter'));
+      return Promise.reject(UserError.badRequest('Missing "id" url parameter'));
     }
     const consumerParams = {
       TableName: DynamoDB.tableNames().consumers,
@@ -112,10 +112,10 @@ class Credentials {
   add(event) {
     const { componentId } = event.pathParameters;
     if (R.isNil(componentId)) {
-      return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
     if (!R.has('X-StorageApi-Token', event.headers)) {
-      return Promise.reject(UserError.unauthorized('Missing \'X-StorageApi-Token\' header'));
+      return Promise.reject(UserError.unauthorized('Missing "X-StorageApi-Token" header'));
     }
     const paramsFn = (requestBody, token, encryptedData) => ({
       TableName: tableName,
@@ -165,10 +165,10 @@ class Credentials {
   delete(event) {
     const { componentId, name } = event.pathParameters;
     if (R.isNil(componentId)) {
-      return Promise.reject(UserError.badRequest('Missing \'componentId\' url parameter'));
+      return Promise.reject(UserError.badRequest('Missing "componentId" url parameter'));
     }
     if (R.isNil(name)) {
-      return Promise.reject(UserError.badRequest('Missing \'id\' url parameter'));
+      return Promise.reject(UserError.badRequest('Missing "id" url parameter'));
     }
     const deleteParamsFn = id => ({
       TableName: tableName,
