@@ -6,9 +6,13 @@ import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler';
 import DockerRunnerApi from './DockerRunnerApi';
 
-const _ = require('lodash');
-
 axiosRetry(axios, { retries: 5 });
+
+const getHeader = (name, event) => {
+  const headerInverted = R.invertObj(event.headers);
+  const headers = R.invertObj(R.map(item => R.toLower(item), headerInverted));
+  return R.prop(R.toLower(name), headers);
+};
 
 class KbcApi {
   constructor(baseUri = null) {
@@ -19,7 +23,7 @@ class KbcApi {
   }
 
   static getStorageToken(event) {
-    const token = _.find(event.headers, (header, index) => _.toLower(index) === 'x-storageapi-token');
+    const token = getHeader('X-StorageApi-Token', event);
     if (!token) {
       throw UserError.unauthorized('Storage API token is missing');
     }
@@ -27,7 +31,7 @@ class KbcApi {
   }
 
   static getManageToken(event) {
-    const token = _.find(event.headers, (header, index) => _.toLower(index) === 'x-kbc-manageapitoken');
+    const token = getHeader('X-KBC-ManageApiToken', event);
     if (!token) {
       throw UserError.unauthorized('Manage API token is missing');
     }
@@ -59,19 +63,21 @@ class KbcApi {
       headers: { 'X-StorageApi-Token': token },
     })
       .catch((err) => {
-        if (_.get(err, 'response.status', null) === 401) {
+        if (err.response.status === 401) {
           throw UserError.unauthorized('Invalid access token');
         }
-        throw UserError.error(_.get(err.response, 'data.error', err.msg), _.get(err, 'response.status', null));
+        const errorMessage = err.response.data ? err.response.data : err.message;
+        const code = R.propOr(null, 'status', err);
+        throw UserError.error(errorMessage, code);
       })
       .then((res) => {
-        if (!_.has(res.data, 'owner')) {
+        if (!R.has('owner', res.data)) {
           throw UserError.badRequest('Token verification is missing owner field');
         }
-        if (!_.has(res.data.owner, 'id')) {
+        if (!R.has('id', res.data.owner)) {
           throw UserError.badRequest('Token verification is missing owner.id field');
         }
-        if (!_.has(res.data, 'description')) {
+        if (!R.has('description', res.data)) {
           throw UserError.badRequest('Token verification is missing description field');
         }
         return {
@@ -90,16 +96,18 @@ class KbcApi {
       headers: { 'X-KBC-ManageApiToken': token },
     })
       .catch((err) => {
-        if (_.get(err, 'response.status', null) === 401) {
+        if (err.response.status === 401) {
           throw UserError.unauthorized('Invalid access token');
         }
-        throw UserError.error(_.get(err.response, 'data.error', err.msg), _.get(err, 'response.status', null));
+        const errorMessage = err.response.data ? err.response.data : err.message;
+        const code = R.propOr(null, 'status', err);
+        throw UserError.error(errorMessage, code);
       })
       .then((res) => {
-        if (!_.has(res.data, 'scopes')) {
+        if (!R.has('scopes', res.data)) {
           throw UserError.badRequest('Token verification is missing owner scopes');
         }
-        if (!_.includes(res.data.scopes, 'oauth:manage')) {
+        if (!R.contains('oauth:manage', res.data.scopes)) {
           throw UserError.unauthorized('Invalid access token');
         }
         return {
@@ -118,10 +126,10 @@ class KbcApi {
       headers: { 'X-StorageApi-Token': token },
     })
       .then((res) => {
-        if (!_.has(res.data, 'id')) {
+        if (!R.has('id', res.data)) {
           throw UserError.badRequest('Unique id generation is missing id field');
         }
-        return _.toInteger(res.data.id);
+        return parseInt(res.data.id, 10);
       });
   }
 
