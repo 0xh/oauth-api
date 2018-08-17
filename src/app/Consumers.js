@@ -32,15 +32,14 @@ const putConsumer = (dynamoDb, encryption, dockerEncryptFn, consumer) => Promise
     Item: consumerToSave,
   }).promise());
 
-const dockerEncryptFn = (encryptor, componentId, projectId) =>
-  string => encryptor.encrypt(componentId, projectId, string);
+const dockerEncryptFn = (kbcApi, tokenRes, componentId) => string => kbcApi.getDockerRunner(tokenRes.token)
+  .then(dockerRunner => dockerRunner.encrypt(componentId, tokenRes.project, string));
 
 class Consumers {
-  constructor(dynamoDb, kbc, encryption, dockerRunner) {
+  constructor(dynamoDb, kbc, encryption) {
     this.dynamoDb = dynamoDb;
     this.kbc = kbc;
     this.encryption = encryption;
-    this.dockerRunner = dockerRunner;
     this.schema = {
       component_id: Joi.string().required()
         .error(UserError.badRequest('"component_id" is required')),
@@ -103,7 +102,7 @@ class Consumers {
           .then(() => putConsumer(
             this.dynamoDb,
             this.encryption,
-            dockerEncryptFn(this.dockerRunner, consumer.component_id, storageToken.project),
+            dockerEncryptFn(this.kbc, storageToken, consumer.component_id),
             consumer
           ))
           .then(() => ({
@@ -135,7 +134,7 @@ class Consumers {
           .then(updatedItem => putConsumer(
             this.dynamoDb,
             this.encryption,
-            dockerEncryptFn(this.dockerRunner, componentId, storageToken.project),
+            dockerEncryptFn(this.kbc, storageToken, componentId),
             updatedItem
           )
             .then(() => updatedItem))));

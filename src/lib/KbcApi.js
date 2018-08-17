@@ -2,7 +2,9 @@
 
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
+import R from 'ramda';
 import { UserError } from '@keboola/serverless-request-handler';
+import DockerRunnerApi from './DockerRunnerApi';
 
 const _ = require('lodash');
 
@@ -121,6 +123,25 @@ class KbcApi {
         }
         return _.toInteger(res.data.id);
       });
+  }
+
+  getServiceUrl(token, serviceName) {
+    return axios({
+      method: 'get',
+      url: `${this.baseUri}/v2/storage`,
+      headers: { 'X-StorageApi-Token': token },
+    })
+      .then((res) => {
+        const service = R.find(R.propEq('id', serviceName))(res.data.services);
+        if (R.isNil(service)) {
+          throw UserError.badRequest(`${serviceName} doesn't exist in KBC`);
+        }
+        return service;
+      });
+  }
+
+  getDockerRunner(token) {
+    return this.getServiceUrl(token, 'docker-runner').then(service => new DockerRunnerApi(service.url));
   }
 }
 

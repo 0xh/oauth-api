@@ -38,4 +38,15 @@ describe('KBC API', () => {
   it('auth manage', () => kbc.authManage(process.env.KBC_MANAGE_API_TOKEN).then((res) => {
     expect(res, 'to have properties', ['token', 'project', 'id', 'name']);
   }));
+
+  it('get service url', () => kbc.getServiceUrl(process.env.KBC_MANAGE_API_TOKEN, 'docker-runner')
+    .then((res) => {
+      expect(res, 'to have properties', ['id', 'url']);
+      expect(res.url, 'to be', 'https://docker-runner.keboola.com');
+    }));
+
+  it('get docker runner service', () => kbc.getDockerRunner(process.env.KBC_MANAGE_API_TOKEN)
+    .then((dockerRunner) => {
+      expect(dockerRunner, 'to have property', 'encrypt');
+    }));
 });

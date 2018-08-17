@@ -43,11 +43,13 @@ const createResponse = (credentials, consumer) => ({
     : credentials.app_secret_docker,
 });
 
+const dockerEncryptFn = (kbcApi, tokenRes, componentId) => string => kbcApi.getDockerRunner(tokenRes.token)
+  .then(dockerRunner => dockerRunner.encrypt(componentId, tokenRes.project, string));
+
 class Credentials {
-  constructor(dynamoDb, kbc, dockerRunner) {
+  constructor(dynamoDb, kbc) {
     this.dynamoDb = dynamoDb;
     this.kbc = kbc;
-    this.dockerRunner = dockerRunner;
     this.schema = {
       id: Joi.string().required().error(UserError.badRequest('"id" is required')),
       authorizedFor: Joi.string(),
@@ -145,7 +147,7 @@ class Credentials {
             if (R.isEmpty(consumerRes)) {
               return Promise.reject(UserError.notFound(`Consumer "${componentId}" not found`));
             }
-
+            const dockerEncrypt = dockerEncryptFn(this.kbc, tokenRes, componentId);
             const credentialsName = requestBody.id.toString();
             return getCredentials(this.dynamoDb, credentialsName, componentId, tokenRes.project)
               .then((credentialsRes) => {
@@ -153,11 +155,7 @@ class Credentials {
                   throw UserError.error(`Credentials "${credentialsName}" already exists for component "${componentId}"`);
                 }
               })
-              .then(() => this.dockerRunner.encrypt(
-                componentId,
-                tokenRes.project,
-                JSON.stringify(requestBody.data)
-              )
+              .then(() => dockerEncrypt(JSON.stringify(requestBody.data))
                 .then(encryptedData => paramsFn(requestBody, tokenRes, encryptedData))
                 .then(params => this.dynamoDb.put(params).promise()
                   .then(() => createResponse(params.Item, consumerRes.Item))));

@@ -9,7 +9,6 @@ import Authorize from '../app/Authorize';
 import Session from '../lib/Session';
 import Encryption from '../lib/Encryption';
 import KbcApi from '../lib/KbcApi';
-import DockerRunnerApi from '../lib/DockerRunnerApi';
 import DynamoDB from '../lib/DynamoDB';
 
 AWS.config.setPromisesDependency(Bluebird);
@@ -46,7 +45,7 @@ module.exports.handler = (event, context, callback) => RequestHandler.handler(()
   const dynamoDb = DynamoDB.getDocClient();
   const session = new Session(dynamoDb);
   const encryption = new Encryption(new AWS.KMS());
-  const authorize = new Authorize(dynamoDb, encryption, new KbcApi(), new DockerRunnerApi());
+  const authorize = new Authorize(dynamoDb, encryption, new KbcApi());
   const sessionId = session.init(event);
   let promise;
 

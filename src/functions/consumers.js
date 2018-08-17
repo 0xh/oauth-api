@@ -7,14 +7,13 @@ import Consumers from '../app/Consumers';
 import DynamoDB from '../lib/DynamoDB';
 import KbcApi from '../lib/KbcApi';
 import Encryption from '../lib/Encryption';
-import DockerRunnerApi from '../lib/DockerRunnerApi';
 
 AWS.config.setPromisesDependency(Bluebird);
 
 module.exports.handler = (event, context, callback) => RequestHandler.handler(() => {
   const dynamoDb = DynamoDB.getDocClient();
   const encryption = new Encryption(new AWS.KMS());
-  const consumers = new Consumers(dynamoDb, new KbcApi(), encryption, new DockerRunnerApi());
+  const consumers = new Consumers(dynamoDb, new KbcApi(), encryption);
   let promise;
   let code;
 

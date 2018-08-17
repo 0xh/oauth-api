@@ -6,7 +6,6 @@ import { UserError } from '@keboola/serverless-request-handler';
 import DynamoDB from '../../src/lib/DynamoDB';
 import KbcApi from '../../src/lib/KbcApi';
 import Credentials from '../../src/app/Credentials';
-import DockerRunnerApi from '../../src/lib/DockerRunnerApi';
 import DynamoDBLocal from '../DynamoDBLocal';
 
 const dynamoDb = DynamoDBLocal.getClient();
@@ -131,7 +130,7 @@ function prepareConsumers() {
 }
 
 describe('Credentials', () => {
-  const credentials = new Credentials(dynamoDb, new KbcApi(), new DockerRunnerApi());
+  const credentials = new Credentials(dynamoDb, new KbcApi());
 
   before(() => DynamoDBLocal.createTables());
 
